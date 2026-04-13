@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { Header } from '../../components/layout/Header';
 import { Avatar } from '../../components/ui/Avatar';
-import { MOCK_TASKS, MOCK_PROJECTS } from '../../data/mock';
-import { STATUS_COLOR, STATUS_LABEL, cn } from '../../lib/utils';
+import { useAppStore } from '../../store/useAppStore';
+import { cn } from '../../lib/utils';
 import type { Task } from '../../types';
 
 // ── helpers ──────────────────────────────────────────────────────
@@ -53,12 +53,18 @@ function GanttBar({ task, start, days }: { task: Task; start: string; days: numb
 }
 
 export function GanttPage() {
-  const [selectedProject, setSelectedProject] = useState('p1');
+  const { allProjects, allTasks, users } = useAppStore((s) => ({
+    allProjects: s.projects,
+    allTasks:    s.tasks,
+    users:       s.users,
+  }));
+  const projectList = Object.values(allProjects);
+  const [selectedProject, setSelectedProject] = useState(projectList[0]?.id ?? 'p1');
   const [startDate, setStartDate]             = useState('2026-03-01');
   const VISIBLE_DAYS = 56; // 8 weeks
 
-  const tasks = MOCK_TASKS.filter((t) => t.projectId === selectedProject);
-  const project = MOCK_PROJECTS.find((p) => p.id === selectedProject);
+  const tasks   = Object.values(allTasks).filter((t) => t.projectId === selectedProject);
+  const project = allProjects[selectedProject];
 
   const days = Array.from({ length: VISIBLE_DAYS }, (_, i) => addDays(startDate, i));
 
@@ -79,7 +85,7 @@ export function GanttPage() {
               value={selectedProject}
               onChange={(e) => setSelectedProject(e.target.value)}
             >
-              {MOCK_PROJECTS.map((p) => (
+              {projectList.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
@@ -109,24 +115,33 @@ export function GanttPage() {
             <span className="text-xs font-semibold text-slate-500">업무명</span>
           </div>
           {/* Rows */}
-          {tasks.map((task) => (
-            <div
-              key={task.id}
-              className="h-12 border-b border-slate-50 px-4 flex items-center gap-2.5 hover:bg-slate-50 cursor-pointer"
-            >
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-slate-700 truncate">{task.title}</p>
-                <span className={cn('badge mt-0.5', STATUS_COLOR[task.status])}>
-                  {STATUS_LABEL[task.status]}
-                </span>
+          {tasks.map((task) => {
+            const status    = project?.workflow.find((s) => s.id === task.statusId);
+            const assignees = task.assigneeIds.map((id) => users[id]).filter(Boolean);
+            return (
+              <div
+                key={task.id}
+                className="h-12 border-b border-slate-50 px-4 flex items-center gap-2.5 hover:bg-slate-50 cursor-pointer"
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-slate-700 truncate">{task.title}</p>
+                  {status && (
+                    <span
+                      className="badge mt-0.5"
+                      style={{ backgroundColor: `${status.color}20`, color: status.color }}
+                    >
+                      {status.label}
+                    </span>
+                  )}
+                </div>
+                <div className="flex -space-x-1 flex-shrink-0">
+                  {assignees.slice(0, 2).map((u) => (
+                    <Avatar key={u.id} name={u.name} size="xs" />
+                  ))}
+                </div>
               </div>
-              <div className="flex -space-x-1 flex-shrink-0">
-                {task.assignees.slice(0, 2).map((u) => (
-                  <Avatar key={u.id} name={u.name} size="xs" />
-                ))}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Right: chart area */}
