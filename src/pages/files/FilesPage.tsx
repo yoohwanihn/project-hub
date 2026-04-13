@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Upload, Search, FileText, Image, File, Download, Trash2, LayoutGrid, List } from 'lucide-react';
 import { Header } from '../../components/layout/Header';
 import { Avatar } from '../../components/ui/Avatar';
-import { MOCK_FILES } from '../../data/mock';
+import { useAppStore } from '../../store/useAppStore';
 import { formatDate, formatBytes, cn } from '../../lib/utils';
 
 function fileIcon(mimeType: string) {
@@ -20,8 +20,12 @@ function fileExt(name: string) {
 export function FilesPage() {
   const [query, setQuery] = useState('');
   const [view, setView]   = useState<'grid' | 'list'>('list');
+  const { files, users } = useAppStore((s) => ({
+    files: Object.values(s.files),
+    users: s.users,
+  }));
 
-  const filtered = MOCK_FILES.filter((f) =>
+  const filtered = files.filter((f) =>
     f.name.toLowerCase().includes(query.toLowerCase()),
   );
 
@@ -29,7 +33,7 @@ export function FilesPage() {
     <div className="flex flex-col h-full overflow-hidden">
       <Header
         title="파일 보관함"
-        subtitle={`${MOCK_FILES.length}개 파일`}
+        subtitle={`${files.length}개 파일`}
         actions={
           <button className="btn-primary">
             <Upload size={14} /> 파일 업로드
@@ -103,8 +107,8 @@ export function FilesPage() {
                     </td>
                     <td className="px-4 py-3.5 hidden lg:table-cell">
                       <div className="flex items-center gap-2">
-                        <Avatar name={f.uploadedBy.name} size="xs" />
-                        <span className="text-xs text-slate-600">{f.uploadedBy.name}</span>
+                        {users[f.uploaderId] && <Avatar name={users[f.uploaderId].name} size="xs" />}
+                        <span className="text-xs text-slate-600">{users[f.uploaderId]?.name ?? '알 수 없음'}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3.5 hidden lg:table-cell text-xs text-slate-500">

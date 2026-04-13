@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Plus, Clock, ChevronRight, BookOpen, History } from 'lucide-react';
 import { Header } from '../../components/layout/Header';
 import { Avatar } from '../../components/ui/Avatar';
-import { MOCK_WIKI_PAGES } from '../../data/mock';
+import { useAppStore } from '../../store/useAppStore';
 import { formatDate, timeAgo } from '../../lib/utils';
 import type { WikiPage } from '../../types';
 
@@ -20,7 +20,10 @@ function renderMarkdown(content: string): string {
 }
 
 export function WikiPage() {
-  const [selectedPage, setSelectedPage] = useState<WikiPage>(MOCK_WIKI_PAGES[0]);
+  const wikiPages = useAppStore((s) => Object.values(s.wikiPages).filter((w) => w.projectId === 'p1'));
+  const users     = useAppStore((s) => s.users);
+  const [selectedPage, setSelectedPage] = useState<WikiPage | null>(null);
+  const page = selectedPage ?? wikiPages[0];
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -40,18 +43,18 @@ export function WikiPage() {
           <div className="p-3">
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-2 mb-2">페이지 목록</p>
             <div className="space-y-0.5">
-              {MOCK_WIKI_PAGES.map((page) => (
+              {wikiPages.map((wp) => (
                 <button
-                  key={page.id}
+                  key={wp.id}
                   className={`w-full text-left flex items-center gap-2 px-3 py-2.5 rounded-lg transition-colors ${
-                    selectedPage.id === page.id
+                    page?.id === wp.id
                       ? 'bg-primary-50 text-primary-700'
                       : 'text-slate-600 hover:bg-slate-50'
                   }`}
-                  onClick={() => setSelectedPage(page)}
+                  onClick={() => setSelectedPage(wp)}
                 >
                   <BookOpen size={13} className="flex-shrink-0" />
-                  <span className="text-xs font-medium truncate">{page.title}</span>
+                  <span className="text-xs font-medium truncate">{wp.title}</span>
                   <ChevronRight size={10} className="ml-auto flex-shrink-0 opacity-40" />
                 </button>
               ))}
@@ -61,32 +64,35 @@ export function WikiPage() {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto bg-white">
+          {!page ? (
+            <div className="flex items-center justify-center h-full text-slate-400 text-sm">페이지를 선택하세요.</div>
+          ) : (
           <div className="max-w-3xl mx-auto px-8 py-8">
             {/* Page header */}
             <div className="mb-6 pb-5 border-b border-slate-100">
-              <h1 className="text-xl font-bold text-slate-900 mb-3">{selectedPage.title}</h1>
+              <h1 className="text-xl font-bold text-slate-900 mb-3">{page.title}</h1>
               <div className="flex items-center gap-4 text-xs text-slate-400">
                 <div className="flex items-center gap-1.5">
-                  <Avatar name={selectedPage.author.name} size="xs" />
-                  <span>{selectedPage.author.name}</span>
+                  {users[page.authorId] && <Avatar name={users[page.authorId].name} size="xs" />}
+                  <span>{users[page.authorId]?.name ?? '알 수 없음'}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Clock size={11} />
-                  <span>{timeAgo(selectedPage.updatedAt)}</span>
+                  <span>{timeAgo(page.updatedAt)}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <History size={11} />
-                  <span>v{selectedPage.version}</span>
+                  <span>v{page.version}</span>
                 </div>
                 <span className="text-slate-300">|</span>
-                <span>{formatDate(selectedPage.updatedAt, 'yyyy.MM.dd HH:mm')}</span>
+                <span>{formatDate(page.updatedAt, 'yyyy.MM.dd HH:mm')}</span>
               </div>
             </div>
 
             {/* Markdown content */}
             <div
               className="prose prose-sm max-w-none text-slate-700 leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: renderMarkdown(selectedPage.content) }}
+              dangerouslySetInnerHTML={{ __html: renderMarkdown(page.content) }}
             />
 
             {/* Edit footer */}
@@ -95,6 +101,7 @@ export function WikiPage() {
               <button className="btn-secondary">버전 기록</button>
             </div>
           </div>
+          )}
         </div>
       </div>
     </div>
