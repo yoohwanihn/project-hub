@@ -12,6 +12,7 @@ import {
   type FileItem,
   type WorkLog,
   type TimelineEvent,
+  type Poll,
 } from '../types';
 import {
   MOCK_USERS,
@@ -22,6 +23,7 @@ import {
   MOCK_WORK_LOGS_RAW,
   MOCK_TIMELINE_RAW,
   MOCK_FILES_RAW,
+  MOCK_POLLS_RAW,
 } from '../data/seed';
 
 // ── Actions interface ──────────────────────────────────────────
@@ -70,6 +72,14 @@ interface AppActions {
   addFile:    (data: Omit<FileItem, 'id' | 'createdAt'>) => string;
   deleteFile: (id: string) => void;
 
+  // Poll
+  createPoll:   (data: Omit<Poll, 'id' | 'createdAt'>) => string;
+  updatePoll:   (id: string, patch: Partial<Pick<Poll, 'title' | 'description'>>) => void;
+  deletePoll:   (id: string) => void;
+  castVote:     (pollId: string, optionId: string, userId: string) => void;
+  retractVote:  (pollId: string, optionId: string, userId: string) => void;
+  closePoll:    (id: string) => void;
+
   // WorkLog
   addWorkLog:    (data: Omit<WorkLog, 'id' | 'createdAt'>) => string;
   deleteWorkLog: (id: string) => void;
@@ -94,6 +104,8 @@ export const selectors = {
   projectList: (s: AppState) => Object.values(s.projects).sort(
     (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
   ),
+  pollsByProject: (projectId: string) => (s: AppState) =>
+    Object.values(s.polls).filter((p) => p.projectId === projectId),
 };
 
 // ── Store ──────────────────────────────────────────────────────
@@ -108,6 +120,7 @@ export const useAppStore = create<AppState & AppActions>()(
     workLogs:      Object.fromEntries(MOCK_WORK_LOGS_RAW.map((w) => [w.id, w])),
     timeline:      MOCK_TIMELINE_RAW,
     files:         Object.fromEntries(MOCK_FILES_RAW.map((f) => [f.id, f])),
+    polls:         Object.fromEntries(MOCK_POLLS_RAW.map((p) => [p.id, p])),
     currentUserId: 'u1',
     selectedProjectId: 'p1',
 
@@ -413,6 +426,62 @@ export const useAppStore = create<AppState & AppActions>()(
 
     deleteFile(id) {
       set((s) => { delete s.files[id]; });
+    },
+
+    // ── Poll ────────────────────────────────────────────────────
+    createPoll(data) {
+      const id = nanoid();
+      const now = new Date().toISOString();
+      set((s) => {
+        s.polls[id] = { ...data, id, createdAt: now };
+      });
+      return id;
+    },
+
+    updatePoll(id, patch) {
+      set((s) => {
+        if (!s.polls[id]) return;
+        Object.assign(s.polls[id], patch);
+      });
+    },
+
+    deletePoll(id) {
+      set((s) => { delete s.polls[id]; });
+    },
+
+    castVote(pollId, optionId, userId) {
+      set((s) => {
+        const poll = s.polls[pollId];
+        if (!poll || poll.status === 'closed') return;
+        if (!poll.isMultiple) {
+          for (const opt of poll.options) {
+            opt.voterIds = opt.voterIds.filter((uid) => uid !== userId);
+          }
+        }
+        const opt = poll.options.find((o) => o.id === optionId);
+        if (opt && !opt.voterIds.includes(userId)) {
+          opt.voterIds.push(userId);
+        }
+      });
+    },
+
+    retractVote(pollId, optionId, userId) {
+      set((s) => {
+        const poll = s.polls[pollId];
+        if (!poll || poll.status === 'closed') return;
+        const opt = poll.options.find((o) => o.id === optionId);
+        if (opt) {
+          opt.voterIds = opt.voterIds.filter((uid) => uid !== userId);
+        }
+      });
+    },
+
+    closePoll(id) {
+      set((s) => {
+        const poll = s.polls[id];
+        if (!poll || poll.status === 'closed') return;
+        poll.status = 'closed';
+      });
     },
 
     // ── WorkLog ───────────────────────────────────────────────

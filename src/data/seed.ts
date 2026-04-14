@@ -1,5 +1,5 @@
 import type {
-  User, Project, Task, WikiPage, Announcement, TimelineEvent, FileItem, WorkLog,
+  User, Project, Task, WikiPage, Announcement, TimelineEvent, FileItem, WorkLog, Poll,
 } from '../types';
 import { DEFAULT_WORKFLOW } from '../types';
 
@@ -294,4 +294,76 @@ export const MOCK_FILES_RAW: FileItem[] = [
   { id: 'f3', projectId: 'p1', name: 'API_명세서_v1.3.xlsx',             size: 320_000, mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', uploaderId: 'u1', createdAt: '2026-04-05T11:30:00' },
   { id: 'f4', projectId: 'p1', name: 'RFP_프로젝트관리시스템.docx',      size: 890_000, mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', uploaderId: 'u1', createdAt: '2026-03-01T09:00:00' },
   { id: 'f5', projectId: 'p1', name: '스프린트1_완료보고.pptx',           size: 6_500_000, mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation', uploaderId: 'u2', createdAt: '2026-03-31T18:00:00' },
+];
+
+// ── Polls ──────────────────────────────────────────────────────
+export const MOCK_POLLS_RAW: Poll[] = [
+  {
+    id: 'poll1',
+    projectId: 'p1',
+    title: '스프린트 회고 방식 선택',
+    description: '이번 스프린트부터 적용할 회고 방식을 선택해 주세요.',
+    options: [
+      { id: 'poll1-o1', label: 'KPT (Keep / Problem / Try)', voterIds: ['u2', 'u3'] },
+      { id: 'poll1-o2', label: 'Start / Stop / Continue',    voterIds: ['u4'] },
+      { id: 'poll1-o3', label: '4L (Liked / Learned / Lacked / Longed for)', voterIds: [] },
+    ],
+    isMultiple: false,
+    showResultsBeforeClose: true,
+    status: 'active',
+    dueDate: '2026-04-20',
+    authorId: 'u1',
+    createdAt: '2026-04-10T10:00:00',
+  },
+  {
+    id: 'poll2',
+    projectId: 'p1',
+    title: '다음 스프린트 우선 구현 기능 (복수 선택)',
+    description: '다음 스프린트에 집중할 기능을 모두 선택해 주세요. 상위 2개를 우선 진행합니다.',
+    options: [
+      { id: 'poll2-o1', label: '글로벌 검색 기능',    voterIds: ['u1', 'u3'] },
+      { id: 'poll2-o2', label: '인앱 알림 센터',      voterIds: ['u1', 'u2', 'u3'] },
+      { id: 'poll2-o3', label: '모바일 반응형 지원',  voterIds: ['u2'] },
+      { id: 'poll2-o4', label: '다크 모드',           voterIds: ['u3', 'u4'] },
+    ],
+    isMultiple: true,
+    showResultsBeforeClose: false,
+    status: 'active',
+    authorId: 'u1',
+    createdAt: '2026-04-12T09:30:00',
+  },
+  {
+    id: 'poll3',
+    projectId: 'p2',
+    title: '앱 아이콘 디자인 최종 선택',
+    description: '디자인 팀이 제안한 3가지 안 중 최종 아이콘을 선택해 주세요.',
+    options: [
+      { id: 'poll3-o1', label: '안 A — 미니멀 라인 스타일', voterIds: ['u1', 'u3'] },
+      { id: 'poll3-o2', label: '안 B — 그라디언트 입체형',  voterIds: ['u2', 'u4', 'u5'] },
+      { id: 'poll3-o3', label: '안 C — 플랫 컬러 블록',     voterIds: [] },
+    ],
+    isMultiple: false,
+    showResultsBeforeClose: true,
+    status: 'closed',
+    dueDate: '2026-04-07',
+    authorId: 'u2',
+    createdAt: '2026-04-01T14:00:00',
+  },
+  {
+    id: 'poll4',
+    projectId: 'p2',
+    title: '모바일 앱 출시 일정 조율',
+    description: '팀 상황을 고려해 현실적인 출시 일정을 선택해 주세요.',
+    options: [
+      { id: 'poll4-o1', label: '4월 말 (4/28)',   voterIds: [] },
+      { id: 'poll4-o2', label: '5월 초 (5/7)',    voterIds: [] },
+      { id: 'poll4-o3', label: '5월 중순 (5/14)', voterIds: [] },
+    ],
+    isMultiple: false,
+    showResultsBeforeClose: false,
+    status: 'active',
+    dueDate: '2026-04-18',
+    authorId: 'u2',
+    createdAt: '2026-04-13T11:00:00',
+  },
 ];

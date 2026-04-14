@@ -11,6 +11,7 @@ import { TimelinePage } from './pages/timeline/TimelinePage';
 import { FilesPage } from './pages/files/FilesPage';
 import { AnnouncementsPage } from './pages/announcements/AnnouncementsPage';
 import { ResourcesPage } from './pages/resources/ResourcesPage';
+import { PollsPage } from './pages/polls/PollsPage';
 import { SettingsPage } from './pages/settings/SettingsPage';
 
 export default function App() {
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="/files"          element={<FilesPage />} />
           <Route path="/announcements" element={<AnnouncementsPage />} />
           <Route path="/resources"     element={<ResourcesPage />} />
+          <Route path="/polls"         element={<PollsPage />} />
           <Route path="/settings"      element={<SettingsPage />} />
         </Route>
       </Routes>

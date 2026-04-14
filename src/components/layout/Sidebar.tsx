@@ -1,7 +1,7 @@
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, FolderKanban, Columns3, GanttChartSquare,
-  BookOpen, Clock, Paperclip, Settings, ChevronDown, Plus, Megaphone, BarChart2,
+  BookOpen, Clock, Paperclip, Settings, ChevronDown, Plus, Megaphone, BarChart2, Vote,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Avatar } from '../ui/Avatar';
@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { to: '/timeline',      icon: Clock,      label: '타임라인' },
   { to: '/files',         icon: Paperclip,  label: '파일 보관함' },
   { to: '/resources',     icon: BarChart2,  label: '자원 관리' },
+  { to: '/polls',         icon: Vote,       label: '투표' },
 ];
 
 export function Sidebar() {
