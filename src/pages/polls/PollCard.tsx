@@ -32,11 +32,13 @@ export function PollCard({ poll }: Props) {
   const showResults =
     poll.status === 'closed' ||
     poll.showResultsBeforeClose ||
-    (!poll.showResultsBeforeClose && hasVoted);
+    hasVoted;
 
   function handleVote(optionId: string) {
     if (poll.status === 'closed') return;
     const alreadyVoted = myVotes.includes(optionId);
+    // 단일 선택에서 이미 선택된 항목은 재클릭 무시 (라디오 버튼 동작)
+    if (!poll.isMultiple && alreadyVoted) return;
     if (alreadyVoted) {
       retractVote(poll.id, optionId, currentUserId);
     } else {
@@ -93,7 +95,7 @@ export function PollCard({ poll }: Props) {
               수동 마감
             </button>
             <button
-              onClick={() => deletePoll(poll.id)}
+              onClick={() => { if (window.confirm(`"${poll.title}" 투표를 삭제하시겠습니까?`)) deletePoll(poll.id); }}
               className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"
               title="삭제"
             >
@@ -103,7 +105,7 @@ export function PollCard({ poll }: Props) {
         )}
         {isAuthor && poll.status === 'closed' && (
           <button
-            onClick={() => deletePoll(poll.id)}
+            onClick={() => { if (window.confirm(`"${poll.title}" 투표를 삭제하시겠습니까?`)) deletePoll(poll.id); }}
             className="p-1.5 text-slate-400 hover:text-red-500 transition-colors shrink-0"
             title="삭제"
           >
