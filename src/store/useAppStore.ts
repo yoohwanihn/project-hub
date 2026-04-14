@@ -440,8 +440,9 @@ export const useAppStore = create<AppState & AppActions>()(
 
     updatePoll(id, patch) {
       set((s) => {
-        if (!s.polls[id]) return;
-        Object.assign(s.polls[id], patch);
+        const poll = s.polls[id];
+        if (!poll || poll.status === 'closed') return;
+        Object.assign(poll, patch);
       });
     },
 

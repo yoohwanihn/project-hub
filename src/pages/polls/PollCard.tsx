@@ -184,7 +184,7 @@ export function PollCard({ poll }: Props) {
       {!showResults && poll.status === 'active' && !hasVoted && (
         <div className="flex items-center gap-1.5 text-xs text-slate-400 pt-1">
           <Lock size={11} />
-          <span>투표 마감 후 결과를 확인할 수 있습니다</span>
+          <span>투표 후 결과를 확인할 수 있습니다</span>
         </div>
       )}
       {!showResults && poll.status === 'active' && hasVoted && (
