@@ -353,7 +353,7 @@ export function AnnouncementsPage() {
 
       <ConfirmDialog
         open={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
+        onCancel={() => setDeleteTarget(null)}
         onConfirm={confirmDelete}
         title="공지사항 삭제"
         description={`"${deleteTarget?.title}" 공지를 삭제하시겠습니까?`}

@@ -1,5 +1,5 @@
 import type {
-  User, Project, Task, WikiPage, Announcement, TimelineEvent, FileItem,
+  User, Project, Task, WikiPage, Announcement, TimelineEvent, FileItem, WorkLog,
 } from '../types';
 import { DEFAULT_WORKFLOW } from '../types';
 
@@ -254,6 +254,37 @@ export const MOCK_TIMELINE_RAW: TimelineEvent[] = [
   { id: 'e19', type: 'task_completed', actorId: 'u3', projectId: 'p1', payload: { taskTitle: 'Docker 환경 구성' },               createdAt: '2026-04-05T16:00:00' },
   // Apr 3
   { id: 'e20', type: 'project_created', actorId: 'u1', projectId: 'p1', payload: { projectName: '프로젝트 관리 시스템' },        createdAt: '2026-04-03T09:00:00' },
+];
+
+// ── WorkLogs ───────────────────────────────────────────────────
+// 태스크 ID는 seed의 t1~t12 기준
+export const MOCK_WORK_LOGS_RAW: WorkLog[] = [
+  // t1: 로그인/인증 API (완료, estimatedHours:8)
+  { id: 'wl1',  taskId: 't1',  userId: 'u1', hours: 3,   note: '기본 JWT 구조 설계',          date: '2026-04-08', createdAt: '2026-04-08T18:00:00' },
+  { id: 'wl2',  taskId: 't1',  userId: 'u1', hours: 2.5, note: '토큰 갱신 로직 구현',          date: '2026-04-09', createdAt: '2026-04-09T17:30:00' },
+  { id: 'wl3',  taskId: 't1',  userId: 'u1', hours: 2,   note: '단위 테스트 작성 및 수정',     date: '2026-04-10', createdAt: '2026-04-10T16:00:00' },
+  // t2: 칸반 보드 컴포넌트 (완료, estimatedHours:12)
+  { id: 'wl4',  taskId: 't2',  userId: 'u2', hours: 4,   note: 'DndKit 드래그 구현',           date: '2026-04-08', createdAt: '2026-04-08T19:00:00' },
+  { id: 'wl5',  taskId: 't2',  userId: 'u2', hours: 4,   note: '수영레인 뷰 구현',             date: '2026-04-09', createdAt: '2026-04-09T18:30:00' },
+  { id: 'wl6',  taskId: 't2',  userId: 'u2', hours: 3.5, note: '업무 로드 패널 추가',          date: '2026-04-10', createdAt: '2026-04-10T17:00:00' },
+  // t3: 간트차트 인터랙션 (진행 중, estimatedHours:16)
+  { id: 'wl7',  taskId: 't3',  userId: 'u3', hours: 4,   note: '바 드래그 기본 구현',          date: '2026-04-11', createdAt: '2026-04-11T18:00:00' },
+  { id: 'wl8',  taskId: 't3',  userId: 'u3', hours: 3,   note: '선후행 SVG 화살표',            date: '2026-04-12', createdAt: '2026-04-12T17:00:00' },
+  // t4: ERD 설계 (완료, estimatedHours:6)
+  { id: 'wl9',  taskId: 't4',  userId: 'u3', hours: 2.5, note: '초기 ERD 작성',               date: '2026-04-06', createdAt: '2026-04-06T16:00:00' },
+  { id: 'wl10', taskId: 't4',  userId: 'u3', hours: 2,   note: '팀 리뷰 반영 수정',            date: '2026-04-07', createdAt: '2026-04-07T15:00:00' },
+  // t5: UI/UX 스토리보드 (완료, estimatedHours:8)
+  { id: 'wl11', taskId: 't5',  userId: 'u4', hours: 3,   note: '와이어프레임 초안',            date: '2026-04-07', createdAt: '2026-04-07T17:00:00' },
+  { id: 'wl12', taskId: 't5',  userId: 'u4', hours: 4,   note: '피그마 목업 완성',             date: '2026-04-08', createdAt: '2026-04-08T18:30:00' },
+  // t6: 대시보드 차트 (진행 중, estimatedHours:10)
+  { id: 'wl13', taskId: 't6',  userId: 'u1', hours: 3,   note: 'SVG 도넛 차트 구현',          date: '2026-04-12', createdAt: '2026-04-12T17:00:00' },
+  { id: 'wl14', taskId: 't6',  userId: 'u1', hours: 2.5, note: '번다운 라인 차트',             date: '2026-04-13', createdAt: '2026-04-13T16:30:00' },
+  // t7: REST API 라우트 (완료, estimatedHours:8)
+  { id: 'wl15', taskId: 't7',  userId: 'u2', hours: 4,   note: '기본 CRUD 엔드포인트',        date: '2026-04-05', createdAt: '2026-04-05T17:00:00' },
+  { id: 'wl16', taskId: 't7',  userId: 'u2', hours: 3.5, note: '인증 미들웨어 연동',           date: '2026-04-06', createdAt: '2026-04-06T18:00:00' },
+  // t8: Docker 환경 구성 (완료, estimatedHours:4)
+  { id: 'wl17', taskId: 't8',  userId: 'u3', hours: 2,   note: 'Dockerfile 작성',             date: '2026-04-04', createdAt: '2026-04-04T15:00:00' },
+  { id: 'wl18', taskId: 't8',  userId: 'u3', hours: 1.5, note: 'docker-compose 설정',         date: '2026-04-05', createdAt: '2026-04-05T14:00:00' },
 ];
 
 // ── Files ──────────────────────────────────────────────────────

@@ -346,7 +346,7 @@ export function FilesPage() {
 
       <ConfirmDialog
         open={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
+        onCancel={() => setDeleteTarget(null)}
         onConfirm={confirmDelete}
         title="파일 삭제"
         description={`"${deleteTarget?.name}" 파일을 삭제하시겠습니까?`}

@@ -10,6 +10,7 @@ import { WikiPage } from './pages/wiki/WikiPage';
 import { TimelinePage } from './pages/timeline/TimelinePage';
 import { FilesPage } from './pages/files/FilesPage';
 import { AnnouncementsPage } from './pages/announcements/AnnouncementsPage';
+import { ResourcesPage } from './pages/resources/ResourcesPage';
 import { SettingsPage } from './pages/settings/SettingsPage';
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="/timeline"     element={<TimelinePage />} />
           <Route path="/files"          element={<FilesPage />} />
           <Route path="/announcements" element={<AnnouncementsPage />} />
+          <Route path="/resources"     element={<ResourcesPage />} />
           <Route path="/settings"      element={<SettingsPage />} />
         </Route>
       </Routes>

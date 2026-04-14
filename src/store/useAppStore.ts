@@ -10,6 +10,7 @@ import {
   type WikiPage,
   type Announcement,
   type FileItem,
+  type WorkLog,
   type TimelineEvent,
 } from '../types';
 import {
@@ -18,6 +19,7 @@ import {
   MOCK_TASKS_RAW,
   MOCK_WIKI_PAGES_RAW,
   MOCK_ANNOUNCEMENTS_RAW,
+  MOCK_WORK_LOGS_RAW,
   MOCK_TIMELINE_RAW,
   MOCK_FILES_RAW,
 } from '../data/seed';
@@ -68,6 +70,10 @@ interface AppActions {
   addFile:    (data: Omit<FileItem, 'id' | 'createdAt'>) => string;
   deleteFile: (id: string) => void;
 
+  // WorkLog
+  addWorkLog:    (data: Omit<WorkLog, 'id' | 'createdAt'>) => string;
+  deleteWorkLog: (id: string) => void;
+
   // UI
   setSelectedProject: (id: string | null) => void;
 
@@ -99,6 +105,7 @@ export const useAppStore = create<AppState & AppActions>()(
     tasks:         Object.fromEntries(MOCK_TASKS_RAW.map((t) => [t.id, t])),
     wikiPages:     Object.fromEntries(MOCK_WIKI_PAGES_RAW.map((w) => [w.id, w])),
     announcements: Object.fromEntries(MOCK_ANNOUNCEMENTS_RAW.map((a) => [a.id, a])),
+    workLogs:      Object.fromEntries(MOCK_WORK_LOGS_RAW.map((w) => [w.id, w])),
     timeline:      MOCK_TIMELINE_RAW,
     files:         Object.fromEntries(MOCK_FILES_RAW.map((f) => [f.id, f])),
     currentUserId: 'u1',
@@ -406,6 +413,30 @@ export const useAppStore = create<AppState & AppActions>()(
 
     deleteFile(id) {
       set((s) => { delete s.files[id]; });
+    },
+
+    // ── WorkLog ───────────────────────────────────────────────
+    addWorkLog(data) {
+      const id = nanoid();
+      const createdAt = new Date().toISOString();
+      set((s) => {
+        s.workLogs[id] = { ...data, id, createdAt };
+        // update task.loggedHours
+        const task = s.tasks[data.taskId];
+        if (task) task.loggedHours = parseFloat((task.loggedHours + data.hours).toFixed(1));
+      });
+      return id;
+    },
+
+    deleteWorkLog(id) {
+      set((s) => {
+        const wl = s.workLogs[id];
+        if (!wl) return;
+        delete s.workLogs[id];
+        // subtract from task.loggedHours
+        const task = s.tasks[wl.taskId];
+        if (task) task.loggedHours = parseFloat(Math.max(0, task.loggedHours - wl.hours).toFixed(1));
+      });
     },
 
     // ── UI ───────────────────────────────────────────────────
