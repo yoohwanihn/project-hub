@@ -74,7 +74,7 @@ interface AppActions {
 
   // Poll
   createPoll:   (data: Omit<Poll, 'id' | 'createdAt'>) => string;
-  updatePoll:   (id: string, patch: Pick<Poll, 'title' | 'description'>) => void;
+  updatePoll:   (id: string, patch: Partial<Pick<Poll, 'title' | 'description'>>) => void;
   deletePoll:   (id: string) => void;
   castVote:     (pollId: string, optionId: string, userId: string) => void;
   retractVote:  (pollId: string, optionId: string, userId: string) => void;
@@ -104,6 +104,8 @@ export const selectors = {
   projectList: (s: AppState) => Object.values(s.projects).sort(
     (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
   ),
+  pollsByProject: (projectId: string) => (s: AppState) =>
+    Object.values(s.polls).filter((p) => p.projectId === projectId),
 };
 
 // ── Store ──────────────────────────────────────────────────────
@@ -439,8 +441,7 @@ export const useAppStore = create<AppState & AppActions>()(
     updatePoll(id, patch) {
       set((s) => {
         if (!s.polls[id]) return;
-        s.polls[id].title       = patch.title;
-        s.polls[id].description = patch.description;
+        Object.assign(s.polls[id], patch);
       });
     },
 
@@ -477,7 +478,9 @@ export const useAppStore = create<AppState & AppActions>()(
 
     closePoll(id) {
       set((s) => {
-        if (s.polls[id]) s.polls[id].status = 'closed';
+        const poll = s.polls[id];
+        if (!poll || poll.status === 'closed') return;
+        poll.status = 'closed';
       });
     },
 

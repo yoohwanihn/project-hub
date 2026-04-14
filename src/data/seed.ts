@@ -329,7 +329,6 @@ export const MOCK_POLLS_RAW: Poll[] = [
     isMultiple: true,
     showResultsBeforeClose: false,
     status: 'active',
-    dueDate: undefined,
     authorId: 'u1',
     createdAt: '2026-04-12T09:30:00',
   },
