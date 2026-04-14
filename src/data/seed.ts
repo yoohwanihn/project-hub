@@ -224,14 +224,36 @@ export const MOCK_ANNOUNCEMENTS_RAW: Announcement[] = [
 
 // ── Timeline ───────────────────────────────────────────────────
 export const MOCK_TIMELINE_RAW: TimelineEvent[] = [
-  { id: 'e1', type: 'task_completed', actorId: 'u1', projectId: 'p1', payload: { taskTitle: '로그인/인증 API 구현' }, createdAt: '2026-04-13T11:30:00' },
-  { id: 'e2', type: 'task_updated',   actorId: 'u3', projectId: 'p1', payload: { taskTitle: '간트차트 인터랙션 구현', field: 'status', from: 'todo', to: 'in_progress' }, createdAt: '2026-04-13T10:15:00' },
-  { id: 'e3', type: 'file_uploaded',  actorId: 'u4', projectId: 'p1', payload: { fileName: 'UI_스토리보드_v2.pdf' }, createdAt: '2026-04-13T09:40:00' },
-  { id: 'e4', type: 'comment_added',  actorId: 'u2', projectId: 'p1', payload: { taskTitle: 'UI/UX 스토리보드 작성', comment: '전체적인 흐름은 좋은데 모바일 레이아웃 재검토가 필요합니다.' }, createdAt: '2026-04-12T17:20:00' },
-  { id: 'e5', type: 'task_created',   actorId: 'u1', projectId: 'p1', payload: { taskTitle: '성능 최적화 및 배포 준비' }, createdAt: '2026-04-12T14:00:00' },
-  { id: 'e6', type: 'member_joined',  actorId: 'u5', projectId: 'p1', payload: {}, createdAt: '2026-04-11T09:00:00' },
-  { id: 'e7', type: 'task_updated',   actorId: 'u2', projectId: 'p1', payload: { taskTitle: '칸반 보드 컴포넌트 개발', field: 'priority', from: 'medium', to: 'high' }, createdAt: '2026-04-10T16:30:00' },
-  { id: 'e8', type: 'task_completed', actorId: 'u3', projectId: 'p1', payload: { taskTitle: 'ERD 설계 및 DB 스키마 확정' }, createdAt: '2026-04-09T18:00:00' },
+  // Apr 14
+  { id: 'e1',  type: 'task_completed', actorId: 'u1', projectId: 'p1', payload: { taskTitle: '로그인/인증 API 구현' },          createdAt: '2026-04-14T11:30:00' },
+  { id: 'e2',  type: 'task_updated',   actorId: 'u3', projectId: 'p1', payload: { taskTitle: '간트차트 인터랙션 구현', field: 'status', from: 'todo', to: 'in_progress' }, createdAt: '2026-04-14T10:15:00' },
+  { id: 'e3',  type: 'file_uploaded',  actorId: 'u4', projectId: 'p1', payload: { fileName: 'UI_스토리보드_v2.pdf' },           createdAt: '2026-04-14T09:40:00' },
+  // Apr 13
+  { id: 'e4',  type: 'task_completed', actorId: 'u2', projectId: 'p1', payload: { taskTitle: '칸반 보드 수영레인 구현' },        createdAt: '2026-04-13T17:20:00' },
+  { id: 'e5',  type: 'task_completed', actorId: 'u1', projectId: 'p1', payload: { taskTitle: '업무 의존성(선후행) 관리' },       createdAt: '2026-04-13T15:00:00' },
+  { id: 'e6',  type: 'comment_added',  actorId: 'u2', projectId: 'p1', payload: { taskTitle: 'UI/UX 스토리보드 작성', comment: '전체적인 흐름은 좋은데 모바일 레이아웃 재검토가 필요합니다.' }, createdAt: '2026-04-13T12:20:00' },
+  // Apr 12
+  { id: 'e7',  type: 'task_completed', actorId: 'u3', projectId: 'p1', payload: { taskTitle: '프로젝트 워크플로우 커스터마이징' }, createdAt: '2026-04-12T18:00:00' },
+  { id: 'e8',  type: 'task_created',   actorId: 'u1', projectId: 'p1', payload: { taskTitle: '성능 최적화 및 배포 준비' },       createdAt: '2026-04-12T14:00:00' },
+  // Apr 11
+  { id: 'e9',  type: 'task_completed', actorId: 'u4', projectId: 'p1', payload: { taskTitle: 'UI/UX 스토리보드 작성' },          createdAt: '2026-04-11T17:30:00' },
+  { id: 'e10', type: 'task_completed', actorId: 'u1', projectId: 'p1', payload: { taskTitle: '태그 시스템 구현' },               createdAt: '2026-04-11T14:00:00' },
+  { id: 'e11', type: 'member_joined',  actorId: 'u5', projectId: 'p1', payload: {},                                              createdAt: '2026-04-11T09:00:00' },
+  // Apr 10
+  { id: 'e12', type: 'task_completed', actorId: 'u2', projectId: 'p1', payload: { taskTitle: '칸반 보드 컴포넌트 개발' },        createdAt: '2026-04-10T17:00:00' },
+  { id: 'e13', type: 'task_updated',   actorId: 'u2', projectId: 'p1', payload: { taskTitle: '칸반 보드 컴포넌트 개발', field: 'priority', from: 'medium', to: 'high' }, createdAt: '2026-04-10T16:30:00' },
+  // Apr 9
+  { id: 'e14', type: 'task_completed', actorId: 'u3', projectId: 'p1', payload: { taskTitle: 'ERD 설계 및 DB 스키마 확정' },     createdAt: '2026-04-09T18:00:00' },
+  { id: 'e15', type: 'task_completed', actorId: 'u5', projectId: 'p1', payload: { taskTitle: '프로젝트 멤버 역할 관리' },        createdAt: '2026-04-09T15:00:00' },
+  // Apr 8
+  { id: 'e16', type: 'task_completed', actorId: 'u1', projectId: 'p1', payload: { taskTitle: '대시보드 기본 레이아웃' },         createdAt: '2026-04-08T16:30:00' },
+  // Apr 7
+  { id: 'e17', type: 'task_completed', actorId: 'u2', projectId: 'p1', payload: { taskTitle: 'REST API 기본 라우트 설계' },      createdAt: '2026-04-07T17:00:00' },
+  { id: 'e18', type: 'task_completed', actorId: 'u4', projectId: 'p1', payload: { taskTitle: '컴포넌트 디자인 시스템 구축' },    createdAt: '2026-04-07T14:00:00' },
+  // Apr 5
+  { id: 'e19', type: 'task_completed', actorId: 'u3', projectId: 'p1', payload: { taskTitle: 'Docker 환경 구성' },               createdAt: '2026-04-05T16:00:00' },
+  // Apr 3
+  { id: 'e20', type: 'project_created', actorId: 'u1', projectId: 'p1', payload: { projectName: '프로젝트 관리 시스템' },        createdAt: '2026-04-03T09:00:00' },
 ];
 
 // ── Files ──────────────────────────────────────────────────────
