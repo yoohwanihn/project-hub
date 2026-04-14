@@ -7,6 +7,9 @@ import {
   type Task,
   type Tag,
   type WorkflowStatus,
+  type WikiPage,
+  type Announcement,
+  type FileItem,
   type TimelineEvent,
 } from '../types';
 import {
@@ -49,6 +52,21 @@ interface AppActions {
   // Dependencies
   addDependency:    (taskId: string, blockerId: string) => void;
   removeDependency: (taskId: string, blockerId: string) => void;
+
+  // Wiki
+  createWikiPage: (data: Omit<WikiPage, 'id'>) => string;
+  updateWikiPage: (id: string, patch: Partial<Omit<WikiPage, 'id' | 'projectId'>>) => void;
+  deleteWikiPage: (id: string) => void;
+
+  // Announcement
+  createAnnouncement: (data: Omit<Announcement, 'id' | 'createdAt'>) => string;
+  updateAnnouncement: (id: string, patch: Partial<Omit<Announcement, 'id' | 'projectId' | 'createdAt'>>) => void;
+  deleteAnnouncement: (id: string) => void;
+  togglePinAnnouncement: (id: string) => void;
+
+  // File
+  addFile:    (data: Omit<FileItem, 'id' | 'createdAt'>) => string;
+  deleteFile: (id: string) => void;
 
   // UI
   setSelectedProject: (id: string | null) => void;
@@ -326,6 +344,68 @@ export const useAppStore = create<AppState & AppActions>()(
         t.blockedBy = t.blockedBy.filter((id) => id !== blockerId);
         t.updatedAt = new Date().toISOString();
       });
+    },
+
+    // ── Wiki ─────────────────────────────────────────────────
+    createWikiPage(data) {
+      const id = nanoid();
+      set((s) => { s.wikiPages[id] = { ...data, id }; });
+      return id;
+    },
+
+    updateWikiPage(id, patch) {
+      set((s) => {
+        if (!s.wikiPages[id]) return;
+        Object.assign(s.wikiPages[id], patch, { updatedAt: new Date().toISOString() });
+      });
+    },
+
+    deleteWikiPage(id) {
+      set((s) => { delete s.wikiPages[id]; });
+    },
+
+    // ── Announcement ─────────────────────────────────────────
+    createAnnouncement(data) {
+      const id = nanoid();
+      const createdAt = new Date().toISOString();
+      set((s) => { s.announcements[id] = { ...data, id, createdAt }; });
+      return id;
+    },
+
+    updateAnnouncement(id, patch) {
+      set((s) => {
+        if (!s.announcements[id]) return;
+        Object.assign(s.announcements[id], patch);
+      });
+    },
+
+    deleteAnnouncement(id) {
+      set((s) => { delete s.announcements[id]; });
+    },
+
+    togglePinAnnouncement(id) {
+      set((s) => {
+        if (!s.announcements[id]) return;
+        s.announcements[id].isPinned = !s.announcements[id].isPinned;
+      });
+    },
+
+    // ── File ─────────────────────────────────────────────────
+    addFile(data) {
+      const id = nanoid();
+      const createdAt = new Date().toISOString();
+      set((s) => { s.files[id] = { ...data, id, createdAt }; });
+      get()._addEvent({
+        type: 'file_uploaded',
+        actorId: get().currentUserId,
+        projectId: data.projectId,
+        payload: { fileName: data.name },
+      });
+      return id;
+    },
+
+    deleteFile(id) {
+      set((s) => { delete s.files[id]; });
     },
 
     // ── UI ───────────────────────────────────────────────────
