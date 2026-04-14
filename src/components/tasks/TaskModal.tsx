@@ -1,11 +1,149 @@
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Link2, X, Clock, Tag } from 'lucide-react';
+import { Plus, Trash2, Link2, X, Clock, Tag, Timer } from 'lucide-react';
 import { Modal } from '../ui/Modal';
 import { Select, MultiSelect, type SelectOption } from '../ui/MultiSelect';
 import { Avatar } from '../ui/Avatar';
 import { useAppStore } from '../../store/useAppStore';
 import type { Task, Priority } from '../../types';
-import { PRIORITY_LABEL, cn } from '../../lib/utils';
+import { PRIORITY_LABEL, cn, formatDate } from '../../lib/utils';
+
+// ── WorkLogSection ─────────────────────────────────────────────
+const TODAY = new Date().toISOString().slice(0, 10);
+
+function WorkLogSection({ task }: { task: Task }) {
+  const { workLogs, users, currentUserId, addWorkLog, deleteWorkLog } = useAppStore((s) => ({
+    workLogs:       Object.values(s.workLogs).filter((w) => w.taskId === task.id).sort((a, b) => b.date.localeCompare(a.date)),
+    users:          s.users,
+    currentUserId:  s.currentUserId,
+    addWorkLog:     s.addWorkLog,
+    deleteWorkLog:  s.deleteWorkLog,
+  }));
+
+  const [logHours, setLogHours] = useState('');
+  const [logNote,  setLogNote]  = useState('');
+  const [logDate,  setLogDate]  = useState(TODAY);
+
+  function submit() {
+    const h = parseFloat(logHours);
+    if (!h || h <= 0) return;
+    addWorkLog({ taskId: task.id, userId: currentUserId, hours: h, note: logNote.trim(), date: logDate });
+    setLogHours('');
+    setLogNote('');
+    setLogDate(TODAY);
+  }
+
+  const pct = task.estimatedHours
+    ? Math.min(100, Math.round((task.loggedHours / task.estimatedHours) * 100))
+    : null;
+
+  return (
+    <div className="space-y-4">
+      {/* Summary bar */}
+      <div className="rounded-xl bg-slate-50 border border-slate-100 p-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-semibold text-slate-600">시간 현황</span>
+          <span className="text-xs text-slate-500">
+            <span className="font-bold text-slate-800">{task.loggedHours}h</span>
+            {task.estimatedHours && <span className="text-slate-400"> / {task.estimatedHours}h 예상</span>}
+          </span>
+        </div>
+        {task.estimatedHours ? (
+          <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+            <div
+              className={cn('h-full rounded-full transition-all', pct! >= 100 ? 'bg-red-400' : pct! >= 80 ? 'bg-amber-400' : 'bg-primary-400')}
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+        ) : (
+          <p className="text-xs text-slate-400">예상 소요 시간이 설정되지 않았습니다. (상세 탭에서 설정)</p>
+        )}
+        {pct !== null && (
+          <p className={cn('text-xs mt-1.5 font-medium', pct >= 100 ? 'text-red-500' : 'text-slate-500')}>
+            {pct >= 100 ? `⚠ 예상 시간 초과 (+${task.loggedHours - task.estimatedHours!}h)` : `${pct}% 사용`}
+          </p>
+        )}
+      </div>
+
+      {/* Add log form */}
+      <div className="rounded-xl border border-slate-100 p-4 space-y-3">
+        <p className="text-xs font-semibold text-slate-600">시간 기록 추가</p>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="text-xs text-slate-500 mb-1 block">소요 시간 (h) *</label>
+            <input
+              type="number" min={0.5} step={0.5}
+              className="input text-sm"
+              value={logHours}
+              onChange={(e) => setLogHours(e.target.value)}
+              placeholder="1.5"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-slate-500 mb-1 block">날짜</label>
+            <input
+              type="date" className="input text-sm"
+              value={logDate}
+              onChange={(e) => setLogDate(e.target.value)}
+            />
+          </div>
+        </div>
+        <div>
+          <label className="text-xs text-slate-500 mb-1 block">작업 메모 (선택)</label>
+          <input
+            className="input text-sm"
+            value={logNote}
+            onChange={(e) => setLogNote(e.target.value)}
+            placeholder="어떤 작업을 했는지 간략히..."
+            onKeyDown={(e) => e.key === 'Enter' && submit()}
+          />
+        </div>
+        <button
+          type="button"
+          className="btn-primary w-full text-xs"
+          disabled={!logHours || parseFloat(logHours) <= 0}
+          onClick={submit}
+        >
+          <Plus size={13} /> 기록 추가
+        </button>
+      </div>
+
+      {/* Log list */}
+      {workLogs.length > 0 && (
+        <div className="space-y-1.5">
+          <p className="text-xs font-semibold text-slate-500 mb-2">기록 내역 ({workLogs.length}건)</p>
+          {workLogs.map((wl) => (
+            <div key={wl.id} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-slate-50 group">
+              <div className="w-6 h-6 rounded-full bg-primary-50 flex items-center justify-center flex-shrink-0">
+                <Timer size={11} className="text-primary-500" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-800">{wl.hours}h</span>
+                  <span className="text-xs text-slate-400">{formatDate(wl.date, 'MM.dd')}</span>
+                  {users[wl.userId] && (
+                    <span className="text-xs text-slate-400">{users[wl.userId].name}</span>
+                  )}
+                </div>
+                {wl.note && <p className="text-xs text-slate-500 truncate mt-0.5">{wl.note}</p>}
+              </div>
+              <button
+                type="button"
+                className="p-1 rounded text-slate-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all flex-shrink-0"
+                onClick={() => deleteWorkLog(wl.id)}
+              >
+                <Trash2 size={12} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {workLogs.length === 0 && (
+        <p className="text-xs text-slate-400 text-center py-4">아직 시간 기록이 없습니다.</p>
+      )}
+    </div>
+  );
+}
 
 // ── Tag manager (inline within TaskModal) ──────────────────────
 function TagManagerSection({ projectId }: { projectId: string }) {
@@ -194,7 +332,7 @@ export function TaskModal({ open, onClose, projectId, task, defaultStatusId }: T
   const [dueDate,        setDueDate]        = useState('');
   const [estimatedHours, setEstimatedHours] = useState('');
   const [blockedBy,      setBlockedBy]      = useState<string[]>([]);
-  const [tab,            setTab]            = useState<'basic' | 'detail' | 'deps'>('basic');
+  const [tab,            setTab]            = useState<'basic' | 'detail' | 'deps' | 'log'>('basic');
 
   useEffect(() => {
     if (!open) return;
@@ -221,7 +359,7 @@ export function TaskModal({ open, onClose, projectId, task, defaultStatusId }: T
       setEstimatedHours('');
       setBlockedBy([]);
     }
-    setTab('basic');
+    setTab(task ? 'basic' : 'basic');
   }, [open, task, defaultStatusId, project]);
 
   if (!project) return null;
@@ -277,6 +415,7 @@ export function TaskModal({ open, onClose, projectId, task, defaultStatusId }: T
     { id: 'basic'  as const, label: '기본' },
     { id: 'detail' as const, label: '상세' },
     { id: 'deps'   as const, label: '선후행 관계' },
+    ...(isEdit ? [{ id: 'log' as const, label: '시간 기록' }] : []),
   ];
 
   return (
@@ -316,6 +455,9 @@ export function TaskModal({ open, onClose, projectId, task, defaultStatusId }: T
             {label}
             {id === 'deps' && blockedBy.length > 0 && (
               <span className="ml-1.5 badge bg-amber-100 text-amber-700">{blockedBy.length}</span>
+            )}
+            {id === 'log' && task && task.loggedHours > 0 && (
+              <span className="ml-1.5 badge bg-primary-50 text-primary-600">{task.loggedHours}h</span>
             )}
           </button>
         ))}
@@ -471,6 +613,11 @@ export function TaskModal({ open, onClose, projectId, task, defaultStatusId }: T
               onChange={setBlockedBy}
             />
           </div>
+        )}
+
+        {/* Work Log */}
+        {tab === 'log' && task && (
+          <WorkLogSection task={task} />
         )}
       </form>
     </Modal>

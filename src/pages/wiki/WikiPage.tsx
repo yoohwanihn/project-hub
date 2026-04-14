@@ -258,7 +258,7 @@ export function WikiPage() {
       <NewPageModal open={showNew} onClose={() => setShowNew(false)} onSubmit={handleCreate} />
       <ConfirmDialog
         open={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
+        onCancel={() => setDeleteTarget(null)}
         onConfirm={confirmDelete}
         title="페이지 삭제"
         description={`"${deleteTarget?.title}" 페이지를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`}

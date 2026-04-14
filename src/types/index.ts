@@ -114,6 +114,17 @@ export interface TimelineEvent {
   createdAt: string;
 }
 
+// ── WorkLog ────────────────────────────────────────────────────
+export interface WorkLog {
+  id: string;
+  taskId: string;
+  userId: string;
+  hours: number;       // 0.5 단위
+  note: string;
+  date: string;        // YYYY-MM-DD
+  createdAt: string;
+}
+
 // ── File ───────────────────────────────────────────────────────
 export interface FileItem {
   id: string;
@@ -133,6 +144,7 @@ export interface AppState {
   tasks: Record<string, Task>;
   wikiPages: Record<string, WikiPage>;
   announcements: Record<string, Announcement>;
+  workLogs: Record<string, WorkLog>;
   timeline: TimelineEvent[];
   files: Record<string, FileItem>;
 
