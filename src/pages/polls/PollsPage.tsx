@@ -9,21 +9,25 @@ import type { Poll } from '../../types';
 type Tab = 'active' | 'closed';
 
 export function PollsPage() {
-  const { polls, projects, currentUserId, selectedProjectId, createPoll } = useAppStore((s) => ({
-    polls:             s.polls,
-    projects:          s.projects,
-    currentUserId:     s.currentUserId,
-    selectedProjectId: s.selectedProjectId ?? Object.keys(s.projects)[0],
-    createPoll:        s.createPoll,
-  }));
+  const { polls, projects, currentUserId, selectedProjectId, createPoll, setSelectedProject } =
+    useAppStore((s) => ({
+      polls:              s.polls,
+      projects:           s.projects,
+      currentUserId:      s.currentUserId,
+      selectedProjectId:  s.selectedProjectId,
+      createPoll:         s.createPoll,
+      setSelectedProject: s.setSelectedProject,
+    }));
 
   const projectList = Object.values(projects).sort(
     (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
   );
 
-  const [viewProjectId, setViewProjectId] = useState(selectedProjectId ?? projectList[0]?.id);
-  const [tab, setTab]                     = useState<Tab>('active');
-  const [showCreate, setShowCreate]       = useState(false);
+  // 전역 selectedProjectId를 직접 사용 (fallback: 최신 프로젝트)
+  const viewProjectId = selectedProjectId ?? projectList[0]?.id ?? '';
+
+  const [tab, setTab]           = useState<Tab>('active');
+  const [showCreate, setShowCreate] = useState(false);
 
   const allPolls = Object.values(polls)
     .filter((p) => p.projectId === viewProjectId)
@@ -45,7 +49,7 @@ export function PollsPage() {
             <select
               className="input py-1.5 text-xs"
               value={viewProjectId}
-              onChange={(e) => setViewProjectId(e.target.value)}
+              onChange={(e) => setSelectedProject(e.target.value)}
             >
               {projectList.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
@@ -119,7 +123,7 @@ export function PollsPage() {
         projectId={viewProjectId}
         authorId={currentUserId}
         onClose={() => setShowCreate(false)}
-        onSubmit={(data) => { createPoll(data); setShowCreate(false); }}
+        onSubmit={(data) => createPoll(data)}
       />
     </div>
   );
