@@ -32,7 +32,7 @@ function Message({ e, actorName }: { e: TimelineEvent; actorName: string }) {
       return (
         <div>
           <p className="text-sm text-slate-700">{bold(actorName)}님이 {em(`"${String(e.payload.taskTitle)}"`)}&nbsp;에 댓글을 남겼습니다.</p>
-          {e.payload.comment && (
+          {!!e.payload.comment && (
             <blockquote className="mt-1.5 pl-3 border-l-2 border-slate-200 text-slate-500 text-xs italic">
               {String(e.payload.comment)}
             </blockquote>

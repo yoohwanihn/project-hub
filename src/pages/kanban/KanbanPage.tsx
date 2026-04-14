@@ -21,7 +21,7 @@ import {
   Settings2, LayoutList, Columns3, Users,
 } from 'lucide-react';
 import { Header } from '../../components/layout/Header';
-import { Avatar, AvatarGroup } from '../../components/ui/Avatar';
+import { Avatar } from '../../components/ui/Avatar';
 import { TagBadge } from '../../components/ui/Badge';
 import { ConfirmDialog } from '../../components/ui/Modal';
 import { TaskModal } from '../../components/tasks/TaskModal';
@@ -163,10 +163,7 @@ function TaskCard({ task, projectId, overlay = false }: TaskCardProps) {
 
 // ── WorkloadBar (담당자 업무 로드) ────────────────────────────
 function WorkloadPanel({ projectId, tasks }: { projectId: string; tasks: Task[] }) {
-  const { project, users } = useAppStore((s) => ({
-    project: s.projects[projectId],
-    users:   s.users,
-  }));
+  const project = useAppStore((s) => s.projects[projectId]);
 
   const members = project?.members ?? [];
   const maxLoad = Math.max(1, ...members.map((m) => tasks.filter((t) => t.assigneeIds.includes(m.id) && t.statusId !== 'done').length));

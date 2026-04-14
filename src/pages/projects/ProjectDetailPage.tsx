@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Users, Calendar, Columns3, GanttChartSquare,
-  BookOpen, Paperclip, Plus, MoreHorizontal, Pencil, Trash2,
+  BookOpen, Paperclip, Plus, Pencil, Trash2,
   Filter, Link2,
 } from 'lucide-react';
 import { Header } from '../../components/layout/Header';
@@ -13,7 +13,7 @@ import { ConfirmDialog } from '../../components/ui/Modal';
 import { TaskModal } from '../../components/tasks/TaskModal';
 import { ProjectModal } from '../../components/projects/ProjectModal';
 import { useAppStore, getProjectProgress } from '../../store/useAppStore';
-import { formatDate, timeAgo, PRIORITY_COLOR, PRIORITY_LABEL, STATUS_COLOR, cn } from '../../lib/utils';
+import { formatDate, timeAgo, PRIORITY_COLOR, PRIORITY_LABEL, cn } from '../../lib/utils';
 import type { Task } from '../../types';
 
 const SHORTCUTS = [

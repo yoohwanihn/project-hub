@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Trash2, GripVertical, UserMinus } from 'lucide-react';
 import { Modal } from '../ui/Modal';
 import { ColorPicker } from '../ui/ColorPicker';
-import { Select, MultiSelect, type SelectOption } from '../ui/MultiSelect';
+import { MultiSelect, type SelectOption } from '../ui/MultiSelect';
 import { Avatar } from '../ui/Avatar';
 import { useAppStore } from '../../store/useAppStore';
 import type { Project, WorkflowStatus } from '../../types';

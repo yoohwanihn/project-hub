@@ -2,12 +2,10 @@ import { useState, useEffect } from 'react';
 import { Plus, Trash2, Link2, X, Clock, Tag } from 'lucide-react';
 import { Modal } from '../ui/Modal';
 import { Select, MultiSelect, type SelectOption } from '../ui/MultiSelect';
-import { TagColorPicker } from '../ui/ColorPicker';
 import { Avatar } from '../ui/Avatar';
 import { useAppStore } from '../../store/useAppStore';
 import type { Task, Priority } from '../../types';
 import { PRIORITY_LABEL, cn } from '../../lib/utils';
-import { nanoid } from '../../store/nanoid';
 
 // ── Tag manager (inline within TaskModal) ──────────────────────
 function TagManagerSection({ projectId }: { projectId: string }) {
@@ -178,9 +176,8 @@ interface TaskModalProps {
 }
 
 export function TaskModal({ open, onClose, projectId, task, defaultStatusId }: TaskModalProps) {
-  const { project, users, createTask, updateTask } = useAppStore((s) => ({
+  const { project, createTask, updateTask } = useAppStore((s) => ({
     project:    s.projects[projectId],
-    users:      s.users,
     createTask: s.createTask,
     updateTask: s.updateTask,
   }));
