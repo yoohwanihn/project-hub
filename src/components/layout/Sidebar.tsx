@@ -6,6 +6,7 @@ import {
 import { cn } from '../../lib/utils';
 import { Avatar } from '../ui/Avatar';
 import { useAppStore } from '../../store/useAppStore';
+import { useShallow } from 'zustand/react/shallow';
 import { useState } from 'react';
 
 const NAV_ITEMS = [
@@ -26,12 +27,12 @@ export function Sidebar() {
   const navigate  = useNavigate();
   const [projectsOpen, setProjectsOpen] = useState(true);
 
-  const { projects, currentUser } = useAppStore((s) => ({
+  const { projects, currentUser } = useAppStore(useShallow((s) => ({
     projects:    Object.values(s.projects)
       .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
       .slice(0, 3),
     currentUser: s.users[s.currentUserId],
-  }));
+  })));
 
   return (
     <aside className="w-60 shrink-0 h-screen bg-white border-r border-slate-200 flex flex-col">
