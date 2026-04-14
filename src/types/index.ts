@@ -136,6 +136,29 @@ export interface FileItem {
   createdAt: string;
 }
 
+// ── Poll ───────────────────────────────────────────────────────
+export type PollStatus = 'active' | 'closed';
+
+export interface PollOption {
+  id: string;
+  label: string;
+  voterIds: string[];   // 이 선택지에 투표한 userId 목록
+}
+
+export interface Poll {
+  id: string;
+  projectId: string;
+  title: string;
+  description: string;
+  options: PollOption[];               // 최소 2개, 최대 10개
+  isMultiple: boolean;                 // true = 복수 선택
+  showResultsBeforeClose: boolean;     // true = 진행 중에도 결과 공개
+  status: PollStatus;
+  dueDate?: string;                    // YYYY-MM-DD, 없으면 수동 종료
+  authorId: string;
+  createdAt: string;
+}
+
 // ── Store helpers ──────────────────────────────────────────────
 export interface AppState {
   // Entities
@@ -147,6 +170,7 @@ export interface AppState {
   workLogs: Record<string, WorkLog>;
   timeline: TimelineEvent[];
   files: Record<string, FileItem>;
+  polls: Record<string, Poll>;
 
   // UI state
   currentUserId: string;
