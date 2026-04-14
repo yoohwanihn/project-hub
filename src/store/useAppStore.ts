@@ -8,7 +8,6 @@ import {
   type Tag,
   type WorkflowStatus,
   type TimelineEvent,
-  DEFAULT_WORKFLOW,
 } from '../types';
 import {
   MOCK_USERS,
