@@ -9,6 +9,7 @@ import { GanttPage } from './pages/gantt/GanttPage';
 import { WikiPage } from './pages/wiki/WikiPage';
 import { TimelinePage } from './pages/timeline/TimelinePage';
 import { FilesPage } from './pages/files/FilesPage';
+import { AnnouncementsPage } from './pages/announcements/AnnouncementsPage';
 import { SettingsPage } from './pages/settings/SettingsPage';
 
 export default function App() {
@@ -25,8 +26,9 @@ export default function App() {
           <Route path="/gantt"        element={<GanttPage />} />
           <Route path="/wiki"         element={<WikiPage />} />
           <Route path="/timeline"     element={<TimelinePage />} />
-          <Route path="/files"        element={<FilesPage />} />
-          <Route path="/settings"     element={<SettingsPage />} />
+          <Route path="/files"          element={<FilesPage />} />
+          <Route path="/announcements" element={<AnnouncementsPage />} />
+          <Route path="/settings"      element={<SettingsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
