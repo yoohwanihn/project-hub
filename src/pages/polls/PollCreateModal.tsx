@@ -12,6 +12,8 @@ interface Props {
   onSubmit: (data: Omit<Poll, 'id' | 'createdAt'>) => void;
 }
 
+const TODAY = new Date().toISOString().slice(0, 10);
+
 function makeOption(label = ''): PollOption {
   return { id: nanoid(), label, voterIds: [] };
 }
@@ -65,8 +67,7 @@ export function PollCreateModal({ open, projectId, authorId, onClose, onSubmit }
       dueDate:                dueDate || undefined,
       authorId,
     });
-    reset();
-    onClose();
+    handleClose();
   }
 
   return (
@@ -118,6 +119,7 @@ export function PollCreateModal({ open, projectId, authorId, onClose, onSubmit }
                   className="input flex-1"
                   placeholder={`선택지 ${idx + 1}`}
                   value={opt.label}
+                  maxLength={100}
                   onChange={(e) => updateOptionLabel(idx, e.target.value)}
                 />
                 <button
@@ -192,7 +194,7 @@ export function PollCreateModal({ open, projectId, authorId, onClose, onSubmit }
               className="input w-48"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              min={new Date().toISOString().slice(0, 10)}
+              min={TODAY}
             />
             {dueDate && (
               <button
