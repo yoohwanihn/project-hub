@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Plus, Trash2, Link2, X, Clock, Tag, Timer } from 'lucide-react';
 import { Modal } from '../ui/Modal';
 import { Select, MultiSelect, type SelectOption } from '../ui/MultiSelect';
@@ -11,13 +11,15 @@ import { PRIORITY_LABEL, cn, formatDate } from '../../lib/utils';
 const TODAY = new Date().toISOString().slice(0, 10);
 
 function WorkLogSection({ task }: { task: Task }) {
-  const { workLogs, users, currentUserId, addWorkLog, deleteWorkLog } = useAppStore((s) => ({
-    workLogs:       Object.values(s.workLogs).filter((w) => w.taskId === task.id).sort((a, b) => b.date.localeCompare(a.date)),
-    users:          s.users,
-    currentUserId:  s.currentUserId,
-    addWorkLog:     s.addWorkLog,
-    deleteWorkLog:  s.deleteWorkLog,
-  }));
+  const workLogsMap   = useAppStore(s => s.workLogs);
+  const users         = useAppStore(s => s.users);
+  const currentUserId = useAppStore(s => s.currentUserId);
+  const addWorkLog    = useAppStore(s => s.addWorkLog);
+  const deleteWorkLog = useAppStore(s => s.deleteWorkLog);
+  const workLogs = useMemo(
+    () => Object.values(workLogsMap).filter((w) => w.taskId === task.id).sort((a, b) => b.date.localeCompare(a.date)),
+    [workLogsMap, task.id],
+  );
 
   const [logHours, setLogHours] = useState('');
   const [logNote,  setLogNote]  = useState('');
@@ -149,12 +151,11 @@ function WorkLogSection({ task }: { task: Task }) {
 function TagManagerSection({ projectId }: { projectId: string }) {
   const [newName,  setNewName]  = useState('');
   const [newColor, setNewColor] = useState('#3b82f6');
-  const { tags, createTag, updateTag, deleteTag } = useAppStore((s) => ({
-    tags:      s.projects[projectId]?.tags ?? [],
-    createTag: s.createTag,
-    updateTag: s.updateTag,
-    deleteTag: s.deleteTag,
-  }));
+  const project   = useAppStore(s => s.projects[projectId]);
+  const tags      = project?.tags ?? [];
+  const createTag = useAppStore(s => s.createTag);
+  const updateTag = useAppStore(s => s.updateTag);
+  const deleteTag = useAppStore(s => s.deleteTag);
 
   function add() {
     if (!newName.trim()) return;
@@ -233,11 +234,11 @@ function DependencySelector({
   blockedBy: string[];
   onChange: (ids: string[]) => void;
 }) {
-  const { tasks } = useAppStore((s) => ({
-    tasks: Object.values(s.tasks).filter(
-      (t) => t.projectId === projectId && t.id !== currentTaskId,
-    ),
-  }));
+  const tasksMap = useAppStore(s => s.tasks);
+  const tasks = useMemo(
+    () => Object.values(tasksMap).filter((t) => t.projectId === projectId && t.id !== currentTaskId),
+    [tasksMap, projectId, currentTaskId],
+  );
 
   const [search, setSearch] = useState('');
   const filtered = tasks.filter(
@@ -314,11 +315,9 @@ interface TaskModalProps {
 }
 
 export function TaskModal({ open, onClose, projectId, task, defaultStatusId }: TaskModalProps) {
-  const { project, createTask, updateTask } = useAppStore((s) => ({
-    project:    s.projects[projectId],
-    createTask: s.createTask,
-    updateTask: s.updateTask,
-  }));
+  const project    = useAppStore(s => s.projects[projectId]);
+  const createTask = useAppStore(s => s.createTask);
+  const updateTask = useAppStore(s => s.updateTask);
 
   const isEdit = !!task;
 

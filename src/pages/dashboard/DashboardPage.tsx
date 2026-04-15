@@ -231,13 +231,11 @@ function BurndownMini({ data }: { data: { date: string; remaining: number }[] })
 // ── DashboardPage ─────────────────────────────────────────────────
 export function DashboardPage() {
   const navigate = useNavigate();
-  const { projects, tasks, users, timeline, currentUserId } = useAppStore((s) => ({
-    projects:      s.projects,
-    tasks:         s.tasks,
-    users:         s.users,
-    timeline:      s.timeline,
-    currentUserId: s.currentUserId,
-  }));
+  const projects      = useAppStore(s => s.projects);
+  const tasks         = useAppStore(s => s.tasks);
+  const users         = useAppStore(s => s.users);
+  const timeline      = useAppStore(s => s.timeline);
+  const currentUserId = useAppStore(s => s.currentUserId);
 
   const allTasks    = useMemo(() => Object.values(tasks), [tasks]);
   const allProjects = useMemo(() => Object.values(projects), [projects]);

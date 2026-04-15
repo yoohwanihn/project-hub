@@ -80,12 +80,10 @@ interface ProjectModalProps {
 }
 
 export function ProjectModal({ open, onClose, project }: ProjectModalProps) {
-  const { users, createProject, updateProject } = useAppStore((s) => ({
-    users: s.users,
-    createProject: s.createProject,
-    updateProject: s.updateProject,
-  }));
-  const currentUserId = useAppStore((s) => s.currentUserId);
+  const users         = useAppStore(s => s.users);
+  const createProject = useAppStore(s => s.createProject);
+  const updateProject = useAppStore(s => s.updateProject);
+  const currentUserId = useAppStore(s => s.currentUserId);
 
   const isEdit = !!project;
 

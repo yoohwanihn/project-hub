@@ -187,19 +187,15 @@ function AnnouncementCard({
 
 // ── AnnouncementsPage ────────────────────────────────────────────
 export function AnnouncementsPage() {
-  const {
-    announcements: allAnns, users, selectedProjectId, currentUserId,
-    createAnnouncement, updateAnnouncement, deleteAnnouncement, togglePinAnnouncement,
-  } = useAppStore((s) => ({
-    announcements:         s.announcements,
-    users:                 s.users,
-    selectedProjectId:     s.selectedProjectId ?? 'p1',
-    currentUserId:         s.currentUserId,
-    createAnnouncement:    s.createAnnouncement,
-    updateAnnouncement:    s.updateAnnouncement,
-    deleteAnnouncement:    s.deleteAnnouncement,
-    togglePinAnnouncement: s.togglePinAnnouncement,
-  }));
+  const allAnns                = useAppStore(s => s.announcements);
+  const users                  = useAppStore(s => s.users);
+  const selectedProjectIdRaw   = useAppStore(s => s.selectedProjectId);
+  const selectedProjectId      = selectedProjectIdRaw ?? 'p1';
+  const currentUserId          = useAppStore(s => s.currentUserId);
+  const createAnnouncement     = useAppStore(s => s.createAnnouncement);
+  const updateAnnouncement     = useAppStore(s => s.updateAnnouncement);
+  const deleteAnnouncement     = useAppStore(s => s.deleteAnnouncement);
+  const togglePinAnnouncement  = useAppStore(s => s.togglePinAnnouncement);
 
   const allList = Object.values(allAnns)
     .filter((a) => a.projectId === selectedProjectId)

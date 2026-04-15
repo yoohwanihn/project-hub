@@ -14,11 +14,9 @@ type ViewMode = 'grid' | 'list';
 
 export function ProjectsPage() {
   const navigate = useNavigate();
-  const { projects, tasks, deleteProject } = useAppStore((s) => ({
-    projects:      s.projects,
-    tasks:         s.tasks,
-    deleteProject: s.deleteProject,
-  }));
+  const projects      = useAppStore(s => s.projects);
+  const tasks         = useAppStore(s => s.tasks);
+  const deleteProject = useAppStore(s => s.deleteProject);
 
   const [view,    setView]    = useState<ViewMode>('grid');
   const [query,   setQuery]   = useState('');

@@ -26,13 +26,13 @@ const SHORTCUTS = [
 export function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { project, tasks, users, announcements, deleteTask } = useAppStore((s) => ({
-    project:       s.projects[id!],
-    tasks:         Object.values(s.tasks).filter((t) => t.projectId === id),
-    users:         s.users,
-    announcements: Object.values(s.announcements).filter((a) => a.projectId === id),
-    deleteTask:    s.deleteTask,
-  }));
+  const project       = useAppStore(s => s.projects[id!]);
+  const tasksMap      = useAppStore(s => s.tasks);
+  const users         = useAppStore(s => s.users);
+  const announcementsMap = useAppStore(s => s.announcements);
+  const deleteTask    = useAppStore(s => s.deleteTask);
+  const tasks         = useMemo(() => Object.values(tasksMap).filter((t) => t.projectId === id), [tasksMap, id]);
+  const announcements = useMemo(() => Object.values(announcementsMap).filter((a) => a.projectId === id), [announcementsMap, id]);
 
   const [editProjectOpen, setEditProjectOpen] = useState(false);
   const [addTaskOpen,     setAddTaskOpen]     = useState(false);

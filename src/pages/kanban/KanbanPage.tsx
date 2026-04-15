@@ -38,11 +38,9 @@ interface TaskCardProps {
 }
 
 function TaskCard({ task, projectId, overlay = false }: TaskCardProps) {
-  const { project, users, deleteTask } = useAppStore((s) => ({
-    project:    s.projects[projectId],
-    users:      s.users,
-    deleteTask: s.deleteTask,
-  }));
+  const project    = useAppStore(s => s.projects[projectId]);
+  const users      = useAppStore(s => s.users);
+  const deleteTask = useAppStore(s => s.deleteTask);
 
   const [editOpen,   setEditOpen]   = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -311,12 +309,10 @@ function SwimlaneRow({
 type ViewMode = 'board' | 'swimlane';
 
 export function KanbanPage() {
-  const { projects, tasks: allTasks, moveTask, reorderTask } = useAppStore((s) => ({
-    projects:    s.projects,
-    tasks:       s.tasks,
-    moveTask:    s.moveTask,
-    reorderTask: s.reorderTask,
-  }));
+  const projects    = useAppStore(s => s.projects);
+  const allTasks    = useAppStore(s => s.tasks);
+  const moveTask    = useAppStore(s => s.moveTask);
+  const reorderTask = useAppStore(s => s.reorderTask);
 
   const [selectedProjectId, setSelectedProjectId] = useState(Object.keys(projects)[0] ?? '');
   const [viewMode,           setViewMode]          = useState<ViewMode>('board');

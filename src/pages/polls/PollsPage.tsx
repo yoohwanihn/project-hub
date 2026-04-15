@@ -9,15 +9,12 @@ import type { Poll } from '../../types';
 type Tab = 'active' | 'closed';
 
 export function PollsPage() {
-  const { polls, projects, currentUserId, selectedProjectId, createPoll, setSelectedProject } =
-    useAppStore((s) => ({
-      polls:              s.polls,
-      projects:           s.projects,
-      currentUserId:      s.currentUserId,
-      selectedProjectId:  s.selectedProjectId,
-      createPoll:         s.createPoll,
-      setSelectedProject: s.setSelectedProject,
-    }));
+  const polls             = useAppStore(s => s.polls);
+  const projects          = useAppStore(s => s.projects);
+  const currentUserId     = useAppStore(s => s.currentUserId);
+  const selectedProjectId = useAppStore(s => s.selectedProjectId);
+  const createPoll        = useAppStore(s => s.createPoll);
+  const setSelectedProject = useAppStore(s => s.setSelectedProject);
 
   const projectList = Object.values(projects).sort(
     (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),

@@ -54,10 +54,8 @@ function groupByDate(events: TimelineEvent[]) {
 }
 
 export function TimelinePage() {
-  const { timeline, users } = useAppStore((s) => ({
-    timeline: s.timeline,
-    users:    s.users,
-  }));
+  const timeline = useAppStore(s => s.timeline);
+  const users    = useAppStore(s => s.users);
 
   const grouped = groupByDate(timeline);
 

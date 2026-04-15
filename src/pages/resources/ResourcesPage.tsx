@@ -37,12 +37,11 @@ function MiniBarChart({ data, color = '#3b82f6' }: { data: { label: string; valu
 
 // ── ResourcesPage ─────────────────────────────────────────────────
 export function ResourcesPage() {
-  const { projects, tasks: allTasksMap, workLogs: allWorkLogsMap, selectedProjectId } = useAppStore((s) => ({
-    projects:          s.projects,
-    tasks:             s.tasks,
-    workLogs:          s.workLogs,
-    selectedProjectId: s.selectedProjectId ?? 'p1',
-  }));
+  const projects             = useAppStore(s => s.projects);
+  const allTasksMap          = useAppStore(s => s.tasks);
+  const allWorkLogsMap       = useAppStore(s => s.workLogs);
+  const selectedProjectIdRaw = useAppStore(s => s.selectedProjectId);
+  const selectedProjectId    = selectedProjectIdRaw ?? 'p1';
 
   const projectList = Object.values(projects).sort(
     (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),

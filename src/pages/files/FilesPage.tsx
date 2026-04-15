@@ -50,14 +50,13 @@ const FILTER_OPTIONS = [
 
 // ── FilesPage ─────────────────────────────────────────────────────
 export function FilesPage() {
-  const { files: allFiles, users, selectedProjectId, currentUserId, addFile, deleteFile } = useAppStore((s) => ({
-    files:             s.files,
-    users:             s.users,
-    selectedProjectId: s.selectedProjectId ?? 'p1',
-    currentUserId:     s.currentUserId,
-    addFile:           s.addFile,
-    deleteFile:        s.deleteFile,
-  }));
+  const allFiles             = useAppStore(s => s.files);
+  const users                = useAppStore(s => s.users);
+  const selectedProjectIdRaw = useAppStore(s => s.selectedProjectId);
+  const selectedProjectId    = selectedProjectIdRaw ?? 'p1';
+  const currentUserId        = useAppStore(s => s.currentUserId);
+  const addFile              = useAppStore(s => s.addFile);
+  const deleteFile           = useAppStore(s => s.deleteFile);
 
   const files = Object.values(allFiles).filter((f) => f.projectId === selectedProjectId);
 

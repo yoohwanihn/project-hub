@@ -14,13 +14,11 @@ function calcDday(dueDate: string): number {
 }
 
 export function PollCard({ poll }: Props) {
-  const { currentUserId, castVote, retractVote, closePoll, deletePoll } = useAppStore((s) => ({
-    currentUserId: s.currentUserId,
-    castVote:    s.castVote,
-    retractVote: s.retractVote,
-    closePoll:   s.closePoll,
-    deletePoll:  s.deletePoll,
-  }));
+  const currentUserId = useAppStore(s => s.currentUserId);
+  const castVote      = useAppStore(s => s.castVote);
+  const retractVote   = useAppStore(s => s.retractVote);
+  const closePoll     = useAppStore(s => s.closePoll);
+  const deletePoll    = useAppStore(s => s.deletePoll);
 
   const totalVotes = poll.options.reduce((sum, o) => sum + o.voterIds.length, 0);
 

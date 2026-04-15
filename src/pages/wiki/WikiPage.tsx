@@ -56,18 +56,14 @@ function NewPageModal({ open, onClose, onSubmit }: {
 
 // ── WikiPage ──────────────────────────────────────────────────────
 export function WikiPage() {
-  const {
-    wikiPages: allWiki, users, selectedProjectId,
-    createWikiPage, updateWikiPage, deleteWikiPage, currentUserId,
-  } = useAppStore((s) => ({
-    wikiPages:         s.wikiPages,
-    users:             s.users,
-    selectedProjectId: s.selectedProjectId ?? 'p1',
-    createWikiPage:    s.createWikiPage,
-    updateWikiPage:    s.updateWikiPage,
-    deleteWikiPage:    s.deleteWikiPage,
-    currentUserId:     s.currentUserId,
-  }));
+  const allWiki             = useAppStore(s => s.wikiPages);
+  const users               = useAppStore(s => s.users);
+  const selectedProjectIdRaw = useAppStore(s => s.selectedProjectId);
+  const selectedProjectId   = selectedProjectIdRaw ?? 'p1';
+  const createWikiPage      = useAppStore(s => s.createWikiPage);
+  const updateWikiPage      = useAppStore(s => s.updateWikiPage);
+  const deleteWikiPage      = useAppStore(s => s.deleteWikiPage);
+  const currentUserId       = useAppStore(s => s.currentUserId);
 
   const wikiPages = Object.values(allWiki)
     .filter((w) => w.projectId === selectedProjectId)
