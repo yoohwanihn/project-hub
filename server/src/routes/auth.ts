@@ -151,3 +151,24 @@ authRouter.get('/me', authMiddleware, async (req, res) => {
   if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
   res.json(rows[0]);
 });
+
+// DELETE /api/auth/me  (회원 탈퇴)
+authRouter.delete('/me', authMiddleware, async (req, res) => {
+  const userId = req.user!.sub;
+  const { refreshToken } = req.body;
+  if (refreshToken) {
+    const { createHash } = await import('crypto');
+    const hash = createHash('sha256').update(refreshToken).digest('hex');
+    await db.query('DELETE FROM refresh_tokens WHERE token_hash=$1', [hash]);
+  }
+  await db.query('DELETE FROM users WHERE id=$1', [userId]);
+  res.json({ message: '계정이 삭제되었습니다.' });
+});
+
+// GET /api/users  (프로젝트 멤버 초대 등에 사용)
+authRouter.get('/users', authMiddleware, async (_req, res) => {
+  const { rows } = await db.query(
+    `SELECT id, name, email, role, status FROM users WHERE status='active' ORDER BY name`
+  );
+  res.json(rows);
+});

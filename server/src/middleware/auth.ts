@@ -67,28 +67,26 @@ export function requireProjectRole(...roles: string[]) {
   };
 }
 
-export function requireProjectMember() {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    if (!req.user) { res.status(401).json({ error: 'Unauthorized' }); return; }
-    if (['owner', 'admin'].includes(req.user.role)) { next(); return; }
+export async function requireProjectMember(req: Request, res: Response, next: NextFunction): Promise<void> {
+  if (!req.user) { res.status(401).json({ error: 'Unauthorized' }); return; }
+  if (['owner', 'admin'].includes(req.user.role)) { next(); return; }
 
-    const projectId =
-      (req.params.projectId as string) ||
-      (req.params.id as string) ||
-      (req.body.projectId as string) ||
-      (req.query.projectId as string);
+  const projectId =
+    (req.params.projectId as string) ||
+    (req.params.id as string) ||
+    (req.body.projectId as string) ||
+    (req.query.projectId as string);
 
-    if (!projectId) { res.status(400).json({ error: 'projectId required' }); return; }
+  if (!projectId) { res.status(400).json({ error: 'projectId required' }); return; }
 
-    try {
-      const { rows } = await db.query(
-        'SELECT 1 FROM project_members WHERE project_id=$1 AND user_id=$2',
-        [projectId, req.user.sub]
-      );
-      if (rows.length === 0) { res.status(403).json({ error: 'Not a project member' }); return; }
-      next();
-    } catch {
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  };
+  try {
+    const { rows } = await db.query(
+      'SELECT 1 FROM project_members WHERE project_id=$1 AND user_id=$2',
+      [projectId, req.user.sub]
+    );
+    if (rows.length === 0) { res.status(403).json({ error: 'Not a project member' }); return; }
+    next();
+  } catch {
+    res.status(500).json({ error: 'Internal server error' });
+  }
 }

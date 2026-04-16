@@ -8,7 +8,6 @@ import { Header }        from '../../components/layout/Header';
 import { Avatar }        from '../../components/ui/Avatar';
 import { ConfirmDialog } from '../../components/ui/Modal';
 import { useAppStore }   from '../../store/useAppStore';
-import { useAuthStore }  from '../../store/useAuthStore';
 import { formatDate, formatBytes, cn } from '../../lib/utils';
 import type { FileItem } from '../../types';
 
@@ -55,8 +54,7 @@ export function FilesPage() {
   const users                = useAppStore(s => s.users);
   const selectedProjectIdRaw = useAppStore(s => s.selectedProjectId);
   const selectedProjectId    = selectedProjectIdRaw ?? 'p1';
-  const currentUserId        = useAuthStore(s => s.currentUser?.id ?? '');
-  const addFile              = useAppStore(s => s.addFile);
+  const uploadFiles          = useAppStore(s => s.uploadFiles);
   const deleteFile           = useAppStore(s => s.deleteFile);
 
   const files = Object.values(allFiles).filter((f) => f.projectId === selectedProjectId);
@@ -97,18 +95,10 @@ export function FilesPage() {
       : <ArrowDown size={12} className="text-primary-500" />;
   }
 
-  // ── file upload (simulated) ────────────────────────────────
+  // ── file upload ────────────────────────────────────────────
   function processFiles(fileList: FileList | null) {
-    if (!fileList) return;
-    for (const f of Array.from(fileList)) {
-      addFile({
-        projectId:  selectedProjectId,
-        name:       f.name,
-        size:       f.size,
-        mimeType:   f.type || 'application/octet-stream',
-        uploaderId: currentUserId,
-      });
-    }
+    if (!fileList || fileList.length === 0) return;
+    uploadFiles(selectedProjectId, fileList).catch(console.error);
   }
 
   const onDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
@@ -289,12 +279,14 @@ export function FilesPage() {
                     </td>
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity justify-end">
-                        <button
-                          className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                        <a
+                          href={`/api/files/${f.id}/download`}
+                          className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 flex items-center"
                           title="다운로드"
+                          download
                         >
                           <Download size={14} />
-                        </button>
+                        </a>
                         <button
                           className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500"
                           title="삭제"
@@ -328,9 +320,13 @@ export function FilesPage() {
                   <p className="text-[10px] text-slate-300 mt-0.5">{formatDate(f.createdAt, 'yyyy.MM.dd')}</p>
                 </div>
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700">
+                  <a
+                    href={`/api/files/${f.id}/download`}
+                    className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 flex items-center"
+                    download
+                  >
                     <Download size={12} />
-                  </button>
+                  </a>
                   <button
                     className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500"
                     onClick={() => setDeleteTarget(f)}

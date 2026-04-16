@@ -112,13 +112,14 @@ CREATE TABLE IF NOT EXISTS work_logs (
 );
 
 CREATE TABLE IF NOT EXISTS files (
-  id          TEXT PRIMARY KEY,
-  project_id  TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
-  name        TEXT NOT NULL,
-  size        BIGINT NOT NULL,
-  mime_type   TEXT NOT NULL,
-  uploader_id TEXT REFERENCES users(id),
-  created_at  TIMESTAMPTZ DEFAULT NOW()
+  id           TEXT PRIMARY KEY,
+  project_id   TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  name         TEXT NOT NULL,
+  size         BIGINT NOT NULL,
+  mime_type    TEXT NOT NULL,
+  uploader_id  TEXT REFERENCES users(id),
+  storage_path TEXT,
+  created_at   TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS polls (
@@ -149,9 +150,14 @@ CREATE TABLE IF NOT EXISTS poll_votes (
 );
 `;
 
+const ALTER_SQL = `
+ALTER TABLE files ADD COLUMN IF NOT EXISTS storage_path TEXT;
+`;
+
 async function migrate() {
   console.log('Running migration...');
   await db.query(SQL);
+  await db.query(ALTER_SQL);
   console.log('Migration complete.');
   await db.end();
 }

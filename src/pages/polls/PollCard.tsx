@@ -36,12 +36,11 @@ export function PollCard({ poll }: Props) {
   function handleVote(optionId: string) {
     if (poll.status === 'closed') return;
     const alreadyVoted = myVotes.includes(optionId);
-    // 단일 선택에서 이미 선택된 항목은 재클릭 무시 (라디오 버튼 동작)
     if (!poll.isMultiple && alreadyVoted) return;
     if (alreadyVoted) {
-      retractVote(poll.id, optionId, currentUserId);
+      retractVote(poll.id, optionId).catch(console.error);
     } else {
-      castVote(poll.id, optionId, currentUserId);
+      castVote(poll.id, optionId).catch(console.error);
     }
   }
 
