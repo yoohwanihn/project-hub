@@ -105,7 +105,7 @@ export function FilesPage() {
     e.preventDefault();
     setIsDragging(false);
     processFiles(e.dataTransfer.files);
-  }, [selectedProjectId, currentUserId]);
+  }, [selectedProjectId]);
 
   const onDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
