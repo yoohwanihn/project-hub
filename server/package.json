@@ -2,9 +2,9 @@
   "name": "cmworld-server",
   "version": "1.0.0",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "migrate": "ts-node src/migrate.ts",
-    "seed": "ts-node src/seed-db.ts"
+    "dev": "npx ts-node-dev --respawn --transpile-only src/index.ts",
+    "migrate": "npx ts-node src/migrate.ts",
+    "seed": "npx ts-node src/seed-db.ts"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
