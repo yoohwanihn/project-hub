@@ -103,7 +103,10 @@ export type TimelineEventType =
   | 'comment_added'
   | 'member_joined'
   | 'file_uploaded'
-  | 'project_created';
+  | 'project_created'
+  | 'announcement_created'
+  | 'wiki_created'
+  | 'poll_created';
 
 export interface TimelineEvent {
   id: string;

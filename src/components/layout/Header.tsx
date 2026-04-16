@@ -3,18 +3,23 @@ import { Bell, Search, HelpCircle, LogOut, UserX, User, ChevronDown } from 'luci
 import { useNavigate } from 'react-router-dom';
 import { Avatar } from '../ui/Avatar';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useNotifications } from '../../hooks/useNotifications';
+import { formatDate } from '../../lib/utils';
 import api from '../../lib/api';
 
 interface HeaderProps {
   title: string;
   subtitle?: string;
   actions?: React.ReactNode;
+  showSearch?: boolean;
 }
 
-export function Header({ title, subtitle, actions }: HeaderProps) {
+export function Header({ title, subtitle, actions, showSearch = false }: HeaderProps) {
   const currentUser  = useAuthStore(s => s.currentUser);
   const clearAuth    = useAuthStore(s => s.clearAuth);
   const navigate     = useNavigate();
+
+  const { notifications, unreadCount, markAllRead } = useNotifications();
 
   const [userMenuOpen, setUserMenuOpen]   = useState(false);
   const [bellOpen,     setBellOpen]       = useState(false);
@@ -36,6 +41,11 @@ export function Header({ title, subtitle, actions }: HeaderProps) {
     document.addEventListener('mousedown', handle);
     return () => document.removeEventListener('mousedown', handle);
   }, []);
+
+  function handleBellOpen() {
+    setBellOpen((v) => !v);
+    if (!bellOpen) markAllRead();
+  }
 
   async function handleLogout() {
     const refreshToken = localStorage.getItem('refreshToken');
@@ -72,14 +82,16 @@ export function Header({ title, subtitle, actions }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-2">
-        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg w-52">
-          <Search size={13} className="text-slate-400 flex-shrink-0" />
-          <input
-            type="text"
-            placeholder="검색..."
-            className="text-xs bg-transparent outline-none placeholder:text-slate-400 w-full text-slate-700"
-          />
-        </div>
+        {showSearch && (
+          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg w-52">
+            <Search size={13} className="text-slate-400 flex-shrink-0" />
+            <input
+              type="text"
+              placeholder="검색..."
+              className="text-xs bg-transparent outline-none placeholder:text-slate-400 w-full text-slate-700"
+            />
+          </div>
+        )}
 
         {actions}
 
@@ -87,21 +99,50 @@ export function Header({ title, subtitle, actions }: HeaderProps) {
         <div ref={bellRef} className="relative">
           <button
             className="relative p-2 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors"
-            onClick={() => setBellOpen((v) => !v)}
+            onClick={handleBellOpen}
           >
             <Bell size={16} />
-            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full" />
+            {unreadCount > 0 && (
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full" />
+            )}
           </button>
 
           {bellOpen && (
-            <div className="absolute right-0 top-10 w-72 bg-white border border-slate-200 rounded-xl shadow-lg z-50">
-              <div className="px-4 py-3 border-b border-slate-100">
+            <div className="absolute right-0 top-10 w-80 bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden">
+              <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
                 <p className="text-xs font-semibold text-slate-700">알림</p>
+                {notifications.length > 0 && (
+                  <span className="text-[11px] text-primary-500 font-medium">{notifications.length}개</span>
+                )}
               </div>
-              <div className="py-8 text-center">
-                <Bell size={24} className="text-slate-200 mx-auto mb-2" />
-                <p className="text-xs text-slate-400">새 알림이 없습니다.</p>
-              </div>
+
+              {notifications.length === 0 ? (
+                <div className="py-10 text-center">
+                  <Bell size={24} className="text-slate-200 mx-auto mb-2" />
+                  <p className="text-xs text-slate-400">새 알림이 없습니다.</p>
+                </div>
+              ) : (
+                <ul className="max-h-80 overflow-y-auto divide-y divide-slate-50">
+                  {notifications.map((n) => (
+                    <li key={n.id} className="px-4 py-3 hover:bg-slate-50 transition-colors">
+                      <div className="flex items-start gap-2.5">
+                        <div className="w-6 h-6 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-[10px] font-bold text-primary-600">
+                            {n.actorName.charAt(0)}
+                          </span>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs text-slate-700 leading-relaxed">{n.message}</p>
+                          <p className="text-[11px] text-slate-400 mt-0.5">{n.projectName}</p>
+                          <p className="text-[10px] text-slate-300 mt-0.5">
+                            {formatDate(n.createdAt, 'MM/dd HH:mm')}
+                          </p>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           )}
         </div>

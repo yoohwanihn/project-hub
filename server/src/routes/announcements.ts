@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { db } from '../db';
 import { authMiddleware, requireProjectMember } from '../middleware/auth';
+import { addTimelineEvent } from './timeline';
 
 export const announcementsRouter = Router({ mergeParams: true });
 announcementsRouter.use(authMiddleware);
@@ -34,6 +35,7 @@ announcementsRouter.post('/', requireProjectMember, async (req, res) => {
     `SELECT id, project_id AS "projectId", title, content,
             author_id AS "authorId", is_pinned AS "isPinned", created_at AS "createdAt"
      FROM announcements WHERE id=$1`, [id]);
+  await addTimelineEvent(req.params.projectId, userId, 'announcement_created', { title });
   res.status(201).json(row);
 });
 

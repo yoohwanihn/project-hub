@@ -129,7 +129,13 @@ export const useAppStore = create<AppState & AppActions>()(
         const exists = projects.find((p) => p.id === firstId);
         const projectId = exists ? firstId : projects[0].id;
         set((s) => { s.selectedProjectId = projectId; });
-        await get().loadProjectData(projectId);
+        // Load selected project data + timelines for all projects (for notifications)
+        await Promise.all([
+          get().loadProjectData(projectId),
+          ...projects
+            .filter((p) => p.id !== projectId)
+            .map((p) => get().loadTimeline(p.id).catch(() => {})),
+        ]);
       }
     },
 
@@ -163,6 +169,7 @@ export const useAppStore = create<AppState & AppActions>()(
       });
       const project: Project = res.data;
       set((s) => { s.projects[project.id] = project; });
+      await get().loadTimeline(project.id);
       return project.id;
     },
 
@@ -249,6 +256,7 @@ export const useAppStore = create<AppState & AppActions>()(
       });
       const task: Task = res.data;
       set((s) => { s.tasks[task.id] = task; });
+      get().loadTimeline(data.projectId).catch(console.error);
       return task.id;
     },
 
@@ -371,6 +379,7 @@ export const useAppStore = create<AppState & AppActions>()(
       });
       const ann: Announcement = res.data;
       set((s) => { s.announcements[ann.id] = ann; });
+      get().loadTimeline(data.projectId).catch(console.error);
       return ann.id;
     },
 
