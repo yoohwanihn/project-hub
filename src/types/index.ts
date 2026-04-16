@@ -173,6 +173,5 @@ export interface AppState {
   polls: Record<string, Poll>;
 
   // UI state
-  currentUserId: string;
   selectedProjectId: string | null;
 }

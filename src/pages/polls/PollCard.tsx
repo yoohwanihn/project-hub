@@ -1,5 +1,6 @@
 import { CheckCircle2, Clock, Lock, BarChart2, X } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
+import { useAuthStore } from '../../store/useAuthStore';
 import { cn } from '../../lib/utils';
 import type { Poll } from '../../types';
 
@@ -14,7 +15,7 @@ function calcDday(dueDate: string): number {
 }
 
 export function PollCard({ poll }: Props) {
-  const currentUserId = useAppStore(s => s.currentUserId);
+  const currentUserId = useAuthStore(s => s.currentUser?.id ?? '');
   const castVote      = useAppStore(s => s.castVote);
   const retractVote   = useAppStore(s => s.retractVote);
   const closePoll     = useAppStore(s => s.closePoll);

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { User, Bell, Shield, Palette, Globe, ChevronRight } from 'lucide-react';
 import { Header } from '../../components/layout/Header';
 import { Avatar } from '../../components/ui/Avatar';
-import { useAppStore } from '../../store/useAppStore';
+import { useAuthStore } from '../../store/useAuthStore';
 import { cn } from '../../lib/utils';
 
 type Section = 'profile' | 'notifications' | 'security' | 'appearance' | 'language';
@@ -16,7 +16,7 @@ const SECTIONS: { id: Section; icon: React.ElementType; label: string; desc: str
 ];
 
 function ProfileSection() {
-  const currentUser = useAppStore((s) => s.users[s.currentUserId]);
+  const currentUser = useAuthStore(s => s.currentUser);
   const [name, setName]   = useState(currentUser?.name ?? '');
   const [email, setEmail] = useState(currentUser?.email ?? '');
 

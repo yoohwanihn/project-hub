@@ -9,6 +9,7 @@ import { ProgressBar } from '../../components/ui/ProgressBar';
 import { Avatar, AvatarGroup } from '../../components/ui/Avatar';
 import { TagBadge }    from '../../components/ui/Badge';
 import { useAppStore, getProjectProgress } from '../../store/useAppStore';
+import { useAuthStore } from '../../store/useAuthStore';
 import { formatDate, timeAgo, PRIORITY_COLOR, PRIORITY_LABEL, cn } from '../../lib/utils';
 import type { TimelineEvent } from '../../types';
 
@@ -231,15 +232,15 @@ function BurndownMini({ data }: { data: { date: string; remaining: number }[] })
 // ── DashboardPage ─────────────────────────────────────────────────
 export function DashboardPage() {
   const navigate = useNavigate();
-  const projects      = useAppStore(s => s.projects);
-  const tasks         = useAppStore(s => s.tasks);
-  const users         = useAppStore(s => s.users);
-  const timeline      = useAppStore(s => s.timeline);
-  const currentUserId = useAppStore(s => s.currentUserId);
+  const projects  = useAppStore(s => s.projects);
+  const tasks     = useAppStore(s => s.tasks);
+  const users     = useAppStore(s => s.users);
+  const timeline  = useAppStore(s => s.timeline);
+  const currentUser    = useAuthStore(s => s.currentUser);
+  const currentUserId  = currentUser?.id ?? '';
 
   const allTasks    = useMemo(() => Object.values(tasks), [tasks]);
   const allProjects = useMemo(() => Object.values(projects), [projects]);
-  const currentUser = users[currentUserId];
 
   const myTasks = useMemo(
     () => allTasks.filter((t) => t.assigneeIds.includes(currentUserId) && t.statusId !== 'done').slice(0, 5),

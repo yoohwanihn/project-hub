@@ -7,6 +7,7 @@ import { Header }         from '../../components/layout/Header';
 import { Avatar }         from '../../components/ui/Avatar';
 import { ConfirmDialog }  from '../../components/ui/Modal';
 import { useAppStore }    from '../../store/useAppStore';
+import { useAuthStore }   from '../../store/useAuthStore';
 import { formatDate, timeAgo } from '../../lib/utils';
 import type { WikiPage as WikiPageType } from '../../types';
 
@@ -63,7 +64,7 @@ export function WikiPage() {
   const createWikiPage      = useAppStore(s => s.createWikiPage);
   const updateWikiPage      = useAppStore(s => s.updateWikiPage);
   const deleteWikiPage      = useAppStore(s => s.deleteWikiPage);
-  const currentUserId       = useAppStore(s => s.currentUserId);
+  const currentUserId       = useAuthStore(s => s.currentUser?.id ?? '');
 
   const wikiPages = Object.values(allWiki)
     .filter((w) => w.projectId === selectedProjectId)

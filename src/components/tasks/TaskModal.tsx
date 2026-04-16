@@ -4,6 +4,7 @@ import { Modal } from '../ui/Modal';
 import { Select, MultiSelect, type SelectOption } from '../ui/MultiSelect';
 import { Avatar } from '../ui/Avatar';
 import { useAppStore } from '../../store/useAppStore';
+import { useAuthStore } from '../../store/useAuthStore';
 import type { Task, Priority } from '../../types';
 import { PRIORITY_LABEL, cn, formatDate } from '../../lib/utils';
 
@@ -13,7 +14,7 @@ const TODAY = new Date().toISOString().slice(0, 10);
 function WorkLogSection({ task }: { task: Task }) {
   const workLogsMap   = useAppStore(s => s.workLogs);
   const users         = useAppStore(s => s.users);
-  const currentUserId = useAppStore(s => s.currentUserId);
+  const currentUserId = useAuthStore(s => s.currentUser?.id ?? '');
   const addWorkLog    = useAppStore(s => s.addWorkLog);
   const deleteWorkLog = useAppStore(s => s.deleteWorkLog);
   const workLogs = useMemo(

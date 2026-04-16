@@ -1,6 +1,6 @@
 import { Bell, Search, HelpCircle } from 'lucide-react';
 import { Avatar } from '../ui/Avatar';
-import { useAppStore } from '../../store/useAppStore';
+import { useAuthStore } from '../../store/useAuthStore';
 
 interface HeaderProps {
   title: string;
@@ -9,7 +9,7 @@ interface HeaderProps {
 }
 
 export function Header({ title, subtitle, actions }: HeaderProps) {
-  const currentUser = useAppStore((s) => s.users[s.currentUserId]);
+  const currentUser = useAuthStore(s => s.currentUser);
 
   return (
     <header className="h-14 shrink-0 bg-white border-b border-slate-200 px-6 flex items-center justify-between gap-4">

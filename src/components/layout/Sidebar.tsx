@@ -1,11 +1,12 @@
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, FolderKanban, Columns3, GanttChartSquare,
-  BookOpen, Clock, Paperclip, Settings, ChevronDown, Plus, Megaphone, BarChart2, Vote,
+  BookOpen, Clock, Paperclip, Settings, ChevronDown, Plus, Megaphone, BarChart2, Vote, Shield,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Avatar } from '../ui/Avatar';
 import { useAppStore } from '../../store/useAppStore';
+import { useAuthStore } from '../../store/useAuthStore';
 import { useState, useMemo } from 'react';
 
 const NAV_ITEMS = [
@@ -26,10 +27,8 @@ export function Sidebar() {
   const navigate  = useNavigate();
   const [projectsOpen, setProjectsOpen] = useState(true);
 
-  const projectsMap   = useAppStore(s => s.projects);
-  const users         = useAppStore(s => s.users);
-  const currentUserId = useAppStore(s => s.currentUserId);
-  const currentUser   = users[currentUserId];
+  const projectsMap = useAppStore(s => s.projects);
+  const currentUser = useAuthStore(s => s.currentUser);
   const projects = useMemo(
     () => Object.values(projectsMap)
       .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
@@ -102,7 +101,21 @@ export function Sidebar() {
 
       {/* User Profile */}
       {currentUser && (
-        <div className="px-3 py-3 border-t border-slate-100">
+        <div className="px-3 py-3 border-t border-slate-100 space-y-0.5">
+          {(currentUser.role === 'owner' || currentUser.role === 'admin') && (
+            <NavLink
+              to="/admin"
+              className={({ isActive }) =>
+                cn('flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                  isActive
+                    ? 'bg-primary-50 text-primary-700'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800')
+              }
+            >
+              <Shield size={16} />
+              <span>회원 관리</span>
+            </NavLink>
+          )}
           <NavLink
             to="/settings"
             className={cn('sidebar-item justify-between', location.pathname === '/settings' && 'active')}
