@@ -99,8 +99,8 @@ EOF
 
 ```bash
 cat > /mnt/c/cmworld/.env.example << 'EOF'
-DB_HOST=192.168.0.199
-DB_PORT=5432
+DB_HOST=your_host
+DB_PORT=your_port
 DB_NAME=project_hub
 DB_USER=your_db_user
 DB_PASSWORD=your_db_password
@@ -209,11 +209,11 @@ import path from 'path';
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 export const db = new Pool({
-  host:     process.env.DB_HOST     || '192.168.0.199',
-  port:     Number(process.env.DB_PORT)     || 5432,
-  database: process.env.DB_NAME     || 'project_hub',
-  user:     process.env.DB_USER     || 'cmworld',
-  password: process.env.DB_PASSWORD || '12345678',
+  host:     process.env.DB_HOST,
+  port:     Number(process.env.DB_PORT),
+  database: process.env.DB_NAME,
+  user:     process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
 });
 
 db.on('error', (err) => {

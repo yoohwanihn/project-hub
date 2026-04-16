@@ -5,6 +5,7 @@ import { ColorPicker } from '../ui/ColorPicker';
 import { MultiSelect, type SelectOption } from '../ui/MultiSelect';
 import { Avatar } from '../ui/Avatar';
 import { useAppStore } from '../../store/useAppStore';
+import { useAuthStore } from '../../store/useAuthStore';
 import type { Project, WorkflowStatus } from '../../types';
 import { DEFAULT_WORKFLOW } from '../../types';
 import { cn } from '../../lib/utils';
@@ -83,7 +84,7 @@ export function ProjectModal({ open, onClose, project }: ProjectModalProps) {
   const users         = useAppStore(s => s.users);
   const createProject = useAppStore(s => s.createProject);
   const updateProject = useAppStore(s => s.updateProject);
-  const currentUserId = useAppStore(s => s.currentUserId);
+  const currentUserId = useAuthStore(s => s.currentUser?.id ?? '');
 
   const isEdit = !!project;
 
