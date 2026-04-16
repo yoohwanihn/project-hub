@@ -1,20 +1,37 @@
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import { useAuthStore } from '../store/useAuthStore';
 import type { TimelineEvent } from '../types';
 
-const STORAGE_KEY = 'notification_last_read';
+const LAST_READ_KEY   = 'notification_last_read';
+const DISMISSED_KEY   = 'notification_dismissed';
 
 function getLastRead(): number {
-  const val = localStorage.getItem(STORAGE_KEY);
+  const val = localStorage.getItem(LAST_READ_KEY);
   return val ? parseInt(val, 10) : 0;
 }
 
+function loadDismissed(): Set<string> {
+  try {
+    const raw = localStorage.getItem(DISMISSED_KEY);
+    return raw ? new Set(JSON.parse(raw) as string[]) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+function saveDismissed(ids: Set<string>) {
+  localStorage.setItem(DISMISSED_KEY, JSON.stringify([...ids]));
+}
+
 export function useNotifications() {
-  const timeline      = useAppStore(s => s.timeline);
-  const users         = useAppStore(s => s.users);
-  const projects      = useAppStore(s => s.projects);
-  const currentUser   = useAuthStore(s => s.currentUser);
+  const timeline    = useAppStore(s => s.timeline);
+  const users       = useAppStore(s => s.users);
+  const projects    = useAppStore(s => s.projects);
+  const currentUser = useAuthStore(s => s.currentUser);
+
+  // React state so that dismiss triggers re-render
+  const [dismissed, setDismissed] = useState<Set<string>>(loadDismissed);
 
   const notifications = useMemo(() => {
     if (!currentUser) return [];
@@ -23,18 +40,42 @@ export function useNotifications() {
       .filter(
         (e) =>
           e.actorId !== currentUser.id &&
-          new Date(e.createdAt).getTime() > lastRead,
+          new Date(e.createdAt).getTime() > lastRead &&
+          !dismissed.has(e.id),
       )
       .map((e) => toNotification(e, users, projects));
-  }, [timeline, currentUser, users, projects]);
+  }, [timeline, currentUser, users, projects, dismissed]);
 
   const unreadCount = notifications.length;
 
-  const markAllRead = useCallback(() => {
-    localStorage.setItem(STORAGE_KEY, Date.now().toString());
+  // 개별 삭제
+  const dismissOne = useCallback((id: string) => {
+    setDismissed((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      saveDismissed(next);
+      return next;
+    });
   }, []);
 
-  return { notifications, unreadCount, markAllRead };
+  // 전체 삭제
+  const dismissAll = useCallback(() => {
+    const ids = new Set(
+      timeline
+        .filter((e) => currentUser && e.actorId !== currentUser.id)
+        .map((e) => e.id),
+    );
+    saveDismissed(ids);
+    setDismissed(ids);
+    localStorage.setItem(LAST_READ_KEY, Date.now().toString());
+  }, [timeline, currentUser]);
+
+  // 패널 열 때 읽음 처리 (빨간 점 제거용, 삭제와는 별개)
+  const markAllRead = useCallback(() => {
+    localStorage.setItem(LAST_READ_KEY, Date.now().toString());
+  }, []);
+
+  return { notifications, unreadCount, dismissOne, dismissAll, markAllRead };
 }
 
 // ── helpers ───────────────────────────────────────────────────────

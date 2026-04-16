@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bell, Search, HelpCircle, LogOut, UserX, User, ChevronDown } from 'lucide-react';
+import { Bell, Search, HelpCircle, LogOut, UserX, User, ChevronDown, X, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar } from '../ui/Avatar';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -19,7 +19,7 @@ export function Header({ title, subtitle, actions, showSearch = false }: HeaderP
   const clearAuth    = useAuthStore(s => s.clearAuth);
   const navigate     = useNavigate();
 
-  const { notifications, unreadCount, markAllRead } = useNotifications();
+  const { notifications, unreadCount, dismissOne, dismissAll, markAllRead } = useNotifications();
 
   const [userMenuOpen, setUserMenuOpen]   = useState(false);
   const [bellOpen,     setBellOpen]       = useState(false);
@@ -109,13 +109,29 @@ export function Header({ title, subtitle, actions, showSearch = false }: HeaderP
 
           {bellOpen && (
             <div className="absolute right-0 top-10 w-80 bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden">
+              {/* 헤더 */}
               <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-                <p className="text-xs font-semibold text-slate-700">알림</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs font-semibold text-slate-700">알림</p>
+                  {notifications.length > 0 && (
+                    <span className="text-[11px] bg-primary-100 text-primary-600 font-semibold px-1.5 py-0.5 rounded-full">
+                      {notifications.length}
+                    </span>
+                  )}
+                </div>
                 {notifications.length > 0 && (
-                  <span className="text-[11px] text-primary-500 font-medium">{notifications.length}개</span>
+                  <button
+                    onClick={dismissAll}
+                    className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-red-500 transition-colors"
+                    title="전체 삭제"
+                  >
+                    <Trash2 size={11} />
+                    전체 삭제
+                  </button>
                 )}
               </div>
 
+              {/* 목록 */}
               {notifications.length === 0 ? (
                 <div className="py-10 text-center">
                   <Bell size={24} className="text-slate-200 mx-auto mb-2" />
@@ -124,20 +140,28 @@ export function Header({ title, subtitle, actions, showSearch = false }: HeaderP
               ) : (
                 <ul className="max-h-80 overflow-y-auto divide-y divide-slate-50">
                   {notifications.map((n) => (
-                    <li key={n.id} className="px-4 py-3 hover:bg-slate-50 transition-colors">
+                    <li key={n.id} className="px-4 py-3 hover:bg-slate-50 transition-colors group/item">
                       <div className="flex items-start gap-2.5">
                         <div className="w-6 h-6 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0 mt-0.5">
                           <span className="text-[10px] font-bold text-primary-600">
                             {n.actorName.charAt(0)}
                           </span>
                         </div>
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                           <p className="text-xs text-slate-700 leading-relaxed">{n.message}</p>
                           <p className="text-[11px] text-slate-400 mt-0.5">{n.projectName}</p>
                           <p className="text-[10px] text-slate-300 mt-0.5">
                             {formatDate(n.createdAt, 'MM/dd HH:mm')}
                           </p>
                         </div>
+                        {/* 개별 삭제 버튼 */}
+                        <button
+                          onClick={() => dismissOne(n.id)}
+                          className="flex-shrink-0 p-0.5 rounded text-slate-300 hover:text-red-400 hover:bg-red-50 opacity-0 group-hover/item:opacity-100 transition-all mt-0.5"
+                          title="알림 삭제"
+                        >
+                          <X size={12} />
+                        </button>
                       </div>
                     </li>
                   ))}
