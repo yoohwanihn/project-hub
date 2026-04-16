@@ -1,26 +1,40 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, FolderKanban, Columns3, GanttChartSquare,
-  BookOpen, Clock, Paperclip, Settings, ChevronDown, Plus,
+  BookOpen, Clock, Paperclip, Settings, ChevronDown, Plus, Megaphone, BarChart2, Vote, Shield,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Avatar } from '../ui/Avatar';
-import { CURRENT_USER, MOCK_PROJECTS } from '../../data/mock';
-import { useState } from 'react';
+import { useAppStore } from '../../store/useAppStore';
+import { useAuthStore } from '../../store/useAuthStore';
+import { useState, useMemo } from 'react';
 
 const NAV_ITEMS = [
-  { to: '/dashboard',  icon: LayoutDashboard,  label: '대시보드' },
-  { to: '/projects',   icon: FolderKanban,      label: '프로젝트' },
-  { to: '/kanban',     icon: Columns3,          label: '칸반 보드' },
-  { to: '/gantt',      icon: GanttChartSquare,  label: '간트차트' },
-  { to: '/wiki',       icon: BookOpen,          label: '위키' },
-  { to: '/timeline',   icon: Clock,             label: '타임라인' },
-  { to: '/files',      icon: Paperclip,         label: '파일 보관함' },
+  { to: '/dashboard', icon: LayoutDashboard, label: '대시보드' },
+  { to: '/projects',  icon: FolderKanban,    label: '프로젝트' },
+  { to: '/kanban',    icon: Columns3,        label: '칸반 보드' },
+  { to: '/gantt',     icon: GanttChartSquare,label: '간트차트' },
+  { to: '/wiki',          icon: BookOpen,   label: '위키' },
+  { to: '/announcements', icon: Megaphone,  label: '공지사항' },
+  { to: '/timeline',      icon: Clock,      label: '타임라인' },
+  { to: '/files',         icon: Paperclip,  label: '파일 보관함' },
+  { to: '/resources',     icon: BarChart2,  label: '자원 관리' },
+  { to: '/polls',         icon: Vote,       label: '투표' },
 ];
 
 export function Sidebar() {
   const location = useLocation();
+  const navigate  = useNavigate();
   const [projectsOpen, setProjectsOpen] = useState(true);
+
+  const projectsMap = useAppStore(s => s.projects);
+  const currentUser = useAuthStore(s => s.currentUser);
+  const projects = useMemo(
+    () => Object.values(projectsMap)
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+      .slice(0, 3),
+    [projectsMap],
+  );
 
   return (
     <aside className="w-60 shrink-0 h-screen bg-white border-r border-slate-200 flex flex-col">
@@ -40,9 +54,7 @@ export function Sidebar() {
           <NavLink
             key={to}
             to={to}
-            className={({ isActive }) =>
-              cn('sidebar-item', isActive && 'active')
-            }
+            className={({ isActive }) => cn('sidebar-item', isActive && 'active')}
           >
             <Icon size={16} />
             {label}
@@ -58,30 +70,29 @@ export function Sidebar() {
             <span>최근 프로젝트</span>
             <ChevronDown
               size={12}
-              className={cn('transition-transform', projectsOpen ? 'rotate-0' : '-rotate-90')}
+              className={cn('transition-transform', !projectsOpen && '-rotate-90')}
             />
           </button>
           {projectsOpen && (
             <div className="mt-1 space-y-0.5">
-              {MOCK_PROJECTS.slice(0, 3).map((p) => (
+              {projects.map((p) => (
                 <NavLink
                   key={p.id}
                   to={`/projects/${p.id}`}
                   className={cn(
-                    'flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 font-medium cursor-pointer transition-colors hover:bg-slate-50',
+                    'flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 font-medium hover:bg-slate-50 transition-colors',
                     location.pathname === `/projects/${p.id}` && 'bg-slate-50 text-slate-900',
                   )}
                 >
-                  <span
-                    className="w-2 h-2 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: p.color }}
-                  />
+                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: p.color }} />
                   <span className="truncate">{p.name}</span>
                 </NavLink>
               ))}
-              <button className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-primary-600 font-medium hover:bg-primary-50 w-full">
-                <Plus size={12} />
-                새 프로젝트
+              <button
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-primary-600 font-medium hover:bg-primary-50 w-full"
+                onClick={() => navigate('/projects')}
+              >
+                <Plus size={12} /> 새 프로젝트
               </button>
             </div>
           )}
@@ -89,21 +100,37 @@ export function Sidebar() {
       </nav>
 
       {/* User Profile */}
-      <div className="px-3 py-3 border-t border-slate-100">
-        <NavLink
-          to="/settings"
-          className={cn('sidebar-item justify-between', location.pathname === '/settings' && 'active')}
-        >
-          <div className="flex items-center gap-2.5">
-            <Avatar name={CURRENT_USER.name} size="sm" />
-            <div className="min-w-0">
-              <p className="text-xs font-semibold text-slate-700 truncate">{CURRENT_USER.name}</p>
-              <p className="text-[10px] text-slate-400 truncate">{CURRENT_USER.email}</p>
+      {currentUser && (
+        <div className="px-3 py-3 border-t border-slate-100 space-y-0.5">
+          {(currentUser.role === 'owner' || currentUser.role === 'admin') && (
+            <NavLink
+              to="/admin"
+              className={({ isActive }) =>
+                cn('flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                  isActive
+                    ? 'bg-primary-50 text-primary-700'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800')
+              }
+            >
+              <Shield size={16} />
+              <span>회원 관리</span>
+            </NavLink>
+          )}
+          <NavLink
+            to="/settings"
+            className={cn('sidebar-item justify-between', location.pathname === '/settings' && 'active')}
+          >
+            <div className="flex items-center gap-2.5">
+              <Avatar name={currentUser.name} size="sm" />
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-slate-700 truncate">{currentUser.name}</p>
+                <p className="text-[10px] text-slate-400 truncate">{currentUser.email}</p>
+              </div>
             </div>
-          </div>
-          <Settings size={14} className="text-slate-400 flex-shrink-0" />
-        </NavLink>
-      </div>
+            <Settings size={14} className="text-slate-400 flex-shrink-0" />
+          </NavLink>
+        </div>
+      )}
     </aside>
   );
 }

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { User, Bell, Shield, Palette, Globe, ChevronRight } from 'lucide-react';
 import { Header } from '../../components/layout/Header';
 import { Avatar } from '../../components/ui/Avatar';
-import { CURRENT_USER } from '../../data/mock';
+import { useAuthStore } from '../../store/useAuthStore';
 import { cn } from '../../lib/utils';
 
 type Section = 'profile' | 'notifications' | 'security' | 'appearance' | 'language';
@@ -16,8 +16,9 @@ const SECTIONS: { id: Section; icon: React.ElementType; label: string; desc: str
 ];
 
 function ProfileSection() {
-  const [name, setName] = useState(CURRENT_USER.name);
-  const [email, setEmail] = useState(CURRENT_USER.email);
+  const currentUser = useAuthStore(s => s.currentUser);
+  const [name, setName]   = useState(currentUser?.name ?? '');
+  const [email, setEmail] = useState(currentUser?.email ?? '');
 
   return (
     <div className="space-y-6">

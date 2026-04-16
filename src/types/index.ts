@@ -2,9 +2,8 @@
 // Domain Types
 // ────────────────────────────────────────────────────────────────
 
-export type TaskStatus = 'todo' | 'in_progress' | 'review' | 'done';
-export type Priority   = 'low' | 'medium' | 'high' | 'urgent';
-export type Role       = 'owner' | 'admin' | 'member' | 'viewer';
+export type Priority = 'low' | 'medium' | 'high' | 'urgent';
+export type Role     = 'owner' | 'admin' | 'member' | 'viewer';
 
 export interface User {
   id: string;
@@ -20,75 +19,159 @@ export interface Tag {
   color: string;
 }
 
+// ── Workflow ───────────────────────────────────────────────────
+// A project can have up to 8 custom status columns.
+export interface WorkflowStatus {
+  id: string;       // e.g. "todo", "in_progress", or a custom UUID
+  label: string;    // display name
+  color: string;    // hex color for the badge
+  order: number;    // column order
+}
+
+export const DEFAULT_WORKFLOW: WorkflowStatus[] = [
+  { id: 'todo',        label: '진행 전', color: '#94a3b8', order: 0 },
+  { id: 'in_progress', label: '진행 중', color: '#3b82f6', order: 1 },
+  { id: 'review',      label: '검토 중', color: '#f59e0b', order: 2 },
+  { id: 'done',        label: '완료',    color: '#10b981', order: 3 },
+];
+
+// ── Project ────────────────────────────────────────────────────
 export interface Project {
   id: string;
   name: string;
   description: string;
   color: string;
-  progress: number;
   startDate: string;
   endDate: string;
   members: User[];
-  taskCounts: { todo: number; in_progress: number; review: number; done: number };
+  workflow: WorkflowStatus[];   // project-specific workflow
+  tags: Tag[];                  // project-level tag palette
+  createdAt: string;
   updatedAt: string;
 }
 
+// ── Task ───────────────────────────────────────────────────────
 export interface Task {
   id: string;
   projectId: string;
   title: string;
   description: string;
-  status: TaskStatus;
+  statusId: string;             // references WorkflowStatus.id
   priority: Priority;
-  assignees: User[];
-  tags: Tag[];
+  assigneeIds: string[];        // references User.id
+  tagIds: string[];             // references Tag.id
   startDate?: string;
   dueDate?: string;
   estimatedHours?: number;
-  loggedHours?: number;
-  order: number;
-  subtasks?: Task[];
-  parentId?: string;
-  blockedBy?: string[];
+  loggedHours: number;
+  order: number;                // within a column
+  parentId?: string;            // for subtasks
+  /** IDs of tasks this task depends on (must be completed first) */
+  blockedBy: string[];
   createdAt: string;
   updatedAt: string;
 }
 
+// ── Wiki ───────────────────────────────────────────────────────
 export interface WikiPage {
   id: string;
   projectId: string;
   title: string;
   content: string;
   version: number;
-  author: User;
+  authorId: string;
   updatedAt: string;
 }
 
+// ── Announcement ───────────────────────────────────────────────
 export interface Announcement {
   id: string;
   projectId: string;
   title: string;
   content: string;
-  author: User;
+  authorId: string;
   isPinned: boolean;
   createdAt: string;
 }
 
+// ── Timeline ───────────────────────────────────────────────────
+export type TimelineEventType =
+  | 'task_created'
+  | 'task_updated'
+  | 'task_completed'
+  | 'task_deleted'
+  | 'comment_added'
+  | 'member_joined'
+  | 'file_uploaded'
+  | 'project_created';
+
 export interface TimelineEvent {
   id: string;
-  type: 'task_created' | 'task_updated' | 'task_completed' | 'comment_added' | 'member_joined' | 'file_uploaded';
-  actor: User;
+  type: TimelineEventType;
+  actorId: string;
   payload: Record<string, unknown>;
   projectId: string;
   createdAt: string;
 }
 
+// ── WorkLog ────────────────────────────────────────────────────
+export interface WorkLog {
+  id: string;
+  taskId: string;
+  userId: string;
+  hours: number;       // 0.5 단위
+  note: string;
+  date: string;        // YYYY-MM-DD
+  createdAt: string;
+}
+
+// ── File ───────────────────────────────────────────────────────
 export interface FileItem {
   id: string;
   projectId: string;
   name: string;
   size: number;
   mimeType: string;
-  uploadedBy: User;
+  uploaderId: string;
   createdAt: string;
+}
+
+// ── Poll ───────────────────────────────────────────────────────
+export type PollStatus = 'active' | 'closed';
+
+export interface PollOption {
+  id: string;
+  label: string;
+  voterIds: string[];   // 이 선택지에 투표한 userId 목록
+}
+
+export interface Poll {
+  id: string;
+  projectId: string;
+  title: string;
+  description: string;
+  options: PollOption[];               // 최소 2개, 최대 10개
+  isMultiple: boolean;                 // true = 복수 선택
+  showResultsBeforeClose: boolean;     // true = 진행 중에도 결과 공개
+  status: PollStatus;
+  dueDate?: string;                    // YYYY-MM-DD, 없으면 수동 종료
+  authorId: string;
+  createdAt: string;
+}
+
+// ── Store helpers ──────────────────────────────────────────────
+export interface AppState {
+  // Entities
+  users: Record<string, User>;
+  projects: Record<string, Project>;
+  tasks: Record<string, Task>;
+  wikiPages: Record<string, WikiPage>;
+  announcements: Record<string, Announcement>;
+  workLogs: Record<string, WorkLog>;
+  timeline: TimelineEvent[];
+  files: Record<string, FileItem>;
+  polls: Record<string, Poll>;
+
+  // UI state
+  selectedProjectId: string | null;
 }

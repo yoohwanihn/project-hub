@@ -1,6 +1,9 @@
-import { Bell, Search, HelpCircle } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Bell, Search, HelpCircle, LogOut, UserX, User, ChevronDown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Avatar } from '../ui/Avatar';
-import { CURRENT_USER } from '../../data/mock';
+import { useAuthStore } from '../../store/useAuthStore';
+import api from '../../lib/api';
 
 interface HeaderProps {
   title: string;
@@ -9,17 +12,66 @@ interface HeaderProps {
 }
 
 export function Header({ title, subtitle, actions }: HeaderProps) {
+  const currentUser  = useAuthStore(s => s.currentUser);
+  const clearAuth    = useAuthStore(s => s.clearAuth);
+  const navigate     = useNavigate();
+
+  const [userMenuOpen, setUserMenuOpen]   = useState(false);
+  const [bellOpen,     setBellOpen]       = useState(false);
+  const [withdrawing,  setWithdrawing]    = useState(false);
+
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const bellRef     = useRef<HTMLDivElement>(null);
+
+  // 외부 클릭 시 드롭다운 닫기
+  useEffect(() => {
+    function handle(e: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+      if (bellRef.current && !bellRef.current.contains(e.target as Node)) {
+        setBellOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handle);
+    return () => document.removeEventListener('mousedown', handle);
+  }, []);
+
+  async function handleLogout() {
+    const refreshToken = localStorage.getItem('refreshToken');
+    try {
+      await api.post('/auth/logout', { refreshToken });
+    } catch { /* ignore */ }
+    localStorage.removeItem('refreshToken');
+    clearAuth();
+    navigate('/login');
+  }
+
+  async function handleWithdraw() {
+    if (!confirm('정말로 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
+    setWithdrawing(true);
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+      await api.delete('/auth/me', { data: { refreshToken } });
+      localStorage.removeItem('refreshToken');
+      clearAuth();
+      navigate('/login');
+    } catch (e) {
+      console.error(e);
+      alert('탈퇴 처리 중 오류가 발생했습니다.');
+    } finally {
+      setWithdrawing(false);
+    }
+  }
+
   return (
     <header className="h-14 shrink-0 bg-white border-b border-slate-200 px-6 flex items-center justify-between gap-4">
-      {/* Title */}
       <div className="min-w-0">
         <h1 className="text-sm font-bold text-slate-900 truncate">{title}</h1>
         {subtitle && <p className="text-xs text-slate-400 truncate">{subtitle}</p>}
       </div>
 
-      {/* Right side */}
       <div className="flex items-center gap-2">
-        {/* Search */}
         <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg w-52">
           <Search size={13} className="text-slate-400 flex-shrink-0" />
           <input
@@ -31,19 +83,91 @@ export function Header({ title, subtitle, actions }: HeaderProps) {
 
         {actions}
 
-        {/* Notification */}
-        <button className="relative p-2 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors">
-          <Bell size={16} />
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full" />
-        </button>
+        {/* 알림 버튼 */}
+        <div ref={bellRef} className="relative">
+          <button
+            className="relative p-2 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors"
+            onClick={() => setBellOpen((v) => !v)}
+          >
+            <Bell size={16} />
+            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full" />
+          </button>
 
-        {/* Help */}
+          {bellOpen && (
+            <div className="absolute right-0 top-10 w-72 bg-white border border-slate-200 rounded-xl shadow-lg z-50">
+              <div className="px-4 py-3 border-b border-slate-100">
+                <p className="text-xs font-semibold text-slate-700">알림</p>
+              </div>
+              <div className="py-8 text-center">
+                <Bell size={24} className="text-slate-200 mx-auto mb-2" />
+                <p className="text-xs text-slate-400">새 알림이 없습니다.</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 도움말 */}
         <button className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors">
           <HelpCircle size={16} />
         </button>
 
-        {/* Avatar */}
-        <Avatar name={CURRENT_USER.name} size="sm" className="cursor-pointer" />
+        {/* 유저 메뉴 */}
+        {currentUser && (
+          <div ref={userMenuRef} className="relative">
+            <button
+              className="flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors"
+              onClick={() => setUserMenuOpen((v) => !v)}
+            >
+              <Avatar name={currentUser.name} size="sm" />
+              <ChevronDown size={12} className="text-slate-400" />
+            </button>
+
+            {userMenuOpen && (
+              <div className="absolute right-0 top-11 w-56 bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden">
+                {/* 유저 정보 */}
+                <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
+                  <div className="flex items-center gap-2.5">
+                    <Avatar name={currentUser.name} size="sm" />
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-slate-800 truncate">{currentUser.name}</p>
+                      <p className="text-[11px] text-slate-400 truncate">{currentUser.email}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 메뉴 아이템 */}
+                <div className="py-1">
+                  <button
+                    className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 transition-colors"
+                    onClick={() => { setUserMenuOpen(false); navigate('/settings'); }}
+                  >
+                    <User size={14} className="text-slate-400" />
+                    프로필 설정
+                  </button>
+
+                  <hr className="my-1 border-slate-100" />
+
+                  <button
+                    className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 transition-colors"
+                    onClick={() => { setUserMenuOpen(false); handleLogout(); }}
+                  >
+                    <LogOut size={14} className="text-slate-400" />
+                    로그아웃
+                  </button>
+
+                  <button
+                    className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-red-500 hover:bg-red-50 transition-colors"
+                    onClick={() => { setUserMenuOpen(false); handleWithdraw(); }}
+                    disabled={withdrawing}
+                  >
+                    <UserX size={14} />
+                    {withdrawing ? '처리 중...' : '회원 탈퇴'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </header>
   );

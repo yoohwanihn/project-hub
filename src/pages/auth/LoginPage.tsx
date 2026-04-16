@@ -1,21 +1,39 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { FolderKanban, Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import axios from 'axios';
+import { useAuthStore, type CurrentUser } from '../../store/useAuthStore';
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const [showPw, setShowPw] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const setAuth  = useAuthStore(s => s.setAuth);
 
-  function handleSubmit(e: React.FormEvent) {
+  const [email,    setEmail]    = useState('');
+  const [password, setPassword] = useState('');
+  const [showPw,   setShowPw]   = useState(false);
+  const [loading,  setLoading]  = useState(false);
+  const [error,    setError]    = useState('');
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
+    setError('');
+
+    try {
+      const { data } = await axios.post('/api/auth/login', { email, password });
+      localStorage.setItem('refreshToken', data.refreshToken);
+      setAuth(data.accessToken, data.user as CurrentUser);
+      navigate('/dashboard', { replace: true });
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        const msg = err.response?.data?.message || err.response?.data?.error || '로그인에 실패했습니다.';
+        setError(msg);
+      } else {
+        setError('로그인에 실패했습니다.');
+      }
+    } finally {
       setLoading(false);
-      navigate('/dashboard');
-    }, 800);
+    }
   }
 
   return (
@@ -27,12 +45,18 @@ export function LoginPage() {
             <FolderKanban size={28} className="text-white" />
           </div>
           <h1 className="text-xl font-bold text-slate-900">ProjectHub</h1>
-          <p className="text-xs text-slate-500 mt-1">팀 협업 & 프로젝트 관리 플랫폼</p>
+          <p className="text-xs text-slate-500 mt-1">팀 협업 &amp; 프로젝트 관리 플랫폼</p>
         </div>
 
         {/* Card */}
         <div className="card p-8">
           <h2 className="text-base font-bold text-slate-800 mb-6">로그인</h2>
+
+          {error && (
+            <div className="mb-4 px-3 py-2 rounded-lg bg-red-50 border border-red-200 text-xs text-red-600">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -65,21 +89,11 @@ export function LoginPage() {
                 <button
                   type="button"
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  onClick={() => setShowPw((v) => !v)}
+                  onClick={() => setShowPw(v => !v)}
                 >
                   {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
                 </button>
               </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="w-3.5 h-3.5 accent-primary-600" />
-                <span className="text-xs text-slate-600">로그인 상태 유지</span>
-              </label>
-              <button type="button" className="text-xs text-primary-600 hover:underline">
-                비밀번호 찾기
-              </button>
             </div>
 
             <button
@@ -98,7 +112,7 @@ export function LoginPage() {
 
           <p className="text-xs text-center text-slate-400 mt-6">
             계정이 없으신가요?{' '}
-            <button className="text-primary-600 font-semibold hover:underline">관리자에게 문의</button>
+            <Link to="/register" className="text-primary-600 font-semibold hover:underline">회원가입</Link>
           </p>
         </div>
 
