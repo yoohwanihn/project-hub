@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, Vote } from 'lucide-react';
 import { Header } from '../../components/layout/Header';
 import { useAppStore } from '../../store/useAppStore';
+import { useAuthStore } from '../../store/useAuthStore';
 import { PollCard } from './PollCard';
 import { PollCreateModal } from './PollCreateModal';
 import type { Poll } from '../../types';
@@ -11,7 +12,7 @@ type Tab = 'active' | 'closed';
 export function PollsPage() {
   const polls             = useAppStore(s => s.polls);
   const projects          = useAppStore(s => s.projects);
-  const currentUserId     = useAppStore(s => s.currentUserId);
+  const currentUserId     = useAuthStore(s => s.currentUser?.id ?? '');
   const selectedProjectId = useAppStore(s => s.selectedProjectId);
   const createPoll        = useAppStore(s => s.createPoll);
   const setSelectedProject = useAppStore(s => s.setSelectedProject);

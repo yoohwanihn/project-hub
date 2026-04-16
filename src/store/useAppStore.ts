@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { nanoid } from './nanoid';
+import { useAuthStore } from './useAuthStore';
 import {
   type AppState,
   type Project,
@@ -121,7 +122,6 @@ export const useAppStore = create<AppState & AppActions>()(
     timeline:      MOCK_TIMELINE_RAW,
     files:         Object.fromEntries(MOCK_FILES_RAW.map((f) => [f.id, f])),
     polls:         Object.fromEntries(MOCK_POLLS_RAW.map((p) => [p.id, p])),
-    currentUserId: 'u1',
     selectedProjectId: 'p1',
 
     // ── Project ──────────────────────────────────────────────
@@ -131,7 +131,7 @@ export const useAppStore = create<AppState & AppActions>()(
       set((s) => {
         s.projects[id] = { ...data, id, createdAt: now, updatedAt: now };
       });
-      get()._addEvent({ type: 'project_created', actorId: get().currentUserId, projectId: id, payload: { projectName: data.name } });
+      get()._addEvent({ type: 'project_created', actorId: useAuthStore.getState().currentUser?.id ?? '', projectId: id, payload: { projectName: data.name } });
       return id;
     },
 
@@ -269,7 +269,7 @@ export const useAppStore = create<AppState & AppActions>()(
       });
       get()._addEvent({
         type: 'task_created',
-        actorId: get().currentUserId,
+        actorId: useAuthStore.getState().currentUser?.id ?? '',
         projectId: data.projectId,
         payload: { taskId: id, taskTitle: data.title },
       });
@@ -287,7 +287,7 @@ export const useAppStore = create<AppState & AppActions>()(
       if (patch.statusId && patch.statusId !== prev.statusId) {
         get()._addEvent({
           type: patch.statusId === 'done' ? 'task_completed' : 'task_updated',
-          actorId: get().currentUserId,
+          actorId: useAuthStore.getState().currentUser?.id ?? '',
           projectId: prev.projectId,
           payload: {
             taskId: id,
@@ -312,7 +312,7 @@ export const useAppStore = create<AppState & AppActions>()(
       });
       get()._addEvent({
         type: 'task_deleted',
-        actorId: get().currentUserId,
+        actorId: useAuthStore.getState().currentUser?.id ?? '',
         projectId: task.projectId,
         payload: { taskId: id, taskTitle: task.title },
       });
@@ -417,7 +417,7 @@ export const useAppStore = create<AppState & AppActions>()(
       set((s) => { s.files[id] = { ...data, id, createdAt }; });
       get()._addEvent({
         type: 'file_uploaded',
-        actorId: get().currentUserId,
+        actorId: useAuthStore.getState().currentUser?.id ?? '',
         projectId: data.projectId,
         payload: { fileName: data.name },
       });

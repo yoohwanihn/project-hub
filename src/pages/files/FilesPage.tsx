@@ -8,6 +8,7 @@ import { Header }        from '../../components/layout/Header';
 import { Avatar }        from '../../components/ui/Avatar';
 import { ConfirmDialog } from '../../components/ui/Modal';
 import { useAppStore }   from '../../store/useAppStore';
+import { useAuthStore }  from '../../store/useAuthStore';
 import { formatDate, formatBytes, cn } from '../../lib/utils';
 import type { FileItem } from '../../types';
 
@@ -54,7 +55,7 @@ export function FilesPage() {
   const users                = useAppStore(s => s.users);
   const selectedProjectIdRaw = useAppStore(s => s.selectedProjectId);
   const selectedProjectId    = selectedProjectIdRaw ?? 'p1';
-  const currentUserId        = useAppStore(s => s.currentUserId);
+  const currentUserId        = useAuthStore(s => s.currentUser?.id ?? '');
   const addFile              = useAppStore(s => s.addFile);
   const deleteFile           = useAppStore(s => s.deleteFile);
 

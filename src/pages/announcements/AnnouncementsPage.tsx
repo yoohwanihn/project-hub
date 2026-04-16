@@ -7,6 +7,7 @@ import { Header }        from '../../components/layout/Header';
 import { Avatar }        from '../../components/ui/Avatar';
 import { ConfirmDialog } from '../../components/ui/Modal';
 import { useAppStore }   from '../../store/useAppStore';
+import { useAuthStore }  from '../../store/useAuthStore';
 import { formatDate, timeAgo } from '../../lib/utils';
 import { cn }            from '../../lib/utils';
 import type { Announcement } from '../../types';
@@ -191,7 +192,7 @@ export function AnnouncementsPage() {
   const users                  = useAppStore(s => s.users);
   const selectedProjectIdRaw   = useAppStore(s => s.selectedProjectId);
   const selectedProjectId      = selectedProjectIdRaw ?? 'p1';
-  const currentUserId          = useAppStore(s => s.currentUserId);
+  const currentUserId          = useAuthStore(s => s.currentUser?.id ?? '');
   const createAnnouncement     = useAppStore(s => s.createAnnouncement);
   const updateAnnouncement     = useAppStore(s => s.updateAnnouncement);
   const deleteAnnouncement     = useAppStore(s => s.deleteAnnouncement);
