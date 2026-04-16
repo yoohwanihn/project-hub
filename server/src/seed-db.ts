@@ -4,7 +4,7 @@ import { db } from './db';
 async function seed() {
   console.log('Seeding...');
 
-  const hash = await bcrypt.hash('cmworld1234!', 10);
+  const hash = await bcrypt.hash('12345678', 10);
 
   // users — status='active', password_hash 포함
   await db.query(`
