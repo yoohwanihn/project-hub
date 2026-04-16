@@ -140,6 +140,7 @@ export const useAppStore = create<AppState & AppActions>()(
     },
 
     async loadProjectData(projectId: string) {
+      if (!projectId) return;
       const [tasksRes, wikiRes, annoRes, filesRes, pollsRes] = await Promise.all([
         api.get(`/projects/${projectId}/tasks`),
         api.get(`/projects/${projectId}/wiki`),
@@ -458,6 +459,7 @@ export const useAppStore = create<AppState & AppActions>()(
 
     // ── Timeline ─────────────────────────────────────────────
     async loadTimeline(projectId) {
+      if (!projectId) return;
       const res = await api.get(`/projects/${projectId}/timeline`);
       const events: TimelineEvent[] = res.data;
       set((s) => {

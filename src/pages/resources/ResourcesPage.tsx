@@ -41,7 +41,7 @@ export function ResourcesPage() {
   const allTasksMap          = useAppStore(s => s.tasks);
   const allWorkLogsMap       = useAppStore(s => s.workLogs);
   const selectedProjectIdRaw = useAppStore(s => s.selectedProjectId);
-  const selectedProjectId    = selectedProjectIdRaw ?? 'p1';
+  const selectedProjectId    = selectedProjectIdRaw ?? '';
 
   const projectList = Object.values(projects).sort(
     (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),

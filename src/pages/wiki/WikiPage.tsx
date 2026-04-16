@@ -60,7 +60,7 @@ export function WikiPage() {
   const allWiki             = useAppStore(s => s.wikiPages);
   const users               = useAppStore(s => s.users);
   const selectedProjectIdRaw = useAppStore(s => s.selectedProjectId);
-  const selectedProjectId   = selectedProjectIdRaw ?? 'p1';
+  const selectedProjectId   = selectedProjectIdRaw ?? '';
   const createWikiPage      = useAppStore(s => s.createWikiPage);
   const updateWikiPage      = useAppStore(s => s.updateWikiPage);
   const deleteWikiPage      = useAppStore(s => s.deleteWikiPage);

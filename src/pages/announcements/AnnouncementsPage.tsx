@@ -191,7 +191,7 @@ export function AnnouncementsPage() {
   const allAnns                = useAppStore(s => s.announcements);
   const users                  = useAppStore(s => s.users);
   const selectedProjectIdRaw   = useAppStore(s => s.selectedProjectId);
-  const selectedProjectId      = selectedProjectIdRaw ?? 'p1';
+  const selectedProjectId      = selectedProjectIdRaw ?? '';
   const currentUserId          = useAuthStore(s => s.currentUser?.id ?? '');
   const createAnnouncement     = useAppStore(s => s.createAnnouncement);
   const updateAnnouncement     = useAppStore(s => s.updateAnnouncement);

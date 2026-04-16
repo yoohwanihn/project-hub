@@ -54,7 +54,7 @@ export function FilesPage() {
   const allFiles             = useAppStore(s => s.files);
   const users                = useAppStore(s => s.users);
   const selectedProjectIdRaw = useAppStore(s => s.selectedProjectId);
-  const selectedProjectId    = selectedProjectIdRaw ?? 'p1';
+  const selectedProjectId    = selectedProjectIdRaw ?? '';
   const uploadFiles          = useAppStore(s => s.uploadFiles);
   const deleteFile           = useAppStore(s => s.deleteFile);
   const accessToken          = useAuthStore(s => s.accessToken);

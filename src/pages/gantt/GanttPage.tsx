@@ -175,7 +175,7 @@ export function GanttPage() {
     (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
   );
 
-  const [selectedProjectId, setSelectedProjectId] = useState(projectList[0]?.id ?? 'p1');
+  const [selectedProjectId, setSelectedProjectId] = useState(projectList[0]?.id ?? '');
   const [startDate, setStartDate]                 = useState(() => addDays(TODAY, -14));
   const VISIBLE_DAYS = 70; // 10 weeks
 

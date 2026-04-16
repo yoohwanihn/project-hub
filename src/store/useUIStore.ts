@@ -6,6 +6,6 @@ interface UIState {
 }
 
 export const useUIStore = create<UIState>()((set) => ({
-  selectedProjectId:  'p1',
+  selectedProjectId:  null,
   setSelectedProject: (id) => set({ selectedProjectId: id }),
 }));
