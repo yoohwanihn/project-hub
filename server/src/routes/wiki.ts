@@ -19,7 +19,7 @@ wikiRouter.get('/', requireProjectMember, async (req, res) => {
 
 // POST /api/projects/:projectId/wiki
 wikiRouter.post('/', requireProjectMember, async (req, res) => {
-  const userId = (req as any).user.id;
+  const userId = req.user!.sub;
   const { title, content } = req.body;
   if (!title) return res.status(400).json({ error: 'title required' });
   const id = uuidv4();
@@ -37,7 +37,7 @@ wikiRouter.post('/', requireProjectMember, async (req, res) => {
 
 // PATCH /api/wiki/:id
 wikiRouter.patch('/:id', async (req, res) => {
-  const userId = (req as any).user.id;
+  const userId = req.user!.sub;
   const { title, content } = req.body;
   await db.query(
     `UPDATE wiki_pages SET

@@ -21,7 +21,7 @@ announcementsRouter.get('/', requireProjectMember, async (req, res) => {
 
 // POST /api/projects/:projectId/announcements
 announcementsRouter.post('/', requireProjectMember, async (req, res) => {
-  const userId = (req as any).user.id;
+  const userId = req.user!.sub;
   const { title, content, isPinned } = req.body;
   if (!title) return res.status(400).json({ error: 'title required' });
   const id = uuidv4();

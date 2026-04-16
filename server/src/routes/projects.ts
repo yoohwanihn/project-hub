@@ -42,7 +42,7 @@ async function fetchFullProject(projectId: string) {
 
 // GET /api/projects
 projectsRouter.get('/', async (req, res) => {
-  const userId = (req as any).user.id;
+  const userId = req.user!.sub;
   const { rows } = await db.query(
     `SELECT DISTINCT p.id FROM projects p
      JOIN project_members pm ON pm.project_id=p.id
@@ -56,7 +56,7 @@ projectsRouter.get('/', async (req, res) => {
 
 // POST /api/projects
 projectsRouter.post('/', async (req, res) => {
-  const userId = (req as any).user.id;
+  const userId = req.user!.sub;
   const { name, description, color, startDate, endDate } = req.body;
   if (!name || !color) return res.status(400).json({ error: 'name and color required' });
 

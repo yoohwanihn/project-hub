@@ -51,7 +51,7 @@ filesRouter.post(
   requireProjectMember,
   upload.array('files', 20),
   async (req, res) => {
-    const userId = (req as any).user.id;
+    const userId = req.user!.sub;
     const uploaded = req.files as Express.Multer.File[];
     if (!uploaded?.length) return res.status(400).json({ error: 'No files' });
 

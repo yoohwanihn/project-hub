@@ -40,7 +40,7 @@ tasksRouter.get('/', requireProjectMember, async (req, res) => {
 
 // POST /api/projects/:projectId/tasks
 tasksRouter.post('/', requireProjectMember, async (req, res) => {
-  const userId = (req as any).user.id;
+  const userId = req.user!.sub;
   const { title, description, statusId, priority, assigneeIds, tagIds, blockedBy,
           startDate, dueDate, estimatedHours, parentId } = req.body;
 
@@ -79,7 +79,7 @@ tasksRouter.post('/', requireProjectMember, async (req, res) => {
 
 // PATCH /api/tasks/:taskId
 tasksRouter.patch('/:taskId', async (req, res) => {
-  const userId = (req as any).user.id;
+  const userId = req.user!.sub;
   const { rows: [prev] } = await db.query('SELECT * FROM tasks WHERE id=$1', [req.params.taskId]);
   if (!prev) return res.status(404).json({ error: 'Task not found' });
 
@@ -126,7 +126,7 @@ tasksRouter.patch('/:taskId', async (req, res) => {
 
 // DELETE /api/tasks/:taskId
 tasksRouter.delete('/:taskId', async (req, res) => {
-  const userId = (req as any).user.id;
+  const userId = req.user!.sub;
   const { rows: [task] } = await db.query('SELECT * FROM tasks WHERE id=$1', [req.params.taskId]);
   if (!task) return res.status(404).json({ error: 'Task not found' });
 

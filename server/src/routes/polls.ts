@@ -44,7 +44,7 @@ pollsRouter.get('/', requireProjectMember, async (req, res) => {
 
 // POST /api/projects/:projectId/polls
 pollsRouter.post('/', requireProjectMember, async (req, res) => {
-  const userId = (req as any).user.id;
+  const userId = req.user!.sub;
   const { title, description, options, isMultiple, showResultsBeforeClose, dueDate } = req.body;
   if (!title || !Array.isArray(options) || options.length < 2) {
     return res.status(400).json({ error: 'title and at least 2 options required' });
@@ -87,7 +87,7 @@ pollsRouter.delete('/:id', async (req, res) => {
 
 // POST /api/polls/:id/vote
 pollsRouter.post('/:id/vote', async (req, res) => {
-  const userId = (req as any).user.id;
+  const userId = req.user!.sub;
   const { optionId } = req.body;
   const { rows: [poll] } = await db.query('SELECT * FROM polls WHERE id=$1', [req.params.id]);
   if (!poll || poll.status === 'closed') return res.status(400).json({ error: 'Poll not available' });
@@ -109,7 +109,7 @@ pollsRouter.post('/:id/vote', async (req, res) => {
 
 // DELETE /api/polls/:id/vote
 pollsRouter.delete('/:id/vote', async (req, res) => {
-  const userId = (req as any).user.id;
+  const userId = req.user!.sub;
   const { optionId } = req.body;
   await db.query(
     'DELETE FROM poll_votes WHERE poll_id=$1 AND option_id=$2 AND user_id=$3',
