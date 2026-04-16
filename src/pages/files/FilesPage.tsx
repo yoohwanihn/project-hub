@@ -8,6 +8,7 @@ import { Header }        from '../../components/layout/Header';
 import { Avatar }        from '../../components/ui/Avatar';
 import { ConfirmDialog } from '../../components/ui/Modal';
 import { useAppStore }   from '../../store/useAppStore';
+import { useAuthStore }  from '../../store/useAuthStore';
 import { formatDate, formatBytes, cn } from '../../lib/utils';
 import type { FileItem } from '../../types';
 
@@ -56,6 +57,25 @@ export function FilesPage() {
   const selectedProjectId    = selectedProjectIdRaw ?? 'p1';
   const uploadFiles          = useAppStore(s => s.uploadFiles);
   const deleteFile           = useAppStore(s => s.deleteFile);
+  const accessToken          = useAuthStore(s => s.accessToken);
+
+  async function downloadFile(f: FileItem) {
+    try {
+      const res = await fetch(`/api/files/${f.id}/download`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (!res.ok) throw new Error('Download failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = f.name;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      alert('다운로드에 실패했습니다. 로그인 상태를 확인해주세요.');
+    }
+  }
 
   const files = Object.values(allFiles).filter((f) => f.projectId === selectedProjectId);
 
@@ -279,14 +299,13 @@ export function FilesPage() {
                     </td>
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity justify-end">
-                        <a
-                          href={`/api/files/${f.id}/download`}
-                          className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 flex items-center"
+                        <button
+                          className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700"
                           title="다운로드"
-                          download
+                          onClick={() => downloadFile(f)}
                         >
                           <Download size={14} />
-                        </a>
+                        </button>
                         <button
                           className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500"
                           title="삭제"
@@ -320,13 +339,12 @@ export function FilesPage() {
                   <p className="text-[10px] text-slate-300 mt-0.5">{formatDate(f.createdAt, 'yyyy.MM.dd')}</p>
                 </div>
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <a
-                    href={`/api/files/${f.id}/download`}
-                    className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 flex items-center"
-                    download
+                  <button
+                    className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                    onClick={() => downloadFile(f)}
                   >
                     <Download size={12} />
-                  </a>
+                  </button>
                   <button
                     className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500"
                     onClick={() => setDeleteTarget(f)}
