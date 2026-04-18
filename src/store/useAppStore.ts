@@ -405,9 +405,7 @@ export const useAppStore = create<AppState & AppActions>()(
     async uploadFiles(projectId, files) {
       const formData = new FormData();
       for (const f of Array.from(files)) formData.append('files', f);
-      const res = await api.post(`/projects/${projectId}/files`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const res = await api.post(`/projects/${projectId}/files`, formData);
       const uploaded: FileItem[] = res.data;
       set((s) => { for (const f of uploaded) s.files[f.id] = f; });
       await get().loadTimeline(projectId);

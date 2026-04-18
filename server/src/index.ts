@@ -38,5 +38,11 @@ app.use('/api/projects/:projectId/polls',       pollsRouter);
 app.use('/api/polls',                           pollsRouter);
 app.use('/api/projects',                        timelineRouter);
 
+// 전역 에러 핸들러 (async 핸들러 미처리 예외 포함)
+app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error('[server] unhandled error:', err);
+  res.status(500).json({ error: err.message ?? 'Internal server error' });
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Server running on :${PORT}`));

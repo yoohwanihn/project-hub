@@ -49,27 +49,43 @@ filesRouter.get('/', requireProjectMember, async (req, res) => {
 filesRouter.post(
   '/',
   requireProjectMember,
-  upload.array('files', 20),
+  (req, res, next) => {
+    upload.array('files', 20)(req, res, (err) => {
+      if (err) {
+        console.error('[files] multer error:', err);
+        return res.status(400).json({ error: err.message });
+      }
+      next();
+    });
+  },
   async (req, res) => {
-    const userId = req.user!.sub;
-    const uploaded = req.files as Express.Multer.File[];
-    if (!uploaded?.length) return res.status(400).json({ error: 'No files' });
+    try {
+      const userId = req.user!.sub;
+      const uploaded = req.files as Express.Multer.File[];
+      if (!uploaded?.length) return res.status(400).json({ error: 'No files' });
 
-    const results = [];
-    for (const f of uploaded) {
-      const id = uuidv4();
-      const fileName = Buffer.from(f.originalname, 'latin1').toString('utf8');
-      await db.query(
-        `INSERT INTO files (id,project_id,name,size,mime_type,uploader_id,storage_path,created_at)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,NOW())`,
-        [id, req.params.projectId, fileName, f.size,
-         f.mimetype || 'application/octet-stream', userId, f.filename],
-      );
-      await addTimelineEvent(req.params.projectId, userId, 'file_uploaded', { fileName });
-      const { rows: [row] } = await db.query('SELECT * FROM files WHERE id=$1', [id]);
-      results.push(mapFile(row));
+      const results = [];
+      for (const f of uploaded) {
+        const id = uuidv4();
+        // originalname encoding: multer may read as latin1, decode once
+        const fileName = f.originalname.includes('\uFFFD')
+          ? Buffer.from(f.originalname, 'latin1').toString('utf8')
+          : f.originalname;
+        await db.query(
+          `INSERT INTO files (id,project_id,name,size,mime_type,uploader_id,storage_path,created_at)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,NOW())`,
+          [id, req.params.projectId, fileName, f.size,
+           f.mimetype || 'application/octet-stream', userId, f.filename],
+        );
+        await addTimelineEvent(req.params.projectId, userId, 'file_uploaded', { fileName });
+        const { rows: [row] } = await db.query('SELECT * FROM files WHERE id=$1', [id]);
+        results.push(mapFile(row));
+      }
+      res.status(201).json(results);
+    } catch (err) {
+      console.error('[files] upload handler error:', err);
+      res.status(500).json({ error: 'File upload failed', detail: String(err) });
     }
-    res.status(201).json(results);
   },
 );
 
