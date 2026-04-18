@@ -183,7 +183,7 @@ export function Header({ title, subtitle, actions, showSearch = false }: HeaderP
               className="flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors"
               onClick={() => setUserMenuOpen((v) => !v)}
             >
-              <Avatar name={currentUser.name} size="sm" />
+              <Avatar name={currentUser.name} src={currentUser.avatar} size="sm" />
               <ChevronDown size={12} className="text-slate-400" />
             </button>
 
@@ -192,7 +192,7 @@ export function Header({ title, subtitle, actions, showSearch = false }: HeaderP
                 {/* 유저 정보 */}
                 <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
                   <div className="flex items-center gap-2.5">
-                    <Avatar name={currentUser.name} size="sm" />
+                    <Avatar name={currentUser.name} src={currentUser.avatar} size="sm" />
                     <div className="min-w-0">
                       <p className="text-xs font-semibold text-slate-800 truncate">{currentUser.name}</p>
                       <p className="text-[11px] text-slate-400 truncate">{currentUser.email}</p>

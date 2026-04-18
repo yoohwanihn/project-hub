@@ -1,6 +1,7 @@
 import { useMemo, useCallback, useState } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import { useAuthStore } from '../store/useAuthStore';
+import { useNotificationSettings } from './useNotificationSettings';
 import type { TimelineEvent } from '../types';
 
 const LAST_READ_KEY   = 'notification_last_read';
@@ -24,11 +25,25 @@ function saveDismissed(ids: Set<string>) {
   localStorage.setItem(DISMISSED_KEY, JSON.stringify([...ids]));
 }
 
+// 알림 설정 이벤트 타입 매핑
+function isEnabled(type: string, settings: ReturnType<typeof useNotificationSettings>['settings']): boolean {
+  switch (type) {
+    case 'task_created':
+    case 'task_updated':    return settings.inapp_taskUpdated;
+    case 'task_completed':  return settings.inapp_taskCompleted;
+    case 'file_uploaded':   return settings.inapp_fileUploaded;
+    case 'announcement_created': return settings.inapp_announcment;
+    case 'member_joined':   return settings.inapp_memberJoined;
+    default:                return true;
+  }
+}
+
 export function useNotifications() {
   const timeline    = useAppStore(s => s.timeline);
   const users       = useAppStore(s => s.users);
   const projects    = useAppStore(s => s.projects);
   const currentUser = useAuthStore(s => s.currentUser);
+  const { settings } = useNotificationSettings();
 
   // React state so that dismiss triggers re-render
   const [dismissed, setDismissed] = useState<Set<string>>(loadDismissed);
@@ -41,10 +56,11 @@ export function useNotifications() {
         (e) =>
           e.actorId !== currentUser.id &&
           new Date(e.createdAt).getTime() > lastRead &&
-          !dismissed.has(e.id),
+          !dismissed.has(e.id) &&
+          isEnabled(e.type, settings),
       )
       .map((e) => toNotification(e, users, projects));
-  }, [timeline, currentUser, users, projects, dismissed]);
+  }, [timeline, currentUser, users, projects, dismissed, settings]);
 
   const unreadCount = notifications.length;
 

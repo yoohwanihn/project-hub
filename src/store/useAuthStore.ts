@@ -8,14 +8,16 @@ export interface CurrentUser {
   email:  string;
   role:   GlobalRole;
   status: string;
+  avatar?: string;
 }
 
 interface AuthState {
-  accessToken:  string | null;
-  currentUser:  CurrentUser | null;
-  setAuth:      (token: string, user: CurrentUser) => void;
-  updateToken:  (token: string) => void;
-  clearAuth:    () => void;
+  accessToken:   string | null;
+  currentUser:   CurrentUser | null;
+  setAuth:       (token: string, user: CurrentUser) => void;
+  updateToken:   (token: string) => void;
+  updateProfile: (patch: Partial<CurrentUser>) => void;
+  clearAuth:     () => void;
 }
 
 export const useAuthStore = create<AuthState>()((set) => ({
@@ -23,5 +25,8 @@ export const useAuthStore = create<AuthState>()((set) => ({
   currentUser:  null,
   setAuth:      (token, user) => set({ accessToken: token, currentUser: user }),
   updateToken:  (token) => set({ accessToken: token }),
+  updateProfile: (patch) => set((s) => ({
+    currentUser: s.currentUser ? { ...s.currentUser, ...patch } : null,
+  })),
   clearAuth:    () => set({ accessToken: null, currentUser: null }),
 }));

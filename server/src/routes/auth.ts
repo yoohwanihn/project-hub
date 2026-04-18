@@ -3,8 +3,26 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
 import { createHash } from 'crypto';
+import path from 'path';
+import fs from 'fs';
+import multer from 'multer';
 import { db } from '../db';
 import { authMiddleware, JwtPayload } from '../middleware/auth';
+
+const AVATAR_DIR = path.resolve(__dirname, '../../../uploads/avatars');
+if (!fs.existsSync(AVATAR_DIR)) fs.mkdirSync(AVATAR_DIR, { recursive: true });
+
+const avatarUpload = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, AVATAR_DIR),
+    filename:    (_req, _file, cb) => cb(null, `${randomUUID()}.jpg`),
+  }),
+  limits: { fileSize: 2 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) cb(null, true);
+    else cb(new Error('이미지 파일만 업로드 가능합니다.'));
+  },
+});
 
 export const authRouter = Router();
 
@@ -168,7 +186,93 @@ authRouter.delete('/me', authMiddleware, async (req, res) => {
 // GET /api/users  (프로젝트 멤버 초대 등에 사용)
 authRouter.get('/users', authMiddleware, async (_req, res) => {
   const { rows } = await db.query(
-    `SELECT id, name, email, role, status FROM users WHERE status='active' ORDER BY name`
+    `SELECT id, name, email, role, status, avatar FROM users WHERE status='active' ORDER BY name`
   );
   res.json(rows);
+});
+
+// PATCH /api/auth/me  (프로필 수정: 이름, 이메일)
+authRouter.patch('/me', authMiddleware, async (req, res) => {
+  const userId = req.user!.sub;
+  const { name, email } = req.body;
+  if (!name && !email) return res.status(400).json({ error: '변경할 항목이 없습니다.' });
+
+  if (email) {
+    const { rows } = await db.query('SELECT id FROM users WHERE email=$1 AND id!=$2', [email, userId]);
+    if (rows.length > 0) return res.status(409).json({ error: '이미 사용 중인 이메일입니다.' });
+  }
+
+  await db.query(
+    `UPDATE users SET
+       name  = COALESCE($1, name),
+       email = COALESCE($2, email)
+     WHERE id = $3`,
+    [name || null, email || null, userId],
+  );
+
+  const { rows: [user] } = await db.query(
+    'SELECT id, name, email, role, status, avatar FROM users WHERE id=$1', [userId],
+  );
+  res.json(user);
+});
+
+// POST /api/auth/me/password  (비밀번호 변경)
+authRouter.post('/me/password', authMiddleware, async (req, res) => {
+  const userId = req.user!.sub;
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ error: '현재 비밀번호와 새 비밀번호를 입력해 주세요.' });
+  }
+  if (newPassword.length < 8) {
+    return res.status(400).json({ error: '새 비밀번호는 8자 이상이어야 합니다.' });
+  }
+
+  const { rows: [user] } = await db.query('SELECT password_hash FROM users WHERE id=$1', [userId]);
+  if (!user) return res.status(404).json({ error: 'User not found' });
+
+  const valid = await bcrypt.compare(currentPassword, user.password_hash);
+  if (!valid) return res.status(400).json({ error: '현재 비밀번호가 올바르지 않습니다.' });
+
+  const hash = await bcrypt.hash(newPassword, 10);
+  await db.query('UPDATE users SET password_hash=$1 WHERE id=$2', [hash, userId]);
+  res.json({ message: '비밀번호가 변경되었습니다.' });
+});
+
+// POST /api/auth/me/avatar  (프로필 사진 업로드)
+authRouter.post(
+  '/me/avatar',
+  authMiddleware,
+  (req, res, next) => {
+    avatarUpload.single('avatar')(req, res, (err) => {
+      if (err) return res.status(400).json({ error: err.message });
+      next();
+    });
+  },
+  async (req, res) => {
+    const userId = req.user!.sub;
+    const file = req.file;
+    if (!file) return res.status(400).json({ error: '파일이 없습니다.' });
+
+    // 기존 아바타 파일 삭제
+    const { rows: [old] } = await db.query('SELECT avatar FROM users WHERE id=$1', [userId]);
+    if (old?.avatar) {
+      const oldPath = path.join(AVATAR_DIR, path.basename(old.avatar));
+      if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+    }
+
+    const avatarUrl = `/api/avatars/${file.filename}`;
+    await db.query('UPDATE users SET avatar=$1 WHERE id=$2', [avatarUrl, userId]);
+
+    const { rows: [user] } = await db.query(
+      'SELECT id, name, email, role, status, avatar FROM users WHERE id=$1', [userId],
+    );
+    res.json(user);
+  },
+);
+
+// GET /api/avatars/:filename  (아바타 이미지 서빙)
+authRouter.get('/avatars/:filename', (req, res) => {
+  const filePath = path.join(AVATAR_DIR, req.params.filename);
+  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Not found' });
+  res.sendFile(filePath);
 });
