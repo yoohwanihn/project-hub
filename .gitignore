@@ -27,3 +27,6 @@ npm-debug.log*
 
 # TypeScript
 *.tsbuildinfo
+
+# Uploads (user files, avatars)
+uploads/
