@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -314,7 +314,17 @@ export function KanbanPage() {
   const moveTask    = useAppStore(s => s.moveTask);
   const reorderTask = useAppStore(s => s.reorderTask);
 
-  const [selectedProjectId, setSelectedProjectId] = useState(Object.keys(projects)[0] ?? '');
+  const globalProjectId = useAppStore(s => s.selectedProjectId);
+  const [selectedProjectId, setSelectedProjectId] = useState(
+    globalProjectId ?? Object.keys(projects)[0] ?? '',
+  );
+
+  // 글로벌 선택 프로젝트가 바뀌면 칸반도 동기화
+  useEffect(() => {
+    if (globalProjectId && globalProjectId !== selectedProjectId) {
+      setSelectedProjectId(globalProjectId);
+    }
+  }, [globalProjectId]);
   const [viewMode,           setViewMode]          = useState<ViewMode>('board');
   const [showWorkload,       setShowWorkload]       = useState(true);
   const [editProjectOpen,    setEditProjectOpen]    = useState(false);

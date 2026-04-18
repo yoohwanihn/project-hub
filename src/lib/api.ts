@@ -10,6 +10,10 @@ export const api = axios.create({
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = useAuthStore.getState().accessToken;
   if (token) config.headers.Authorization = `Bearer ${token}`;
+  // FormData 전송 시 Content-Type을 삭제해 브라우저가 boundary 포함한 multipart 헤더를 자동 설정
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
   return config;
 });
 
