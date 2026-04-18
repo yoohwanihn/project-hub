@@ -17,7 +17,7 @@ const avatarUpload = multer({
     destination: (_req, _file, cb) => cb(null, AVATAR_DIR),
     filename:    (_req, _file, cb) => cb(null, `${randomUUID()}.jpg`),
   }),
-  limits: { fileSize: 2 * 1024 * 1024 },
+  limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     if (file.mimetype.startsWith('image/')) cb(null, true);
     else cb(new Error('이미지 파일만 업로드 가능합니다.'));

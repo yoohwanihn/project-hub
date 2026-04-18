@@ -127,7 +127,7 @@ function ProfileSection() {
               <Camera size={13} />
               {uploading ? '업로드 중...' : '사진 변경'}
             </button>
-            <p className="text-[11px] text-slate-400">JPG, PNG, WebP · 최대 2MB</p>
+            <p className="text-[11px] text-slate-400">JPG, PNG, WebP · 최대 10MB</p>
           </div>
         </div>
       </div>
