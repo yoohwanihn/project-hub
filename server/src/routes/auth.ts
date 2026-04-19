@@ -114,6 +114,7 @@ authRouter.post('/login', async (req, res) => {
       email:  user.email,
       role:   user.role,
       status: user.status,
+      avatar: user.avatar ?? null,
     },
   });
 });
@@ -163,7 +164,7 @@ authRouter.post('/logout', authMiddleware, async (req, res) => {
 // GET /api/auth/me
 authRouter.get('/me', authMiddleware, async (req, res) => {
   const { rows } = await db.query(
-    'SELECT id, name, email, role, status FROM users WHERE id=$1',
+    'SELECT id, name, email, role, status, avatar FROM users WHERE id=$1',
     [req.user!.sub]
   );
   if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
@@ -271,7 +272,7 @@ authRouter.post(
 );
 
 // GET /api/avatars/:filename  (아바타 이미지 서빙)
-authRouter.get('/avatars/:filename', (req, res) => {
+authRouter.get('/:filename', (req, res) => {
   const filePath = path.join(AVATAR_DIR, req.params.filename);
   if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Not found' });
   res.sendFile(filePath);

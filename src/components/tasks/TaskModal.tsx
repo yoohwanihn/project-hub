@@ -41,47 +41,47 @@ function WorkLogSection({ task }: { task: Task }) {
 
   return (
     <div className="space-y-3">
-      <div className="rounded-xl bg-slate-50 border border-slate-100 p-4">
+      <div className="rounded-xl bg-zinc-50 border border-zinc-100 p-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-semibold text-slate-600">시간 현황</span>
-          <span className="text-xs text-slate-500">
-            <span className="font-bold text-slate-800">{task.loggedHours}h</span>
-            {task.estimatedHours && <span className="text-slate-400"> / {task.estimatedHours}h 예상</span>}
+          <span className="text-xs font-semibold text-zinc-600">시간 현황</span>
+          <span className="text-xs text-zinc-500">
+            <span className="font-bold text-zinc-800">{task.loggedHours}h</span>
+            {task.estimatedHours && <span className="text-zinc-400"> / {task.estimatedHours}h 예상</span>}
           </span>
         </div>
         {task.estimatedHours ? (
-          <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+          <div className="h-2 bg-zinc-200 rounded-full overflow-hidden">
             <div
-              className={cn('h-full rounded-full transition-all', pct! >= 100 ? 'bg-red-400' : pct! >= 80 ? 'bg-amber-400' : 'bg-primary-400')}
+              className={cn('h-full rounded-full transition-all', pct! >= 100 ? 'bg-red-400' : pct! >= 80 ? 'bg-amber-400' : 'bg-zinc-700')}
               style={{ width: `${pct}%` }}
             />
           </div>
         ) : (
-          <p className="text-xs text-slate-400">예상 소요 시간이 설정되지 않았습니다.</p>
+          <p className="text-xs text-zinc-400">예상 소요 시간이 설정되지 않았습니다.</p>
         )}
         {pct !== null && (
-          <p className={cn('text-xs mt-1.5 font-medium', pct >= 100 ? 'text-red-500' : 'text-slate-500')}>
+          <p className={cn('text-xs mt-1.5 font-medium', pct >= 100 ? 'text-red-500' : 'text-zinc-500')}>
             {pct >= 100 ? `⚠ 예상 시간 초과 (+${task.loggedHours - task.estimatedHours!}h)` : `${pct}% 사용`}
           </p>
         )}
       </div>
 
-      <div className="rounded-xl border border-slate-100 p-4 space-y-3">
-        <p className="text-xs font-semibold text-slate-600">시간 기록 추가</p>
+      <div className="rounded-xl border border-zinc-100 p-4 space-y-3">
+        <p className="text-xs font-semibold text-zinc-600">시간 기록 추가</p>
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-xs text-slate-500 mb-1 block">소요 시간 (h) *</label>
+            <label className="text-xs text-zinc-500 mb-1 block">소요 시간 (h) *</label>
             <input type="number" min={0.5} step={0.5} className="input text-sm"
               value={logHours} onChange={(e) => setLogHours(e.target.value)} placeholder="1.5" />
           </div>
           <div>
-            <label className="text-xs text-slate-500 mb-1 block">날짜</label>
+            <label className="text-xs text-zinc-500 mb-1 block">날짜</label>
             <input type="date" className="input text-sm"
               value={logDate} onChange={(e) => setLogDate(e.target.value)} />
           </div>
         </div>
         <div>
-          <label className="text-xs text-slate-500 mb-1 block">작업 메모 (선택)</label>
+          <label className="text-xs text-zinc-500 mb-1 block">작업 메모 (선택)</label>
           <input className="input text-sm" value={logNote} onChange={(e) => setLogNote(e.target.value)}
             placeholder="어떤 작업을 했는지 간략히..." onKeyDown={(e) => e.key === 'Enter' && submit()} />
         </div>
@@ -93,22 +93,22 @@ function WorkLogSection({ task }: { task: Task }) {
 
       {workLogs.length > 0 ? (
         <div className="space-y-1.5">
-          <p className="text-xs font-semibold text-slate-500 mb-2">기록 내역 ({workLogs.length}건)</p>
+          <p className="text-xs font-semibold text-zinc-500 mb-2">기록 내역 ({workLogs.length}건)</p>
           {workLogs.map((wl) => (
-            <div key={wl.id} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-slate-50 group">
-              <div className="w-6 h-6 rounded-full bg-primary-50 flex items-center justify-center flex-shrink-0">
-                <Timer size={11} className="text-primary-500" />
+            <div key={wl.id} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-zinc-50 group">
+              <div className="w-6 h-6 rounded-full bg-zinc-100 flex items-center justify-center flex-shrink-0">
+                <Timer size={11} className="text-zinc-700" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-slate-800">{wl.hours}h</span>
-                  <span className="text-xs text-slate-400">{formatDate(wl.date, 'MM.dd')}</span>
-                  {users[wl.userId] && <span className="text-xs text-slate-400">{users[wl.userId].name}</span>}
+                  <span className="text-xs font-bold text-zinc-800">{wl.hours}h</span>
+                  <span className="text-xs text-zinc-400">{formatDate(wl.date, 'MM.dd')}</span>
+                  {users[wl.userId] && <span className="text-xs text-zinc-400">{users[wl.userId].name}</span>}
                 </div>
-                {wl.note && <p className="text-xs text-slate-500 truncate mt-0.5">{wl.note}</p>}
+                {wl.note && <p className="text-xs text-zinc-500 truncate mt-0.5">{wl.note}</p>}
               </div>
               <button type="button"
-                className="p-1 rounded text-slate-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all flex-shrink-0"
+                className="p-1 rounded text-zinc-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all flex-shrink-0"
                 onClick={() => deleteWorkLog(wl.id)}>
                 <Trash2 size={12} />
               </button>
@@ -116,7 +116,7 @@ function WorkLogSection({ task }: { task: Task }) {
           ))}
         </div>
       ) : (
-        <p className="text-xs text-slate-400 text-center py-4">아직 시간 기록이 없습니다.</p>
+        <p className="text-xs text-zinc-400 text-center py-4">아직 시간 기록이 없습니다.</p>
       )}
     </div>
   );
@@ -149,14 +149,14 @@ function TagManagerSection({ projectId }: { projectId: string }) {
             <input className="input flex-1 text-sm py-1.5" value={tag.name}
               onChange={(e) => updateTag(projectId, tag.id, { name: e.target.value })} maxLength={20} />
             <button type="button" onClick={() => deleteTag(projectId, tag.id)}
-              className="p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all">
+              className="p-1.5 rounded-lg text-zinc-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all">
               <Trash2 size={12} />
             </button>
           </div>
         ))}
-        {tags.length === 0 && <p className="text-xs text-slate-400 text-center py-2">아직 태그가 없습니다.</p>}
+        {tags.length === 0 && <p className="text-xs text-zinc-400 text-center py-2">아직 태그가 없습니다.</p>}
       </div>
-      <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+      <div className="flex items-center gap-2 pt-2 border-t border-zinc-100">
         <input type="color" value={newColor} onChange={(e) => setNewColor(e.target.value)}
           className="w-6 h-6 rounded border-0 p-0.5 cursor-pointer bg-transparent" />
         <input className="input flex-1 text-sm py-1.5" value={newName}
@@ -199,9 +199,9 @@ function DependencySelector({
             return (
               <div key={id} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-50 border border-amber-100">
                 <Link2 size={12} className="text-amber-500 flex-shrink-0" />
-                <span className="text-xs text-slate-700 flex-1 truncate">{t.title}</span>
+                <span className="text-xs text-zinc-700 flex-1 truncate">{t.title}</span>
                 <button type="button" onClick={() => onChange(blockedBy.filter((x) => x !== id))}
-                  className="text-slate-400 hover:text-red-500">
+                  className="text-zinc-400 hover:text-red-500">
                   <X size={12} />
                 </button>
               </div>
@@ -213,23 +213,23 @@ function DependencySelector({
         <input className="input text-sm" value={search} onChange={(e) => setSearch(e.target.value)}
           placeholder="선행 업무 검색..." />
         {search && (
-          <div className="mt-1 border border-slate-200 rounded-xl overflow-hidden max-h-36 overflow-y-auto">
+          <div className="mt-1 border border-zinc-200 rounded-xl overflow-hidden max-h-36 overflow-y-auto">
             {filtered.slice(0, 8).map((t) => (
               <button key={t.id} type="button"
-                className="w-full text-left flex items-center gap-2 px-3 py-2 hover:bg-slate-50 text-xs"
+                className="w-full text-left flex items-center gap-2 px-3 py-2 hover:bg-zinc-50 text-xs"
                 onClick={() => { onChange([...blockedBy, t.id]); setSearch(''); }}>
-                <Link2 size={11} className="text-slate-400 flex-shrink-0" />
+                <Link2 size={11} className="text-zinc-400 flex-shrink-0" />
                 <span className="truncate">{t.title}</span>
               </button>
             ))}
             {filtered.length === 0 && (
-              <p className="text-xs text-slate-400 text-center py-3">검색 결과가 없습니다.</p>
+              <p className="text-xs text-zinc-400 text-center py-3">검색 결과가 없습니다.</p>
             )}
           </div>
         )}
       </div>
       {tasks.length === 0 && blockedBy.length === 0 && (
-        <p className="text-xs text-slate-400 text-center py-2">같은 프로젝트의 다른 업무가 없습니다.</p>
+        <p className="text-xs text-zinc-400 text-center py-2">같은 프로젝트의 다른 업무가 없습니다.</p>
       )}
     </div>
   );
@@ -239,8 +239,8 @@ function DependencySelector({
 function SectionHeader({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-2 mt-5 mb-3">
-      <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">{label}</span>
-      <div className="flex-1 h-px bg-slate-100" />
+      <span className="text-xs font-bold text-zinc-500 uppercase tracking-wide">{label}</span>
+      <div className="flex-1 h-px bg-zinc-100" />
     </div>
   );
 }
@@ -363,7 +363,7 @@ export function TaskModal({ open, onClose, projectId, task, defaultStatusId }: T
 
         {/* ── 기본 정보 ── */}
         <div>
-          <label className="block text-xs font-semibold text-slate-600 mb-1">업무명 *</label>
+          <label className="block text-xs font-semibold text-zinc-600 mb-1">업무명 *</label>
           <input
             className="input text-sm font-medium"
             value={title}
@@ -375,7 +375,7 @@ export function TaskModal({ open, onClose, projectId, task, defaultStatusId }: T
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-600 mb-1">설명</label>
+          <label className="block text-xs font-semibold text-zinc-600 mb-1">설명</label>
           <textarea
             className="input resize-none text-sm"
             rows={3}
@@ -387,24 +387,24 @@ export function TaskModal({ open, onClose, projectId, task, defaultStatusId }: T
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">상태</label>
+            <label className="block text-xs font-semibold text-zinc-600 mb-1">상태</label>
             <Select options={statusOptions} value={statusId} onChange={setStatusId} />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">우선순위</label>
+            <label className="block text-xs font-semibold text-zinc-600 mb-1">우선순위</label>
             <Select options={priorityOptions} value={priority} onChange={(v) => setPriority(v as Priority)} />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-600 mb-1">담당자</label>
+          <label className="block text-xs font-semibold text-zinc-600 mb-1">담당자</label>
           <MultiSelect
             options={memberOptions}
             value={assigneeIds}
             onChange={setAssigneeIds}
             placeholder="담당자를 선택하세요"
             renderTag={(opt, onRemove) => (
-              <span key={opt.value} className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs bg-slate-100">
+              <span key={opt.value} className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs bg-zinc-100">
                 <Avatar name={opt.label} size="xs" />
                 {opt.label}
                 <button type="button" onClick={onRemove} className="hover:text-red-500"><X size={10} /></button>
@@ -415,7 +415,7 @@ export function TaskModal({ open, onClose, projectId, task, defaultStatusId }: T
 
         {tagOptions.length > 0 && (
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">
+            <label className="block text-xs font-semibold text-zinc-600 mb-1">
               <span className="flex items-center gap-1"><Tag size={11} /> 태그</span>
             </label>
             <MultiSelect
@@ -440,19 +440,19 @@ export function TaskModal({ open, onClose, projectId, task, defaultStatusId }: T
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">시작일</label>
+            <label className="block text-xs font-semibold text-zinc-600 mb-1">시작일</label>
             <input type="date" className="input text-sm"
               value={startDate} onChange={(e) => setStartDate(e.target.value)} />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">마감일</label>
+            <label className="block text-xs font-semibold text-zinc-600 mb-1">마감일</label>
             <input type="date" className="input text-sm"
               value={dueDate} min={startDate} onChange={(e) => setDueDate(e.target.value)} />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-600 mb-1">
+          <label className="block text-xs font-semibold text-zinc-600 mb-1">
             <span className="flex items-center gap-1"><Clock size={11} /> 예상 소요 시간 (h)</span>
           </label>
           <input type="number" min={0} step={0.5} className="input text-sm w-36"

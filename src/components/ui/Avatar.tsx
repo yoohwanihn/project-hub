@@ -59,7 +59,7 @@ export function AvatarGroup({ users, max = 3, size = 'sm' }: AvatarGroupProps) {
       ))}
       {rest > 0 && (
         <span className={cn(
-          'inline-flex items-center justify-center rounded-full bg-slate-200 text-slate-600 font-semibold ring-2 ring-white',
+          'inline-flex items-center justify-center rounded-full bg-zinc-200 text-zinc-600 font-semibold ring-2 ring-white',
           SIZE[size],
         )}>
           +{rest}

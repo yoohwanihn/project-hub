@@ -67,9 +67,9 @@ function TaskCard({ task, projectId, overlay = false }: TaskCardProps) {
         ref={setNodeRef}
         style={!overlay ? style : undefined}
         className={cn(
-          'bg-white rounded-xl border border-slate-200 p-3.5 group',
+          'bg-white rounded-xl border border-zinc-200 p-3.5 group',
           overlay ? 'shadow-modal rotate-1 cursor-grabbing' : 'shadow-card hover:shadow-md cursor-grab active:cursor-grabbing',
-          isDragging && 'border-primary-200',
+          isDragging && 'border-zinc-200',
         )}
       >
         {/* Top row */}
@@ -83,17 +83,17 @@ function TaskCard({ task, projectId, overlay = false }: TaskCardProps) {
             )}
           </div>
           <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-            <button {...attributes} {...listeners} className="p-1 rounded text-slate-300 cursor-grab" onClick={(e) => e.stopPropagation()}>
+            <button {...attributes} {...listeners} className="p-1 rounded text-zinc-300 cursor-grab" onClick={(e) => e.stopPropagation()}>
               <GripVertical size={13} />
             </button>
             <div className="relative">
-              <button className="p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100" onClick={() => setMenuOpen((o) => !o)}>
+              <button className="p-1 rounded text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100" onClick={() => setMenuOpen((o) => !o)}>
                 <MoreHorizontal size={13} />
               </button>
               {menuOpen && (
-                <div className="absolute right-0 top-full mt-1 w-28 bg-white border border-slate-200 rounded-xl shadow-modal z-50 py-1" onMouseLeave={() => setMenuOpen(false)}>
-                  <button className="w-full text-left flex items-center gap-2 px-3 py-2 text-xs hover:bg-slate-50" onClick={() => { setMenuOpen(false); setEditOpen(true); }}>
-                    <Pencil size={12} className="text-slate-400" /> 수정
+                <div className="absolute right-0 top-full mt-1 w-28 bg-white border border-zinc-200 rounded-xl shadow-modal z-50 py-1" onMouseLeave={() => setMenuOpen(false)}>
+                  <button className="w-full text-left flex items-center gap-2 px-3 py-2 text-xs hover:bg-zinc-50" onClick={() => { setMenuOpen(false); setEditOpen(true); }}>
+                    <Pencil size={12} className="text-zinc-400" /> 수정
                   </button>
                   <button className="w-full text-left flex items-center gap-2 px-3 py-2 text-xs hover:bg-red-50 text-red-600" onClick={() => { setMenuOpen(false); setDeleteOpen(true); }}>
                     <Trash2 size={12} /> 삭제
@@ -104,20 +104,20 @@ function TaskCard({ task, projectId, overlay = false }: TaskCardProps) {
           </div>
         </div>
 
-        <p className="text-sm font-medium text-slate-800 leading-snug mb-2">{task.title}</p>
+        <p className="text-sm font-medium text-zinc-800 leading-snug mb-2">{task.title}</p>
 
         {task.description && (
-          <p className="text-xs text-slate-400 line-clamp-2 mb-3">{task.description}</p>
+          <p className="text-xs text-zinc-400 line-clamp-2 mb-3">{task.description}</p>
         )}
 
         {/* Progress bar */}
         {progress !== null && (
           <div className="mb-2.5">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] text-slate-400">진행 {progress}%</span>
-              <span className="text-[10px] text-slate-400">{task.loggedHours}h / {task.estimatedHours}h</span>
+              <span className="text-[10px] text-zinc-400">진행 {progress}%</span>
+              <span className="text-[10px] text-zinc-400">{task.loggedHours}h / {task.estimatedHours}h</span>
             </div>
-            <div className="h-1 bg-slate-100 rounded-full overflow-hidden">
+            <div className="h-1 bg-zinc-100 rounded-full overflow-hidden">
               <div
                 className={cn('h-full rounded-full transition-all', progress >= 100 ? 'bg-emerald-500' : progress >= 60 ? 'bg-blue-500' : 'bg-amber-400')}
                 style={{ width: `${progress}%` }}
@@ -130,14 +130,14 @@ function TaskCard({ task, projectId, overlay = false }: TaskCardProps) {
           <span className={cn('badge', PRIORITY_COLOR[task.priority])}>{PRIORITY_LABEL[task.priority]}</span>
           <div className="flex items-center gap-2">
             {task.dueDate && (
-              <span className={cn('text-[11px]', task.dueDate < '2026-04-13' ? 'text-red-500 font-semibold' : 'text-slate-400')}>
+              <span className={cn('text-[11px]', task.dueDate < '2026-04-13' ? 'text-red-500 font-semibold' : 'text-zinc-400')}>
                 {formatDate(task.dueDate, 'MM/dd')}
               </span>
             )}
             <div className="flex -space-x-1">
               {assignees.slice(0, 2).map((u) => <Avatar key={u.id} name={u.name} size="xs" />)}
               {assignees.length > 2 && (
-                <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-600 text-[10px] font-semibold flex items-center justify-center ring-2 ring-white">
+                <span className="w-5 h-5 rounded-full bg-zinc-200 text-zinc-600 text-[10px] font-semibold flex items-center justify-center ring-2 ring-white">
                   +{assignees.length - 2}
                 </span>
               )}
@@ -167,10 +167,10 @@ function WorkloadPanel({ projectId, tasks }: { projectId: string; tasks: Task[] 
   const maxLoad = Math.max(1, ...members.map((m) => tasks.filter((t) => t.assigneeIds.includes(m.id) && t.statusId !== 'done').length));
 
   return (
-    <div className="bg-white border-b border-slate-200 px-6 py-3">
+    <div className="bg-white border-b border-zinc-200 px-6 py-3">
       <div className="flex items-center gap-1 mb-2">
-        <Users size={12} className="text-slate-400" />
-        <span className="text-xs font-semibold text-slate-500">담당자 업무 로드</span>
+        <Users size={12} className="text-zinc-400" />
+        <span className="text-xs font-semibold text-zinc-500">담당자 업무 로드</span>
       </div>
       <div className="flex items-end gap-4 overflow-x-auto pb-1">
         {members.map((member) => {
@@ -185,7 +185,7 @@ function WorkloadPanel({ projectId, tasks }: { projectId: string; tasks: Task[] 
               <div className="flex items-end h-12 gap-0.5">
                 <div className="w-4 flex flex-col justify-end h-full">
                   <div
-                    className={cn('w-full rounded-t-sm transition-all', isOver ? 'bg-red-400' : 'bg-primary-400')}
+                    className={cn('w-full rounded-t-sm transition-all', isOver ? 'bg-red-400' : 'bg-zinc-700')}
                     style={{ height: `${Math.max(4, pct)}%` }}
                   />
                 </div>
@@ -198,8 +198,8 @@ function WorkloadPanel({ projectId, tasks }: { projectId: string; tasks: Task[] 
               </div>
               <Avatar name={member.name} size="xs" />
               <div className="text-center">
-                <p className={cn('text-[11px] font-bold', isOver ? 'text-red-500' : 'text-slate-700')}>{active.length}</p>
-                <p className="text-[10px] text-slate-400 truncate max-w-[48px]">{member.name.split('').slice(0, 3).join('')}</p>
+                <p className={cn('text-[11px] font-bold', isOver ? 'text-red-500' : 'text-zinc-700')}>{active.length}</p>
+                <p className="text-[10px] text-zinc-400 truncate max-w-[48px]">{member.name.split('').slice(0, 3).join('')}</p>
               </div>
             </div>
           );
@@ -207,10 +207,10 @@ function WorkloadPanel({ projectId, tasks }: { projectId: string; tasks: Task[] 
 
         {/* Legend */}
         <div className="ml-2 flex flex-col gap-1.5 self-center">
-          <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
-            <span className="w-2.5 h-2.5 rounded-sm bg-primary-400" /> 진행 중
+          <div className="flex items-center gap-1.5 text-[10px] text-zinc-500">
+            <span className="w-2.5 h-2.5 rounded-sm bg-zinc-700" /> 진행 중
           </div>
-          <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
+          <div className="flex items-center gap-1.5 text-[10px] text-zinc-500">
             <span className="w-2.5 h-2.5 rounded-sm bg-emerald-300" /> 완료
           </div>
           <div className="flex items-center gap-1.5 text-[10px] text-red-400">
@@ -231,12 +231,12 @@ function KanbanColumn({ status, tasks, projectId }: { status: WorkflowStatus; ta
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: status.color }} />
-          <h3 className="text-xs font-bold text-slate-700">{status.label}</h3>
+          <h3 className="text-xs font-bold text-zinc-700">{status.label}</h3>
           <span className="badge text-xs" style={{ backgroundColor: `${status.color}20`, color: status.color }}>
             {tasks.length}
           </span>
         </div>
-        <button className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700" onClick={() => setAddOpen(true)}>
+        <button className="p-1 rounded-lg text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700" onClick={() => setAddOpen(true)}>
           <Plus size={14} />
         </button>
       </div>
@@ -245,7 +245,7 @@ function KanbanColumn({ status, tasks, projectId }: { status: WorkflowStatus; ta
         <div className="flex-1 overflow-y-auto space-y-2.5 min-h-[120px] pr-0.5">
           {tasks.map((task) => <TaskCard key={task.id} task={task} projectId={projectId} />)}
           <button
-            className="w-full text-left px-3 py-2.5 rounded-xl border-2 border-dashed border-slate-200 text-xs text-slate-400 hover:border-primary-300 hover:text-primary-500 hover:bg-primary-50 transition-all flex items-center gap-2"
+            className="w-full text-left px-3 py-2.5 rounded-xl border-2 border-dashed border-zinc-200 text-xs text-zinc-400 hover:border-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-all flex items-center gap-2"
             onClick={() => setAddOpen(true)}
           >
             <Plus size={12} /> 업무 추가
@@ -275,11 +275,11 @@ function SwimlaneRow({
   return (
     <div className="flex min-w-max">
       {/* Sticky member label */}
-      <div className="w-40 shrink-0 flex items-start gap-2.5 pt-2 px-3 sticky left-0 bg-surface-secondary z-10 border-r border-slate-200">
+      <div className="w-40 shrink-0 flex items-start gap-2.5 pt-2 px-3 sticky left-0 bg-surface-secondary z-10 border-r border-zinc-200">
         <Avatar name={member.name} size="sm" />
         <div className="min-w-0">
-          <p className="text-xs font-semibold text-slate-700 truncate">{member.name}</p>
-          <p className="text-[10px] text-slate-400">{myTasks.length}개 업무</p>
+          <p className="text-xs font-semibold text-zinc-700 truncate">{member.name}</p>
+          <p className="text-[10px] text-zinc-400">{myTasks.length}개 업무</p>
         </div>
       </div>
 
@@ -293,7 +293,7 @@ function SwimlaneRow({
                 <div className="space-y-2 min-h-[60px]">
                   {colTasks.map((task) => <TaskCard key={task.id} task={task} projectId={projectId} />)}
                   {colTasks.length === 0 && (
-                    <div className="h-12 rounded-xl border-2 border-dashed border-slate-100" />
+                    <div className="h-12 rounded-xl border-2 border-dashed border-zinc-100" />
                   )}
                 </div>
               </SortableContext>
@@ -314,7 +314,9 @@ export function KanbanPage() {
   const moveTask    = useAppStore(s => s.moveTask);
   const reorderTask = useAppStore(s => s.reorderTask);
 
-  const globalProjectId = useAppStore(s => s.selectedProjectId);
+  const globalProjectId    = useAppStore(s => s.selectedProjectId);
+  const setSelectedProject = useAppStore(s => s.setSelectedProject);
+
   const [selectedProjectId, setSelectedProjectId] = useState(
     globalProjectId ?? Object.keys(projects)[0] ?? '',
   );
@@ -386,7 +388,7 @@ export function KanbanPage() {
   }
 
   if (!project) {
-    return <div className="flex items-center justify-center h-full text-slate-400 text-sm">프로젝트가 없습니다.</div>;
+    return <div className="flex items-center justify-center h-full text-zinc-400 text-sm">프로젝트가 없습니다.</div>;
   }
 
   return (
@@ -400,7 +402,7 @@ export function KanbanPage() {
             <select
               className="input text-xs w-48 py-1.5"
               value={selectedProjectId}
-              onChange={(e) => setSelectedProjectId(e.target.value)}
+              onChange={(e) => { setSelectedProjectId(e.target.value); setSelectedProject(e.target.value); }}
             >
               {Object.values(projects).map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
@@ -408,16 +410,16 @@ export function KanbanPage() {
             </select>
 
             {/* View toggle */}
-            <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white">
+            <div className="flex items-center border border-zinc-200 rounded-lg overflow-hidden bg-white">
               <button
-                className={cn('px-2.5 py-1.5 transition-colors', viewMode === 'board' ? 'bg-primary-50 text-primary-600' : 'text-slate-500 hover:bg-slate-50')}
+                className={cn('px-2.5 py-1.5 transition-colors', viewMode === 'board' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50')}
                 onClick={() => setViewMode('board')}
                 title="보드 뷰"
               >
                 <Columns3 size={14} />
               </button>
               <button
-                className={cn('px-2.5 py-1.5 transition-colors', viewMode === 'swimlane' ? 'bg-primary-50 text-primary-600' : 'text-slate-500 hover:bg-slate-50')}
+                className={cn('px-2.5 py-1.5 transition-colors', viewMode === 'swimlane' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50')}
                 onClick={() => setViewMode('swimlane')}
                 title="수영레인 뷰"
               >
@@ -427,7 +429,7 @@ export function KanbanPage() {
 
             {/* Workload toggle */}
             <button
-              className={cn('btn-secondary py-1.5', showWorkload && 'bg-primary-50 border-primary-200 text-primary-600')}
+              className={cn('btn-secondary py-1.5', showWorkload && 'bg-zinc-100 border-zinc-200 text-zinc-900')}
               onClick={() => setShowWorkload((v) => !v)}
               title="업무 로드"
             >
@@ -467,15 +469,15 @@ export function KanbanPage() {
         {viewMode === 'swimlane' && (
           <div className="flex-1 overflow-auto">
             {/* Column headers */}
-            <div className="sticky top-0 z-20 flex min-w-max bg-white border-b border-slate-200 shadow-sm">
-              <div className="w-40 shrink-0 px-3 py-2.5 border-r border-slate-200">
-                <span className="text-xs font-semibold text-slate-500">담당자</span>
+            <div className="sticky top-0 z-20 flex min-w-max bg-white border-b border-zinc-200 shadow-sm">
+              <div className="w-40 shrink-0 px-3 py-2.5 border-r border-zinc-200">
+                <span className="text-xs font-semibold text-zinc-500">담당자</span>
               </div>
               <div className="flex gap-4 px-4 py-2.5">
                 {workflow.map((s) => (
                   <div key={s.id} className="w-64 shrink-0 flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full" style={{ backgroundColor: s.color }} />
-                    <span className="text-xs font-bold text-slate-700">{s.label}</span>
+                    <span className="text-xs font-bold text-zinc-700">{s.label}</span>
                     <span className="badge text-[10px]" style={{ backgroundColor: `${s.color}20`, color: s.color }}>
                       {tasksByStatus(s.id).length}
                     </span>
@@ -485,7 +487,7 @@ export function KanbanPage() {
             </div>
 
             {/* Swimlane rows */}
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-zinc-100">
               {project.members.map((member) => (
                 <SwimlaneRow
                   key={member.id}
@@ -502,13 +504,13 @@ export function KanbanPage() {
                 if (unassigned.length === 0) return null;
                 return (
                   <div className="flex min-w-max">
-                    <div className="w-40 shrink-0 flex items-start gap-2.5 pt-2 px-3 sticky left-0 bg-surface-secondary z-10 border-r border-slate-200">
-                      <div className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-slate-400">
+                    <div className="w-40 shrink-0 flex items-start gap-2.5 pt-2 px-3 sticky left-0 bg-surface-secondary z-10 border-r border-zinc-200">
+                      <div className="w-7 h-7 rounded-full bg-zinc-200 flex items-center justify-center text-zinc-400">
                         <Users size={13} />
                       </div>
                       <div>
-                        <p className="text-xs font-semibold text-slate-500">미배정</p>
-                        <p className="text-[10px] text-slate-400">{unassigned.length}개</p>
+                        <p className="text-xs font-semibold text-zinc-500">미배정</p>
+                        <p className="text-[10px] text-zinc-400">{unassigned.length}개</p>
                       </div>
                     </div>
                     <div className="flex gap-4 px-4 py-2">
@@ -519,7 +521,7 @@ export function KanbanPage() {
                             <SortableContext items={colTasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
                               <div className="space-y-2 min-h-[60px]">
                                 {colTasks.map((task) => <TaskCard key={task.id} task={task} projectId={selectedProjectId} />)}
-                                {colTasks.length === 0 && <div className="h-12 rounded-xl border-2 border-dashed border-slate-100" />}
+                                {colTasks.length === 0 && <div className="h-12 rounded-xl border-2 border-dashed border-zinc-100" />}
                               </div>
                             </SortableContext>
                           </div>

@@ -23,7 +23,7 @@ export function ColorPicker({ value, onChange, className }: ColorPickerProps) {
           onClick={() => onChange(color)}
           className={cn(
             'w-6 h-6 rounded-full ring-offset-2 transition-all',
-            value === color ? 'ring-2 ring-slate-400 scale-110' : 'hover:scale-110',
+            value === color ? 'ring-2 ring-zinc-400 scale-110' : 'hover:scale-110',
           )}
           style={{ backgroundColor: color }}
           title={color}
@@ -48,7 +48,7 @@ export function TagColorPicker({ value, onChange }: TagColorPickerProps) {
           onClick={() => onChange(color)}
           className={cn(
             'w-5 h-5 rounded-full ring-offset-1 transition-all',
-            value === color ? 'ring-2 ring-slate-500 scale-110' : 'hover:scale-105',
+            value === color ? 'ring-2 ring-zinc-500 scale-110' : 'hover:scale-105',
           )}
           style={{ backgroundColor: color }}
         />

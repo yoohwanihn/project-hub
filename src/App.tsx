@@ -17,6 +17,7 @@ import { AnnouncementsPage } from './pages/announcements/AnnouncementsPage';
 import { ResourcesPage }     from './pages/resources/ResourcesPage';
 import { PollsPage }         from './pages/polls/PollsPage';
 import { SettingsPage }      from './pages/settings/SettingsPage';
+import { MyTasksPage }      from './pages/mytasks/MyTasksPage';
 
 function AppRoutes() {
   const { initializing } = useAuth();
@@ -54,6 +55,7 @@ function AppRoutes() {
         <Route path="/announcements" element={<AnnouncementsPage />} />
         <Route path="/resources"     element={<ResourcesPage />} />
         <Route path="/polls"         element={<PollsPage />} />
+        <Route path="/my-tasks"      element={<MyTasksPage />} />
         <Route path="/settings"      element={<SettingsPage />} />
         <Route path="/admin" element={
           <ProtectedRoute requiredRoles={['owner', 'admin']}>

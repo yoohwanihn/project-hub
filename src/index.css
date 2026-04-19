@@ -17,61 +17,74 @@
 
   body {
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'system-ui', sans-serif;
-    background-color: #f8fafc;
-    color: #0f172a;
+    background-color: #f4f4f5;
+    color: #18181b;
     line-height: 1.6;
   }
 
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
-  }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: #a1a1aa; }
 }
 
 @layer components {
+  /* ── Buttons ──────────────────────────────────────────── */
   .btn-primary {
-    @apply inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 active:bg-primary-800 transition-colors;
+    @apply inline-flex items-center gap-1.5 px-4 py-2 bg-zinc-900 text-white text-sm font-semibold
+           rounded-xl hover:bg-zinc-700 active:scale-95 transition-all duration-150
+           shadow-sm whitespace-nowrap shrink-0;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center gap-2 px-4 py-2 bg-white text-slate-700 text-sm font-medium rounded-lg border border-slate-200 hover:bg-slate-50 active:bg-slate-100 transition-colors;
+    @apply inline-flex items-center gap-1.5 px-4 py-2 bg-white text-zinc-700 text-sm font-semibold
+           rounded-xl border border-zinc-200 hover:bg-zinc-50 active:scale-95
+           transition-all duration-150 shadow-sm whitespace-nowrap shrink-0;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center gap-2 px-3 py-1.5 text-slate-600 text-sm font-medium rounded-lg hover:bg-slate-100 active:bg-slate-200 transition-colors;
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 text-zinc-600 text-sm font-medium
+           rounded-xl hover:bg-zinc-100 active:bg-zinc-200 transition-all duration-150
+           whitespace-nowrap shrink-0;
   }
 
+  /* ── Cards ────────────────────────────────────────────── */
   .card {
-    @apply bg-white rounded-xl border border-slate-200 shadow-card;
+    @apply bg-white rounded-2xl border border-zinc-100 shadow-card;
   }
 
+  .card-hover {
+    @apply bg-white rounded-2xl border border-zinc-100 shadow-card
+           hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200;
+  }
+
+  /* ── Inputs ───────────────────────────────────────────── */
   .input {
-    @apply w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none placeholder:text-slate-400
-    focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition;
+    @apply w-full px-3.5 py-2.5 text-sm bg-zinc-50 border border-zinc-200 rounded-xl outline-none
+           placeholder:text-zinc-400 text-zinc-800
+           focus:bg-white focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200
+           transition-all duration-150;
   }
 
+  /* ── Badges ───────────────────────────────────────────── */
   .badge {
-    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium;
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold;
   }
 
+  /* ── Sidebar ──────────────────────────────────────────── */
   .sidebar-item {
-    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-600 font-medium cursor-pointer transition-colors hover:bg-slate-100 hover:text-slate-900;
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-zinc-500
+           font-medium cursor-pointer transition-all duration-150
+           hover:bg-zinc-100 hover:text-zinc-900;
   }
 
   .sidebar-item.active {
-    @apply bg-primary-50 text-primary-700 hover:bg-primary-50;
+    @apply bg-zinc-900 text-white hover:bg-zinc-800;
+  }
+
+  /* ── Page header ──────────────────────────────────────── */
+  .page-header {
+    @apply h-14 shrink-0 bg-white/80 backdrop-blur border-b border-zinc-100
+           px-6 flex items-center justify-between gap-4 sticky top-0 z-20;
   }
 }
