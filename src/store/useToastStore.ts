@@ -17,7 +17,7 @@ interface ToastState {
 
 export const useToastStore = create<ToastState>((set) => ({
   toasts: [],
-  add: (type, message, duration = 3500) => {
+  add: (type, message, duration = 5000) => {
     const id = crypto.randomUUID();
     set((s) => ({ toasts: [...s.toasts, { id, type, message, duration }] }));
     setTimeout(() => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })), duration);

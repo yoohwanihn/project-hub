@@ -6,6 +6,9 @@ import multer from 'multer';
 import { db } from '../db';
 import { authMiddleware, requireProjectMember } from '../middleware/auth';
 import { addTimelineEvent } from './timeline';
+import logger from '../logger';
+
+const log = logger.child({ module: 'files' });
 
 export const filesRouter = Router({ mergeParams: true });
 filesRouter.use(authMiddleware);
@@ -52,7 +55,7 @@ filesRouter.post(
   (req, res, next) => {
     upload.array('files', 20)(req, res, (err) => {
       if (err) {
-        console.error('[files] multer error:', err);
+        log.warn({ err: err.message }, 'file upload multer error');
         return res.status(400).json({ error: err.message });
       }
       next();
@@ -80,10 +83,11 @@ filesRouter.post(
         await addTimelineEvent(req.params.projectId, userId, 'file_uploaded', { fileName });
         const { rows: [row] } = await db.query('SELECT * FROM files WHERE id=$1', [id]);
         results.push(mapFile(row));
+        log.info({ userId, projectId: req.params.projectId, fileId: id, fileName, size: f.size }, 'file uploaded');
       }
       res.status(201).json(results);
     } catch (err) {
-      console.error('[files] upload handler error:', err);
+      log.error({ err }, 'file upload handler error');
       res.status(500).json({ error: 'File upload failed', detail: String(err) });
     }
   },
@@ -115,5 +119,6 @@ filesRouter.delete('/:fileId', async (req, res) => {
     if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
   }
   await db.query('DELETE FROM files WHERE id=$1', [req.params.fileId]);
+  log.info({ userId: (req as any).user?.sub, fileId: req.params.fileId, fileName: file.name }, 'file deleted');
   res.json({ ok: true });
 });

@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Mail, Send, Inbox, RefreshCw, Trash2, ChevronLeft, ChevronRight,
   Pen, Eye, EyeOff, LogOut, AlertCircle, X, Reply, Loader2,
   ArrowLeft, ChevronDown, ChevronUp, ExternalLink, Settings, Key, Shield,
+  Paperclip, Download, FileText, Image, FileArchive, FileSpreadsheet,
 } from 'lucide-react';
 import { Header } from '../../components/layout/Header';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -15,13 +16,39 @@ interface MailAddress { name?: string; address?: string }
 interface MailSummary {
   seq: number; uid: number; seen: boolean;
   from: MailAddress | null; subject: string; date: string | null;
+  hasAttachments?: boolean;
 }
+interface MailAttachment { filename: string; contentType: string; size: number; data: string }
 interface MailDetail extends MailSummary {
-  to: MailAddress[]; cc: MailAddress[]; body: string;
+  to: MailAddress[]; cc: MailAddress[]; body: string; attachments: MailAttachment[];
 }
 interface Folder { path: string; name: string }
 interface MessagesResult {
   messages: MailSummary[]; total: number; unseen: number; page: number; limit: number;
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+
+function attachIcon(contentType: string) {
+  if (contentType.startsWith('image/')) return Image;
+  if (contentType.includes('zip') || contentType.includes('compressed')) return FileArchive;
+  if (contentType.includes('spreadsheet') || contentType.includes('excel') || contentType.includes('csv')) return FileSpreadsheet;
+  return FileText;
+}
+
+function downloadAttachment(att: MailAttachment) {
+  const byteChars = atob(att.data);
+  const bytes = new Uint8Array(byteChars.length);
+  for (let i = 0; i < byteChars.length; i++) bytes[i] = byteChars.charCodeAt(i);
+  const blob = new Blob([bytes], { type: att.contentType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = att.filename; a.click();
+  URL.revokeObjectURL(url);
 }
 
 function addrStr(a: MailAddress | null | undefined): string {
@@ -216,6 +243,18 @@ function ComposeModal({ onClose, defaultTo = '', defaultSubject = '', defaultBod
   const [body,    setBody]    = useState(defaultBody);
   const [sending, setSending] = useState(false);
   const [showCc,  setShowCc]  = useState(false);
+  const [files,   setFiles]   = useState<File[]>([]);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const selected = Array.from(e.target.files ?? []);
+    setFiles((prev) => [...prev, ...selected]);
+    e.target.value = '';
+  }
+
+  function removeFile(idx: number) {
+    setFiles((prev) => prev.filter((_, i) => i !== idx));
+  }
 
   async function handleSend() {
     if (!to.trim() || !subject.trim()) {
@@ -223,7 +262,13 @@ function ComposeModal({ onClose, defaultTo = '', defaultSubject = '', defaultBod
     }
     setSending(true);
     try {
-      await api.post('/mail/send', { to, cc: cc || undefined, subject, body });
+      const fd = new FormData();
+      fd.append('to', to);
+      if (cc) fd.append('cc', cc);
+      fd.append('subject', subject);
+      fd.append('body', body);
+      files.forEach((f) => fd.append('attachments', f));
+      await api.post('/mail/send', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       toast.success('메일이 발송됐습니다.');
       onClose();
     } catch (e: any) {
@@ -277,12 +322,36 @@ function ComposeModal({ onClose, defaultTo = '', defaultSubject = '', defaultBod
           onChange={(e) => setBody(e.target.value)}
         />
 
+        {/* 첨부파일 목록 */}
+        {files.length > 0 && (
+          <div className="px-5 pb-3 flex flex-wrap gap-2 border-t border-zinc-100 pt-3">
+            {files.map((f, i) => (
+              <div key={i} className="flex items-center gap-1.5 bg-zinc-100 rounded-lg px-2.5 py-1.5 text-xs text-zinc-700">
+                <Paperclip size={11} className="text-zinc-400" />
+                <span className="max-w-[140px] truncate">{f.name}</span>
+                <span className="text-zinc-400">({formatBytes(f.size)})</span>
+                <button onClick={() => removeFile(i)} className="ml-1 text-zinc-400 hover:text-zinc-700">
+                  <X size={11} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* footer */}
-        <div className="flex justify-end gap-2 px-5 py-3.5 border-t border-zinc-100 bg-zinc-50 rounded-b-2xl">
-          <button className="btn-secondary" onClick={onClose}>취소</button>
-          <button className="btn-primary" onClick={handleSend} disabled={sending}>
-            {sending ? <><Loader2 size={13} className="animate-spin" /> 발송 중...</> : <><Send size={13} /> 보내기</>}
-          </button>
+        <div className="flex items-center justify-between gap-2 px-5 py-3.5 border-t border-zinc-100 bg-zinc-50 rounded-b-2xl">
+          <div>
+            <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileChange} />
+            <button className="btn-ghost text-xs gap-1.5" onClick={() => fileInputRef.current?.click()}>
+              <Paperclip size={13} /> 파일 첨부
+            </button>
+          </div>
+          <div className="flex gap-2">
+            <button className="btn-secondary" onClick={onClose}>취소</button>
+            <button className="btn-primary" onClick={handleSend} disabled={sending}>
+              {sending ? <><Loader2 size={13} className="animate-spin" /> 발송 중...</> : <><Send size={13} /> 보내기</>}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -350,6 +419,38 @@ function MessageView({ uid, folder, onClose, onReply }: {
         ) : (
           <pre className="text-sm text-zinc-700 whitespace-pre-wrap leading-relaxed font-sans">{mail.body}</pre>
         )}
+
+        {mail.attachments?.length > 0 && (
+          <div className="mt-6 pt-5 border-t border-zinc-100">
+            <div className="flex items-center gap-2 mb-3">
+              <Paperclip size={13} className="text-zinc-400" />
+              <span className="text-xs font-semibold text-zinc-500">
+                첨부파일 {mail.attachments.length}개
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {mail.attachments.map((att, i) => {
+                const Icon = attachIcon(att.contentType);
+                return (
+                  <button
+                    key={i}
+                    onClick={() => downloadAttachment(att)}
+                    className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 hover:border-zinc-300 transition-colors text-left max-w-xs"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-white border border-zinc-200 flex items-center justify-center shrink-0">
+                      <Icon size={14} className="text-zinc-500" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-zinc-800 truncate max-w-[160px]">{att.filename}</p>
+                      <p className="text-[10px] text-zinc-400">{formatBytes(att.size)}</p>
+                    </div>
+                    <Download size={12} className="text-zinc-400 shrink-0 ml-1" />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -369,6 +470,8 @@ export function MailPage() {
   const [page,           setPage]           = useState(1);
   const [loadingMsgs,    setLoadingMsgs]    = useState(false);
   const [selectedUid,    setSelectedUid]    = useState<number | null>(null);
+  const [checkedUids,    setCheckedUids]    = useState<Set<number>>(new Set());
+  const [deleting,       setDeleting]       = useState(false);
   const [composeOpen,    setComposeOpen]    = useState(false);
   const [composeTo,      setComposeTo]      = useState('');
   const [composeSubject, setComposeSubject] = useState('');
@@ -425,13 +528,50 @@ export function MailPage() {
     setActiveFolder(path);
     setPage(1);
     setSelectedUid(null);
+    setCheckedUids(new Set());
     loadMessages(path, 1);
   }
 
   function handlePageChange(delta: number) {
     const newPage = page + delta;
     setPage(newPage);
+    setCheckedUids(new Set());
     loadMessages(activeFolder, newPage);
+  }
+
+  function toggleCheck(uid: number, e: React.MouseEvent) {
+    e.stopPropagation();
+    setCheckedUids((prev) => {
+      const next = new Set(prev);
+      next.has(uid) ? next.delete(uid) : next.add(uid);
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    if (checkedUids.size === messages.length) {
+      setCheckedUids(new Set());
+    } else {
+      setCheckedUids(new Set(messages.map((m) => m.uid)));
+    }
+  }
+
+  async function handleBulkDelete() {
+    if (!checkedUids.size) return;
+    setDeleting(true);
+    try {
+      await api.delete(`/mail/messages?folder=${encodeURIComponent(activeFolder)}`, {
+        data: { uids: [...checkedUids] },
+      });
+      toast.success(`${checkedUids.size}개 메일을 삭제했습니다.`);
+      if (selectedUid && checkedUids.has(selectedUid)) setSelectedUid(null);
+      setCheckedUids(new Set());
+      loadMessages(activeFolder, page);
+    } catch (e: any) {
+      toast.error(e.response?.data?.error ?? '삭제에 실패했습니다.');
+    } finally {
+      setDeleting(false);
+    }
   }
 
   function openReply(to: string, subject: string) {
@@ -523,9 +663,32 @@ export function MailPage() {
           selectedUid ? 'w-72 shrink-0' : 'flex-1',
         )}>
           {/* 툴바 */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-100 shrink-0">
-            <span className="text-xs font-bold text-zinc-700">{folderLabel}</span>
-            <span className="text-[11px] text-zinc-400">{total}개</span>
+          <div className="flex items-center gap-2 px-4 py-3 border-b border-zinc-100 shrink-0">
+            <input
+              type="checkbox"
+              className="w-3.5 h-3.5 rounded accent-zinc-900 cursor-pointer shrink-0"
+              checked={messages.length > 0 && checkedUids.size === messages.length}
+              ref={(el) => { if (el) el.indeterminate = checkedUids.size > 0 && checkedUids.size < messages.length; }}
+              onChange={toggleAll}
+            />
+            {checkedUids.size > 0 ? (
+              <>
+                <span className="text-xs text-zinc-500 flex-1">{checkedUids.size}개 선택됨</span>
+                <button
+                  className="flex items-center gap-1 text-xs font-medium text-red-500 hover:text-red-700 hover:bg-red-50 px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+                  onClick={handleBulkDelete}
+                  disabled={deleting}
+                >
+                  {deleting ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
+                  삭제
+                </button>
+              </>
+            ) : (
+              <>
+                <span className="text-xs font-bold text-zinc-700 flex-1">{folderLabel}</span>
+                <span className="text-[11px] text-zinc-400">{total}개</span>
+              </>
+            )}
           </div>
 
           {/* 리스트 */}
@@ -541,29 +704,40 @@ export function MailPage() {
               </div>
             ) : (
               messages.map((m) => (
-                <button
+                <div
                   key={m.uid}
                   onClick={() => setSelectedUid(m.uid)}
                   className={cn(
-                    'w-full text-left px-4 py-3.5 hover:bg-zinc-50 transition-colors',
+                    'flex items-start gap-2.5 px-4 py-3.5 hover:bg-zinc-50 transition-colors cursor-pointer',
                     selectedUid === m.uid && 'bg-zinc-50',
+                    checkedUids.has(m.uid) && 'bg-blue-50/40',
                   )}
                 >
-                  <div className="flex items-start gap-2">
-                    {!m.seen && <span className="w-1.5 h-1.5 rounded-full bg-zinc-900 mt-1.5 shrink-0" />}
-                    <div className={cn('min-w-0 flex-1', m.seen && 'pl-3.5')}>
-                      <p className={cn('text-xs truncate', m.seen ? 'text-zinc-500 font-normal' : 'text-zinc-900 font-semibold')}>
+                  <input
+                    type="checkbox"
+                    className="mt-1 w-3.5 h-3.5 rounded accent-zinc-900 cursor-pointer shrink-0"
+                    checked={checkedUids.has(m.uid)}
+                    onClick={(e) => toggleCheck(m.uid, e)}
+                    onChange={() => {}}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      {!m.seen && <span className="w-1.5 h-1.5 rounded-full bg-zinc-900 shrink-0" />}
+                      <p className={cn('text-xs truncate flex-1', m.seen ? 'text-zinc-500 font-normal' : 'text-zinc-900 font-semibold')}>
                         {addrStr(m.from) || '(보낸이 없음)'}
                       </p>
-                      <p className={cn('text-xs truncate mt-0.5', m.seen ? 'text-zinc-400' : 'text-zinc-700 font-medium')}>
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <p className={cn('text-xs truncate flex-1', m.seen ? 'text-zinc-400' : 'text-zinc-700 font-medium')}>
                         {m.subject}
                       </p>
-                      <p className="text-[10px] text-zinc-300 mt-1">
-                        {m.date ? formatDate(m.date, 'MM/dd HH:mm') : ''}
-                      </p>
+                      {m.hasAttachments && <Paperclip size={10} className="text-zinc-400 shrink-0" />}
                     </div>
+                    <p className="text-[10px] text-zinc-300 mt-1">
+                      {m.date ? formatDate(m.date, 'MM/dd HH:mm') : ''}
+                    </p>
                   </div>
-                </button>
+                </div>
               ))
             )}
           </div>

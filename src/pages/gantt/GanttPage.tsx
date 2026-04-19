@@ -7,10 +7,13 @@ import { cn } from '../../lib/utils';
 import type { Task } from '../../types';
 
 // ── constants ─────────────────────────────────────────────────────
-const TODAY       = new Date().toISOString().slice(0, 10);
-const WEEK_DAYS   = ['일', '월', '화', '수', '목', '금', '토'];
-const CELL_W      = 36;   // px per day
-const ROW_H       = 48;   // px per task row
+const TODAY         = new Date().toISOString().slice(0, 10);
+const WEEK_DAYS     = ['일', '월', '화', '수', '목', '금', '토'];
+const CELL_W        = 36;   // px per day
+const ROW_H         = 48;   // px per task row
+const CANVAS_BEFORE = 180;  // days before today rendered
+const CANVAS_AFTER  = 365;  // days after today rendered
+const CANVAS_DAYS   = CANVAS_BEFORE + CANVAS_AFTER;
 
 // ── helpers ───────────────────────────────────────────────────────
 function daysBetween(a: string, b: string) {
@@ -188,8 +191,11 @@ export function GanttPage() {
       setSelectedProjectId(globalProjectId);
     }
   }, [globalProjectId]);
-  const [startDate, setStartDate]                 = useState(() => addDays(TODAY, -14));
-  const VISIBLE_DAYS = 70; // 10 weeks
+  // Fixed canvas anchor — never changes
+  const ganttAnchor = useRef(addDays(TODAY, -CANVAS_BEFORE)).current;
+
+  // Currently visible month label (updated on scroll)
+  const [visibleDate, setVisibleDate] = useState(() => addDays(TODAY, -14));
 
   const project = allProjects[selectedProjectId];
   const tasks   = Object.values(allTasks)
@@ -201,23 +207,38 @@ export function GanttPage() {
   const [previewMap, setPreviewMap] = useState<Map<string, BarPreview>>(new Map());
 
   // Chart pan drag state
-  const panRef = useRef<{ startX: number; scrollLeft: number } | null>(null);
+  const panRef    = useRef<{ startX: number; scrollLeft: number } | null>(null);
   const isPanning = useRef(false);
+  const [panning, setPanning] = useState(false);
 
   // Scroll sync refs
   const leftBodyRef  = useRef<HTMLDivElement>(null);
   const rightBodyRef = useRef<HTMLDivElement>(null);
   const syncingRef   = useRef(false);
 
-  const days        = Array.from({ length: VISIBLE_DAYS }, (_, i) => addDays(startDate, i));
-  const todayOffset = daysBetween(startDate, TODAY);
+  const days         = Array.from({ length: CANVAS_DAYS }, (_, i) => addDays(ganttAnchor, i));
+  const todayOffset  = daysBetween(ganttAnchor, TODAY);
   const taskIndexMap = new Map(tasks.map((t, i) => [t.id, i]));
 
-  function prev() { setStartDate(addDays(startDate, -14)); }
-  function next() { setStartDate(addDays(startDate,  14)); }
+  // Scroll to today on first render
+  useEffect(() => {
+    if (rightBodyRef.current) {
+      rightBodyRef.current.scrollLeft = (todayOffset - 14) * CELL_W;
+    }
+  }, []);
 
+  function scrollBy(days: number) {
+    if (rightBodyRef.current) {
+      rightBodyRef.current.scrollLeft += days * CELL_W;
+    }
+  }
+
+  function prev()    { scrollBy(-30); }
+  function next()    { scrollBy(30); }
   function goToday() {
-    setStartDate(addDays(TODAY, -14));
+    if (rightBodyRef.current) {
+      rightBodyRef.current.scrollLeft = (todayOffset - 14) * CELL_W;
+    }
   }
 
   // ── drag handlers ─────────────────────────────────────────────
@@ -278,42 +299,50 @@ export function GanttPage() {
 
   // ── chart pan handlers ────────────────────────────────────────
   function onChartMouseDown(e: React.MouseEvent<HTMLDivElement>) {
-    // Only start pan if NOT clicking on a task bar (which has its own drag)
     if (dragState) return;
     if ((e.target as HTMLElement).closest('[data-gantt-bar]')) return;
     if (!rightBodyRef.current) return;
+    e.preventDefault();
     isPanning.current = true;
+    setPanning(true);
     panRef.current = { startX: e.clientX, scrollLeft: rightBodyRef.current.scrollLeft };
-    e.currentTarget.style.cursor = 'grabbing';
   }
 
-  function onChartMouseMove(e: React.MouseEvent<HTMLDivElement>) {
-    if (!isPanning.current || !panRef.current || !rightBodyRef.current) return;
-    const dx = e.clientX - panRef.current.startX;
-    rightBodyRef.current.scrollLeft = panRef.current.scrollLeft - dx;
-  }
+  useEffect(() => {
+    if (!panning) return;
 
-  function onChartMouseUp(e: React.MouseEvent<HTMLDivElement>) {
-    if (!isPanning.current) return;
-    isPanning.current = false;
-    panRef.current = null;
-    if (!dragState) e.currentTarget.style.cursor = '';
-  }
+    function onPanMove(e: MouseEvent) {
+      if (!isPanning.current || !panRef.current || !rightBodyRef.current) return;
+      const dx = e.clientX - panRef.current.startX;
+      rightBodyRef.current.scrollLeft = panRef.current.scrollLeft - dx;
+    }
 
-  function onChartMouseLeave(e: React.MouseEvent<HTMLDivElement>) {
-    if (!isPanning.current) return;
-    isPanning.current = false;
-    panRef.current = null;
-    e.currentTarget.style.cursor = '';
-  }
+    function onPanUp() {
+      isPanning.current = false;
+      panRef.current = null;
+      setPanning(false);
+    }
+
+    window.addEventListener('mousemove', onPanMove);
+    window.addEventListener('mouseup',   onPanUp);
+    return () => {
+      window.removeEventListener('mousemove', onPanMove);
+      window.removeEventListener('mouseup',   onPanUp);
+    };
+  }, [panning]);
 
   // ── scroll sync ───────────────────────────────────────────────
   function onRightScroll(e: React.UIEvent<HTMLDivElement>) {
-    if (syncingRef.current) return;
-    if (!leftBodyRef.current) return;
-    syncingRef.current = true;
-    leftBodyRef.current.scrollTop = e.currentTarget.scrollTop;
-    syncingRef.current = false;
+    const el = e.currentTarget;
+    // Sync vertical scroll
+    if (!syncingRef.current && leftBodyRef.current) {
+      syncingRef.current = true;
+      leftBodyRef.current.scrollTop = el.scrollTop;
+      syncingRef.current = false;
+    }
+    // Update visible month label
+    const scrolledDays = Math.floor(el.scrollLeft / CELL_W);
+    setVisibleDate(addDays(ganttAnchor, scrolledDays));
   }
 
   function onLeftScroll(e: React.UIEvent<HTMLDivElement>) {
@@ -360,7 +389,7 @@ export function GanttPage() {
                 <ChevronLeft size={14} className="text-zinc-600" />
               </button>
               <span className="px-2 py-1.5 text-xs text-zinc-600 font-medium select-none min-w-[72px] text-center">
-                {startDate.slice(0, 4) + '년 ' + startDate.slice(5, 7) + '월'}
+                {visibleDate.slice(0, 4) + '년 ' + visibleDate.slice(5, 7) + '월'}
               </span>
               <button className="px-2 py-2 hover:bg-zinc-50 transition-colors" onClick={next}>
                 <ChevronRight size={14} className="text-zinc-600" />
@@ -452,12 +481,9 @@ export function GanttPage() {
           className="flex-1 overflow-auto"
           onScroll={onRightScroll}
           onMouseDown={onChartMouseDown}
-          onMouseMove={onChartMouseMove}
-          onMouseUp={onChartMouseUp}
-          onMouseLeave={onChartMouseLeave}
-          style={{ cursor: dragState ? 'grabbing' : 'grab' }}
+          style={{ cursor: dragState || panning ? 'grabbing' : 'grab' }}
         >
-          <div style={{ minWidth: VISIBLE_DAYS * CELL_W }}>
+          <div style={{ minWidth: CANVAS_DAYS * CELL_W }}>
 
             {/* Day headers — sticky */}
             <div className="h-16 flex sticky top-0 bg-white z-10 border-b border-zinc-100 shadow-sm">
@@ -534,7 +560,7 @@ export function GanttPage() {
                   >
                     <GanttBar
                       task={task}
-                      ganttStart={startDate}
+                      ganttStart={ganttAnchor}
                       preview={preview}
                       color={statusColor}
                       isDragging={isDragging}
@@ -548,12 +574,12 @@ export function GanttPage() {
               <DependencyArrows
                 tasks={tasks}
                 taskIndexMap={taskIndexMap}
-                ganttStart={startDate}
+                ganttStart={ganttAnchor}
                 previewMap={previewMap}
               />
 
               {/* Today vertical line */}
-              {todayOffset >= 0 && todayOffset < VISIBLE_DAYS && (
+              {todayOffset >= 0 && todayOffset < CANVAS_DAYS && (
                 <div
                   className="absolute top-0 bottom-0 pointer-events-none z-30"
                   style={{ left: todayOffset * CELL_W + CELL_W / 2 }}

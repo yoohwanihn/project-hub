@@ -2,8 +2,15 @@ import { Router } from 'express';
 import { ImapFlow } from 'imapflow';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
+import multer from 'multer';
+import { simpleParser } from 'mailparser';
 import { db } from '../db';
 import { authMiddleware } from '../middleware/auth';
+import logger from '../logger';
+
+const log = logger.child({ module: 'mail' });
+
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
 
 export const mailRouter = Router();
 mailRouter.use(authMiddleware);
@@ -27,6 +34,15 @@ function decryptPassword(data: string): string {
   const [ivHex, encHex] = data.split(':');
   const decipher = crypto.createDecipheriv(ALGO, getKey(), Buffer.from(ivHex, 'hex'));
   return Buffer.concat([decipher.update(Buffer.from(encHex, 'hex')), decipher.final()]).toString('utf8');
+}
+
+function checkHasAttachments(struct: any): boolean {
+  if (!struct) return false;
+  if (struct.disposition?.value?.toLowerCase() === 'attachment') return true;
+  if (Array.isArray(struct.childNodes)) {
+    return struct.childNodes.some((child: any) => checkHasAttachments(child));
+  }
+  return false;
 }
 
 // ── In-memory IMAP 세션 (활성 연결만 보관) ────────────────────────
@@ -86,8 +102,10 @@ mailRouter.post('/connect', async (req, res) => {
       [encryptPassword(password), normalizedEmail, userId]
     );
 
+    log.info({ userId, email: normalizedEmail }, 'mail account connected');
     res.json({ ok: true, email: normalizedEmail });
-  } catch {
+  } catch (e: any) {
+    log.warn({ userId, email: normalizedEmail, err: e.message }, 'mail connect failed');
     res.status(401).json({ error: '연결 실패. Daum 메일 주소와 앱 비밀번호를 확인하고, IMAP이 허용되어 있는지 확인해주세요.' });
   }
 });
@@ -98,6 +116,7 @@ mailRouter.post('/disconnect', async (req, res) => {
   const sess   = sessions.get(userId);
   if (sess) { await sess.logout().catch(() => {}); sessions.delete(userId); }
   await db.query('UPDATE users SET mail_app_password = NULL WHERE id = $1', [userId]);
+  log.info({ userId }, 'mail account disconnected');
   res.json({ ok: true });
 });
 
@@ -150,16 +169,18 @@ mailRouter.get('/messages', async (req, res) => {
 
       const messages: any[] = [];
       for await (const msg of client.fetch(`${firstSeq}:${endSeq}`, {
-        uid: true, flags: true, envelope: true,
+        uid: true, flags: true, envelope: true, bodyStructure: true,
       })) {
+        const hasAttachments = checkHasAttachments(msg.bodyStructure);
         messages.push({
-          seq:     msg.seq,
-          uid:     msg.uid,
-          seen:    (msg.flags ?? new Set()).has('\\Seen'),
-          from:    msg.envelope?.from?.[0]  ?? null,
-          to:      msg.envelope?.to         ?? [],
-          subject: msg.envelope?.subject    ?? '(제목 없음)',
-          date:    msg.envelope?.date       ?? null,
+          seq:            msg.seq,
+          uid:            msg.uid,
+          seen:           (msg.flags ?? new Set()).has('\\Seen'),
+          from:           msg.envelope?.from?.[0]  ?? null,
+          to:             msg.envelope?.to          ?? [],
+          subject:        msg.envelope?.subject     ?? '(제목 없음)',
+          date:           msg.envelope?.date        ?? null,
+          hasAttachments,
         });
       }
       res.json({ messages: messages.reverse(), total, unseen, page, limit });
@@ -191,22 +212,30 @@ mailRouter.get('/messages/:uid', async (req, res) => {
       await client.messageFlagsAdd(`${uid}`, ['\\Seen'], { uid: true });
 
       let body = '';
+      let attachments: { filename: string; contentType: string; size: number; data: string }[] = [];
       if (msg.source) {
-        const raw       = msg.source.toString();
-        const htmlMatch = raw.match(/Content-Type:\s*text\/html[^]*?\r?\n\r?\n([\s\S]*?)(?=--|$)/i);
-        const textMatch = raw.match(/Content-Type:\s*text\/plain[^]*?\r?\n\r?\n([\s\S]*?)(?=--|$)/i);
-        body = htmlMatch?.[1] ?? textMatch?.[1] ?? raw;
+        const parsed = await simpleParser(msg.source);
+        body = parsed.html || parsed.text || '';
+        attachments = (parsed.attachments ?? [])
+          .filter((a) => a.contentDisposition === 'attachment' || (!a.contentId && !a.contentDisposition))
+          .map((a) => ({
+            filename:    a.filename ?? 'attachment',
+            contentType: a.contentType ?? 'application/octet-stream',
+            size:        a.size ?? a.content.length,
+            data:        a.content.toString('base64'),
+          }));
       }
 
       res.json({
-        uid:     msg.uid,
-        flags:   [...(msg.flags ?? [])],
-        from:    msg.envelope?.from ?? [],
-        to:      msg.envelope?.to   ?? [],
-        cc:      msg.envelope?.cc   ?? [],
-        subject: msg.envelope?.subject ?? '(제목 없음)',
-        date:    msg.envelope?.date    ?? null,
+        uid:         msg.uid,
+        flags:       [...(msg.flags ?? [])],
+        from:        msg.envelope?.from ?? [],
+        to:          msg.envelope?.to   ?? [],
+        cc:          msg.envelope?.cc   ?? [],
+        subject:     msg.envelope?.subject ?? '(제목 없음)',
+        date:        msg.envelope?.date    ?? null,
         body,
+        attachments,
       });
     } finally {
       lock.release();
@@ -217,20 +246,20 @@ mailRouter.get('/messages/:uid', async (req, res) => {
 });
 
 // ── POST /api/mail/send ───────────────────────────────────────────
-mailRouter.post('/send', async (req, res) => {
+mailRouter.post('/send', upload.array('attachments'), async (req, res) => {
   const userId = (req as any).user.sub as string;
   const row    = await db.query<{ mail_app_password: string | null; mail_daum_email: string | null }>(
     'SELECT mail_app_password, mail_daum_email FROM users WHERE id = $1', [userId]
   );
-  const enc       = row.rows[0]?.mail_app_password;
-  const email     = row.rows[0]?.mail_daum_email;
+  const enc   = row.rows[0]?.mail_app_password;
+  const email = row.rows[0]?.mail_daum_email;
   if (!enc || !email) return res.status(401).json({ error: '메일 연결이 필요합니다.' });
 
   const password = decryptPassword(enc);
-  const { to, cc, subject, body } = req.body as {
-    to: string; cc?: string; subject: string; body: string;
-  };
+  const { to, cc, subject, body } = req.body as { to: string; cc?: string; subject: string; body: string };
   if (!to || !subject) return res.status(400).json({ error: '받는 사람과 제목을 입력해주세요.' });
+
+  const files = (req.files as Express.Multer.File[]) ?? [];
 
   try {
     const transport = nodemailer.createTransport({
@@ -241,9 +270,16 @@ mailRouter.post('/send', async (req, res) => {
       from: email, to, cc: cc || undefined, subject,
       text: body,
       html: `<p>${body.replace(/\n/g, '<br>')}</p>`,
+      attachments: files.map((f) => ({
+        filename: f.originalname,
+        content:  f.buffer,
+        contentType: f.mimetype,
+      })),
     });
+    log.info({ userId, to, subject, attachments: files.length }, 'mail sent');
     res.json({ ok: true });
   } catch (e: any) {
+    log.error({ userId, to, err: e.message }, 'mail send failed');
     res.status(500).json({ error: `발송 실패: ${e.message}` });
   }
 });
@@ -266,6 +302,31 @@ mailRouter.delete('/messages/:uid', async (req, res) => {
     }
     res.json({ ok: true });
   } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ── DELETE /api/mail/messages (bulk) ─────────────────────────────
+mailRouter.delete('/messages', async (req, res) => {
+  const userId = (req as any).user.sub as string;
+  const client = await getOrReconnect(userId);
+  if (!client) return res.status(401).json({ error: '메일 연결이 필요합니다.' });
+
+  const folder = (req.query.folder as string) || 'INBOX';
+  const uids   = (req.body.uids as number[]) ?? [];
+  if (!uids.length) return res.status(400).json({ error: 'uid 목록이 필요합니다.' });
+
+  try {
+    const lock = await client.getMailboxLock(folder);
+    try {
+      await client.messageDelete(uids.join(','), { uid: true });
+    } finally {
+      lock.release();
+    }
+    log.info({ userId, folder, uids, count: uids.length }, 'mail messages deleted');
+    res.json({ ok: true, deleted: uids.length });
+  } catch (e: any) {
+    log.error({ userId, err: e.message }, 'mail bulk delete failed');
     res.status(500).json({ error: e.message });
   }
 });

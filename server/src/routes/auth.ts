@@ -8,6 +8,9 @@ import fs from 'fs';
 import multer from 'multer';
 import { db } from '../db';
 import { authMiddleware, JwtPayload } from '../middleware/auth';
+import logger from '../logger';
+
+const log = logger.child({ module: 'auth' });
 
 const AVATAR_DIR = path.resolve(__dirname, '../../../uploads/avatars');
 if (!fs.existsSync(AVATAR_DIR)) fs.mkdirSync(AVATAR_DIR, { recursive: true });
@@ -52,6 +55,7 @@ authRouter.post('/register', async (req, res) => {
 
   const { rows: existing } = await db.query('SELECT id FROM users WHERE email=$1', [email]);
   if (existing.length > 0) {
+    log.warn({ email }, 'register failed: email already exists');
     return res.status(409).json({ error: '이미 사용 중인 이메일입니다.' });
   }
 
@@ -64,6 +68,7 @@ authRouter.post('/register', async (req, res) => {
     [id, name, email, password_hash]
   );
 
+  log.info({ userId: id, email }, 'user registered (pending approval)');
   res.status(201).json({ message: '회원가입이 완료되었습니다. 관리자 승인 후 로그인하실 수 있습니다.' });
 });
 
@@ -76,24 +81,29 @@ authRouter.post('/login', async (req, res) => {
 
   const { rows } = await db.query('SELECT * FROM users WHERE email=$1', [email]);
   if (rows.length === 0) {
+    log.warn({ email }, 'login failed: user not found');
     return res.status(401).json({ error: '이메일 또는 비밀번호가 올바르지 않습니다.' });
   }
 
   const user = rows[0];
 
   if (user.status === 'pending') {
+    log.warn({ userId: user.id, email }, 'login blocked: account pending');
     return res.status(403).json({ error: 'pending', message: '관리자 승인 대기 중입니다.' });
   }
   if (user.status === 'rejected') {
+    log.warn({ userId: user.id, email }, 'login blocked: account rejected');
     return res.status(403).json({ error: 'rejected', message: '계정이 거절되었습니다. 관리자에게 문의해 주세요.' });
   }
 
   if (!user.password_hash) {
+    log.warn({ userId: user.id, email }, 'login failed: no password hash');
     return res.status(401).json({ error: '이메일 또는 비밀번호가 올바르지 않습니다.' });
   }
 
   const valid = await bcrypt.compare(password, user.password_hash);
   if (!valid) {
+    log.warn({ userId: user.id, email }, 'login failed: wrong password');
     return res.status(401).json({ error: '이메일 또는 비밀번호가 올바르지 않습니다.' });
   }
 
@@ -105,6 +115,7 @@ authRouter.post('/login', async (req, res) => {
     [randomUUID(), user.id, hashRefreshToken(refreshToken), expiresAt]
   );
 
+  log.info({ userId: user.id, email, role: user.role }, 'user logged in');
   res.json({
     accessToken,
     refreshToken,
@@ -154,10 +165,12 @@ authRouter.post('/refresh', async (req, res) => {
 
 // POST /api/auth/logout
 authRouter.post('/logout', authMiddleware, async (req, res) => {
+  const userId = (req as any).user?.sub;
   const { refreshToken } = req.body;
   if (refreshToken) {
     await db.query('DELETE FROM refresh_tokens WHERE token_hash=$1', [hashRefreshToken(refreshToken)]);
   }
+  log.info({ userId }, 'user logged out');
   res.json({ message: 'Logged out' });
 });
 
@@ -181,6 +194,7 @@ authRouter.delete('/me', authMiddleware, async (req, res) => {
     await db.query('DELETE FROM refresh_tokens WHERE token_hash=$1', [hash]);
   }
   await db.query('DELETE FROM users WHERE id=$1', [userId]);
+  log.info({ userId }, 'user account deleted');
   res.json({ message: '계정이 삭제되었습니다.' });
 });
 
