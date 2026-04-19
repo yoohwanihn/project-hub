@@ -62,14 +62,14 @@ export function Modal({ open, onClose, title, description, size = 'md', children
         )}
       >
         {/* Header */}
-        <div className="flex items-start justify-between px-6 py-5 border-b border-slate-100">
+        <div className="flex items-start justify-between px-6 py-5 border-b border-zinc-100">
           <div>
-            <h2 id="modal-title" className="text-base font-bold text-slate-900">{title}</h2>
-            {description && <p className="text-xs text-slate-500 mt-0.5">{description}</p>}
+            <h2 id="modal-title" className="text-base font-bold text-zinc-900">{title}</h2>
+            {description && <p className="text-xs text-zinc-500 mt-0.5">{description}</p>}
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors ml-4 flex-shrink-0"
+            className="p-1.5 rounded-lg text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-colors ml-4 flex-shrink-0"
           >
             <X size={16} />
           </button>
@@ -82,7 +82,7 @@ export function Modal({ open, onClose, title, description, size = 'md', children
 
         {/* Footer */}
         {footer && (
-          <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-2">
+          <div className="px-6 py-4 border-t border-zinc-100 flex items-center justify-end gap-2">
             {footer}
           </div>
         )}
@@ -123,7 +123,7 @@ export function ConfirmDialog({
         </>
       }
     >
-      {description && <p className="text-sm text-slate-600">{description}</p>}
+      {description && <p className="text-sm text-zinc-600">{description}</p>}
     </Modal>
   );
 }

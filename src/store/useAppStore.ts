@@ -126,16 +126,13 @@ export const useAppStore = create<AppState & AppActions>()(
 
       if (projects.length > 0) {
         const firstId = get().selectedProjectId ?? projects[0].id;
-        const exists = projects.find((p) => p.id === firstId);
+        const exists  = projects.find((p) => p.id === firstId);
         const projectId = exists ? firstId : projects[0].id;
         set((s) => { s.selectedProjectId = projectId; });
-        // Load selected project data + timelines for all projects (for notifications)
-        await Promise.all([
-          get().loadProjectData(projectId),
-          ...projects
-            .filter((p) => p.id !== projectId)
-            .map((p) => get().loadTimeline(p.id).catch(() => {})),
-        ]);
+        // Load ALL projects' full data in parallel
+        await Promise.all(
+          projects.map((p) => get().loadProjectData(p.id).catch(() => {})),
+        );
       }
     },
 

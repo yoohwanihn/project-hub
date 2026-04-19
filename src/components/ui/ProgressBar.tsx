@@ -23,13 +23,13 @@ export function ProgressBar({ value, max = 100, className, color, showLabel = fa
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
-      <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+      <div className="flex-1 h-1.5 bg-zinc-100 rounded-full overflow-hidden">
         <div
           className={cn('h-full rounded-full transition-all duration-500', barColor)}
           style={{ width: `${pct}%`, backgroundColor: color }}
         />
       </div>
-      {showLabel && <span className="text-xs text-slate-500 w-8 text-right">{pct}%</span>}
+      {showLabel && <span className="text-xs text-zinc-500 w-8 text-right">{pct}%</span>}
     </div>
   );
 }

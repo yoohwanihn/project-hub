@@ -44,10 +44,10 @@ async function fetchFullProject(projectId: string) {
 projectsRouter.get('/', async (req, res) => {
   const userId = req.user!.sub;
   const { rows } = await db.query(
-    `SELECT DISTINCT p.id FROM projects p
+    `SELECT DISTINCT p.id, p.updated_at FROM projects p
      JOIN project_members pm ON pm.project_id=p.id
      WHERE pm.user_id=$1
-     ORDER BY p.id`,
+     ORDER BY p.updated_at DESC`,
     [userId],
   );
   const projects = await Promise.all(rows.map((r) => fetchFullProject(r.id)));

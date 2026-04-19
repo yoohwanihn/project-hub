@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Users, Calendar, Columns3, GanttChartSquare,
@@ -30,9 +30,15 @@ export function ProjectDetailPage() {
   const tasksMap      = useAppStore(s => s.tasks);
   const users         = useAppStore(s => s.users);
   const announcementsMap = useAppStore(s => s.announcements);
-  const deleteTask    = useAppStore(s => s.deleteTask);
+  const deleteTask        = useAppStore(s => s.deleteTask);
+  const setSelectedProject = useAppStore(s => s.setSelectedProject);
   const tasks         = useMemo(() => Object.values(tasksMap).filter((t) => t.projectId === id), [tasksMap, id]);
   const announcements = useMemo(() => Object.values(announcementsMap).filter((a) => a.projectId === id), [announcementsMap, id]);
+
+  // URL로 직접 접근했을 때 해당 프로젝트 데이터 보장
+  useEffect(() => {
+    if (id) setSelectedProject(id);
+  }, [id]);
 
   const [editProjectOpen, setEditProjectOpen] = useState(false);
   const [addTaskOpen,     setAddTaskOpen]     = useState(false);
@@ -59,7 +65,7 @@ export function ProjectDetailPage() {
 
   if (!project) {
     return (
-      <div className="flex items-center justify-center h-full text-slate-400 text-sm">
+      <div className="flex items-center justify-center h-full text-zinc-400 text-sm">
         프로젝트를 찾을 수 없습니다.
       </div>
     );
@@ -104,13 +110,13 @@ export function ProjectDetailPage() {
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: project.color }} />
-                  <h2 className="text-base font-bold text-slate-900">{project.name}</h2>
+                  <h2 className="text-base font-bold text-zinc-900">{project.name}</h2>
                 </div>
               </div>
 
               <div className="mb-5">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-slate-600">전체 진행률</span>
+                  <span className="text-xs font-semibold text-zinc-600">전체 진행률</span>
                   <span className="text-xl font-bold" style={{ color: project.color }}>{progress}%</span>
                 </div>
                 <ProgressBar value={progress} color={project.color} />
@@ -126,12 +132,12 @@ export function ProjectDetailPage() {
                     onClick={() => setFilterStatus(filterStatus === s.id ? '' : s.id)}
                   >
                     <p className="text-xl font-bold" style={{ color: s.color }}>{taskCountByStatus[s.id] ?? 0}</p>
-                    <p className="text-[11px] text-slate-500 mt-0.5 truncate">{s.label}</p>
+                    <p className="text-[11px] text-zinc-500 mt-0.5 truncate">{s.label}</p>
                   </div>
                 ))}
               </div>
 
-              <div className="flex items-center gap-6 text-xs text-slate-500 pt-4 border-t border-slate-100">
+              <div className="flex items-center gap-6 text-xs text-zinc-500 pt-4 border-t border-zinc-100">
                 <div className="flex items-center gap-1.5">
                   <Calendar size={12} />
                   <span>{formatDate(project.startDate)} ~ {formatDate(project.endDate)}</span>
@@ -147,12 +153,12 @@ export function ProjectDetailPage() {
             {/* Shortcuts + Announcements */}
             <div className="space-y-4">
               <div className="card p-4">
-                <p className="text-xs font-semibold text-slate-500 mb-3">바로가기</p>
+                <p className="text-xs font-semibold text-zinc-500 mb-3">바로가기</p>
                 <div className="grid grid-cols-2 gap-2">
                   {SHORTCUTS.map(({ icon: Icon, label, to }) => (
                     <button
                       key={label}
-                      className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-slate-50 hover:bg-primary-50 hover:text-primary-700 text-slate-600 transition-colors"
+                      className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-zinc-50 hover:bg-zinc-100 hover:text-zinc-800 text-zinc-600 transition-colors"
                       onClick={() => navigate(to)}
                     >
                       <Icon size={18} />
@@ -164,22 +170,22 @@ export function ProjectDetailPage() {
 
               {announcements.length > 0 && (
                 <div className="card p-4">
-                  <p className="text-xs font-semibold text-slate-500 mb-3">공지사항</p>
+                  <p className="text-xs font-semibold text-zinc-500 mb-3">공지사항</p>
                   <div className="space-y-2">
                     {announcements.map((a) => {
                       const author = users[a.authorId];
                       return (
                         <div
                           key={a.id}
-                          className={cn('p-3 rounded-xl border text-xs', a.isPinned ? 'bg-amber-50 border-amber-100' : 'bg-slate-50 border-slate-100')}
+                          className={cn('p-3 rounded-xl border text-xs', a.isPinned ? 'bg-amber-50 border-amber-100' : 'bg-zinc-50 border-zinc-100')}
                         >
                           <div className="flex gap-1.5">
                             {a.isPinned && <span className="text-amber-500">📌</span>}
                             <div>
-                              <p className="font-semibold text-slate-700">{a.title}</p>
-                              <p className="text-slate-500 mt-1 line-clamp-2">{a.content}</p>
+                              <p className="font-semibold text-zinc-700">{a.title}</p>
+                              <p className="text-zinc-500 mt-1 line-clamp-2">{a.content}</p>
                               {author && (
-                                <div className="flex items-center gap-1.5 mt-2 text-slate-400">
+                                <div className="flex items-center gap-1.5 mt-2 text-zinc-400">
                                   <Avatar name={author.name} size="xs" />
                                   <span>{author.name}</span>
                                   <span>·</span>
@@ -199,14 +205,14 @@ export function ProjectDetailPage() {
 
           {/* Task List */}
           <div className="card">
-            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
-              <h2 className="text-sm font-bold text-slate-800 flex-shrink-0">
+            <div className="px-5 py-4 border-b border-zinc-100 flex items-center justify-between gap-3">
+              <h2 className="text-sm font-bold text-zinc-800 flex-shrink-0">
                 업무 ({filteredTasks.length}/{tasks.length})
               </h2>
 
               {/* Filters */}
               <div className="flex items-center gap-2 flex-wrap">
-                <Filter size={13} className="text-slate-400" />
+                <Filter size={13} className="text-zinc-400" />
 
                 <select
                   className="input text-xs py-1 w-28"
@@ -256,7 +262,7 @@ export function ProjectDetailPage() {
 
                 {hasFilter && (
                   <button
-                    className="text-xs text-primary-600 hover:underline"
+                    className="text-xs text-zinc-900 hover:underline"
                     onClick={() => { setFilterStatus(''); setFilterPriority(''); setFilterTagId(''); setFilterAssignee(''); }}
                   >
                     초기화
@@ -272,9 +278,9 @@ export function ProjectDetailPage() {
               </button>
             </div>
 
-            <div className="divide-y divide-slate-50">
+            <div className="divide-y divide-zinc-50">
               {filteredTasks.length === 0 ? (
-                <div className="py-16 text-center text-xs text-slate-400">
+                <div className="py-16 text-center text-xs text-zinc-400">
                   {hasFilter ? '필터 조건에 맞는 업무가 없습니다.' : '아직 업무가 없습니다.'}
                 </div>
               ) : (
@@ -286,7 +292,7 @@ export function ProjectDetailPage() {
                   return (
                     <div
                       key={task.id}
-                      className="px-5 py-3.5 flex items-center gap-4 hover:bg-slate-50 cursor-pointer transition-colors group"
+                      className="px-5 py-3.5 flex items-center gap-4 hover:bg-zinc-50 cursor-pointer transition-colors group"
                       onClick={() => setEditTask(task)}
                     >
                       {/* Status badge */}
@@ -299,7 +305,7 @@ export function ProjectDetailPage() {
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <p className="text-sm font-medium text-slate-800 truncate">{task.title}</p>
+                          <p className="text-sm font-medium text-zinc-800 truncate">{task.title}</p>
                           {task.blockedBy.length > 0 && (
                             <span className="inline-flex items-center gap-1 text-[10px] text-amber-600 flex-shrink-0">
                               <Link2 size={9} /> {task.blockedBy.length}
@@ -318,7 +324,7 @@ export function ProjectDetailPage() {
                       </span>
 
                       {task.dueDate && (
-                        <span className="text-xs text-slate-400 hidden md:block flex-shrink-0">
+                        <span className="text-xs text-zinc-400 hidden md:block flex-shrink-0">
                           {formatDate(task.dueDate)} 마감
                         </span>
                       )}
@@ -328,11 +334,11 @@ export function ProjectDetailPage() {
                       {/* Row actions */}
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
                         <button
-                          className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                          className="p-1.5 rounded-lg text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
                           onClick={() => setEditTask(task)}
                         ><Pencil size={12} /></button>
                         <button
-                          className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500"
+                          className="p-1.5 rounded-lg text-zinc-400 hover:bg-red-50 hover:text-red-500"
                           onClick={() => setDeleteTaskId(task.id)}
                         ><Trash2 size={12} /></button>
                       </div>

@@ -62,8 +62,9 @@ function GanttBar({ task, ganttStart, preview, color, isDragging, onDragStart }:
   // Don't render if completely outside visible area (negative offset handled by CSS overflow)
   return (
     <div
+      data-gantt-bar="true"
       className={cn(
-        'absolute top-1/2 -translate-y-1/2 h-6 rounded-md flex items-center px-2 select-none group',
+        'absolute top-1/2 -tranzinc-y-1/2 h-6 rounded-md flex items-center px-2 select-none group',
         isDragging  ? 'cursor-grabbing ring-2 ring-white/60 ring-offset-1 opacity-80' : 'cursor-grab hover:brightness-110',
       )}
       style={{
@@ -166,16 +167,27 @@ function DependencyArrows({ tasks, taskIndexMap, ganttStart, previewMap }: Depen
 
 // ── GanttPage ─────────────────────────────────────────────────────
 export function GanttPage() {
-  const allProjects = useAppStore((s) => s.projects);
-  const allTasks    = useAppStore((s) => s.tasks);
-  const users       = useAppStore((s) => s.users);
-  const updateTask  = useAppStore((s) => s.updateTask);
+  const allProjects        = useAppStore((s) => s.projects);
+  const allTasks           = useAppStore((s) => s.tasks);
+  const users              = useAppStore((s) => s.users);
+  const updateTask         = useAppStore((s) => s.updateTask);
+  const globalProjectId    = useAppStore((s) => s.selectedProjectId);
+  const setSelectedProject = useAppStore((s) => s.setSelectedProject);
 
   const projectList = Object.values(allProjects).sort(
     (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
   );
 
-  const [selectedProjectId, setSelectedProjectId] = useState(projectList[0]?.id ?? '');
+  const [selectedProjectId, setSelectedProjectId] = useState(
+    globalProjectId ?? projectList[0]?.id ?? '',
+  );
+
+  // 전역 선택 프로젝트 변경 시 동기화
+  useEffect(() => {
+    if (globalProjectId && globalProjectId !== selectedProjectId) {
+      setSelectedProjectId(globalProjectId);
+    }
+  }, [globalProjectId]);
   const [startDate, setStartDate]                 = useState(() => addDays(TODAY, -14));
   const VISIBLE_DAYS = 70; // 10 weeks
 
@@ -184,9 +196,13 @@ export function GanttPage() {
     .filter((t) => t.projectId === selectedProjectId)
     .sort((a, b) => a.order - b.order);
 
-  // Drag state
+  // Drag state (task bar)
   const [dragState,  setDragState]  = useState<DragState | null>(null);
   const [previewMap, setPreviewMap] = useState<Map<string, BarPreview>>(new Map());
+
+  // Chart pan drag state
+  const panRef = useRef<{ startX: number; scrollLeft: number } | null>(null);
+  const isPanning = useRef(false);
 
   // Scroll sync refs
   const leftBodyRef  = useRef<HTMLDivElement>(null);
@@ -260,6 +276,37 @@ export function GanttPage() {
     };
   }, [dragState, handleMouseMove, handleMouseUp]);
 
+  // ── chart pan handlers ────────────────────────────────────────
+  function onChartMouseDown(e: React.MouseEvent<HTMLDivElement>) {
+    // Only start pan if NOT clicking on a task bar (which has its own drag)
+    if (dragState) return;
+    if ((e.target as HTMLElement).closest('[data-gantt-bar]')) return;
+    if (!rightBodyRef.current) return;
+    isPanning.current = true;
+    panRef.current = { startX: e.clientX, scrollLeft: rightBodyRef.current.scrollLeft };
+    e.currentTarget.style.cursor = 'grabbing';
+  }
+
+  function onChartMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    if (!isPanning.current || !panRef.current || !rightBodyRef.current) return;
+    const dx = e.clientX - panRef.current.startX;
+    rightBodyRef.current.scrollLeft = panRef.current.scrollLeft - dx;
+  }
+
+  function onChartMouseUp(e: React.MouseEvent<HTMLDivElement>) {
+    if (!isPanning.current) return;
+    isPanning.current = false;
+    panRef.current = null;
+    if (!dragState) e.currentTarget.style.cursor = '';
+  }
+
+  function onChartMouseLeave(e: React.MouseEvent<HTMLDivElement>) {
+    if (!isPanning.current) return;
+    isPanning.current = false;
+    panRef.current = null;
+    e.currentTarget.style.cursor = '';
+  }
+
   // ── scroll sync ───────────────────────────────────────────────
   function onRightScroll(e: React.UIEvent<HTMLDivElement>) {
     if (syncingRef.current) return;
@@ -292,7 +339,7 @@ export function GanttPage() {
             <select
               className="input text-xs w-48"
               value={selectedProjectId}
-              onChange={(e) => setSelectedProjectId(e.target.value)}
+              onChange={(e) => { setSelectedProjectId(e.target.value); setSelectedProject(e.target.value); }}
             >
               {projectList.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
@@ -308,15 +355,15 @@ export function GanttPage() {
             </button>
 
             {/* date navigation */}
-            <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white">
-              <button className="px-2 py-2 hover:bg-slate-50 transition-colors" onClick={prev}>
-                <ChevronLeft size={14} className="text-slate-600" />
+            <div className="flex items-center border border-zinc-200 rounded-lg overflow-hidden bg-white">
+              <button className="px-2 py-2 hover:bg-zinc-50 transition-colors" onClick={prev}>
+                <ChevronLeft size={14} className="text-zinc-600" />
               </button>
-              <span className="px-2 py-1.5 text-xs text-slate-600 font-medium select-none min-w-[72px] text-center">
+              <span className="px-2 py-1.5 text-xs text-zinc-600 font-medium select-none min-w-[72px] text-center">
                 {startDate.slice(0, 4) + '년 ' + startDate.slice(5, 7) + '월'}
               </span>
-              <button className="px-2 py-2 hover:bg-slate-50 transition-colors" onClick={next}>
-                <ChevronRight size={14} className="text-slate-600" />
+              <button className="px-2 py-2 hover:bg-zinc-50 transition-colors" onClick={next}>
+                <ChevronRight size={14} className="text-zinc-600" />
               </button>
             </div>
 
@@ -331,12 +378,12 @@ export function GanttPage() {
       <div className="flex flex-1 overflow-hidden">
 
         {/* ── Left panel ────────────────────────────────────── */}
-        <div className="w-72 shrink-0 border-r border-slate-200 bg-white flex flex-col">
+        <div className="w-72 shrink-0 border-r border-zinc-200 bg-white flex flex-col">
           {/* Column header — same height as day-header */}
-          <div className="h-16 shrink-0 border-b border-slate-100 px-4 flex items-end pb-2">
-            <span className="text-xs font-semibold text-slate-500">
+          <div className="h-16 shrink-0 border-b border-zinc-100 px-4 flex items-end pb-2">
+            <span className="text-xs font-semibold text-zinc-500">
               업무명
-              <span className="ml-1 text-slate-400 font-normal">({tasks.length})</span>
+              <span className="ml-1 text-zinc-400 font-normal">({tasks.length})</span>
             </span>
           </div>
 
@@ -347,7 +394,7 @@ export function GanttPage() {
             onScroll={onLeftScroll}
           >
             {tasks.length === 0 ? (
-              <div className="flex items-center justify-center h-24 text-xs text-slate-400">
+              <div className="flex items-center justify-center h-24 text-xs text-zinc-400">
                 등록된 업무가 없습니다.
               </div>
             ) : (
@@ -359,14 +406,14 @@ export function GanttPage() {
                 return (
                   <div
                     key={task.id}
-                    className="h-12 border-b border-slate-50 px-4 flex items-center gap-2.5 hover:bg-slate-50 transition-colors cursor-pointer"
+                    className="h-12 border-b border-zinc-50 px-4 flex items-center gap-2.5 hover:bg-zinc-50 transition-colors cursor-pointer"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1">
                         {isBlocked && (
                           <AlertTriangle size={10} className="text-orange-400 flex-shrink-0" />
                         )}
-                        <p className="text-xs font-medium text-slate-700 truncate">{task.title}</p>
+                        <p className="text-xs font-medium text-zinc-700 truncate">{task.title}</p>
                       </div>
                       <div className="flex items-center gap-1.5 mt-0.5">
                         {status && (
@@ -378,7 +425,7 @@ export function GanttPage() {
                           </span>
                         )}
                         {!hasDate && (
-                          <span className="text-[10px] text-slate-400">날짜 미설정</span>
+                          <span className="text-[10px] text-zinc-400">날짜 미설정</span>
                         )}
                       </div>
                     </div>
@@ -387,7 +434,7 @@ export function GanttPage() {
                         <Avatar key={u.id} name={u.name} size="xs" />
                       ))}
                       {assignees.length > 2 && (
-                        <div className="w-5 h-5 rounded-full bg-slate-200 border border-white flex items-center justify-center text-[9px] text-slate-500 font-medium">
+                        <div className="w-5 h-5 rounded-full bg-zinc-200 border border-white flex items-center justify-center text-[9px] text-zinc-500 font-medium">
                           +{assignees.length - 2}
                         </div>
                       )}
@@ -404,11 +451,16 @@ export function GanttPage() {
           ref={rightBodyRef}
           className="flex-1 overflow-auto"
           onScroll={onRightScroll}
+          onMouseDown={onChartMouseDown}
+          onMouseMove={onChartMouseMove}
+          onMouseUp={onChartMouseUp}
+          onMouseLeave={onChartMouseLeave}
+          style={{ cursor: dragState ? 'grabbing' : 'grab' }}
         >
           <div style={{ minWidth: VISIBLE_DAYS * CELL_W }}>
 
             {/* Day headers — sticky */}
-            <div className="h-16 flex sticky top-0 bg-white z-10 border-b border-slate-100 shadow-sm">
+            <div className="h-16 flex sticky top-0 bg-white z-10 border-b border-zinc-100 shadow-sm">
               {days.map((d, i) => {
                 const date    = new Date(d + 'T00:00:00');
                 const isToday = d === TODAY;
@@ -419,32 +471,32 @@ export function GanttPage() {
                   <div
                     key={d}
                     className={cn(
-                      'flex-shrink-0 flex flex-col items-center justify-end pb-1 border-r border-slate-100 relative',
-                      isToday && 'bg-primary-50',
-                      (isSun || isSat) && !isToday && 'bg-slate-50/60',
+                      'flex-shrink-0 flex flex-col items-center justify-end pb-1 border-r border-zinc-100 relative',
+                      isToday && 'bg-zinc-100',
+                      (isSun || isSat) && !isToday && 'bg-zinc-50/60',
                     )}
                     style={{ width: CELL_W }}
                   >
                     {isFirst && (
-                      <span className="absolute top-2 left-1.5 text-[10px] font-bold text-slate-400">
+                      <span className="absolute top-2 left-1.5 text-[10px] font-bold text-zinc-400">
                         {d.slice(5, 7)}월
                       </span>
                     )}
                     <span className={cn(
                       'text-[11px] leading-none',
-                      isToday  ? 'text-primary-600 font-bold'
+                      isToday  ? 'text-zinc-900 font-bold'
                       : isSun  ? 'text-red-400'
                       : isSat  ? 'text-blue-400'
-                      : 'text-slate-400',
+                      : 'text-zinc-400',
                     )}>
                       {date.getDate()}
                     </span>
                     <span className={cn(
                       'text-[10px] leading-none mt-0.5',
-                      isToday  ? 'text-primary-500'
+                      isToday  ? 'text-zinc-700'
                       : isSun  ? 'text-red-300'
                       : isSat  ? 'text-blue-300'
-                      : 'text-slate-300',
+                      : 'text-zinc-300',
                     )}>
                       {WEEK_DAYS[date.getDay()]}
                     </span>
@@ -463,7 +515,7 @@ export function GanttPage() {
                 return (
                   <div
                     key={d}
-                    className="absolute top-0 bottom-0 bg-slate-50/70"
+                    className="absolute top-0 bottom-0 bg-zinc-50/70"
                     style={{ left: i * CELL_W, width: CELL_W }}
                   />
                 );
@@ -477,7 +529,7 @@ export function GanttPage() {
                 return (
                   <div
                     key={task.id}
-                    className="absolute left-0 right-0 border-b border-slate-50/80"
+                    className="absolute left-0 right-0 border-b border-zinc-50/80"
                     style={{ top: idx * ROW_H, height: ROW_H }}
                   >
                     <GanttBar
@@ -509,7 +561,7 @@ export function GanttPage() {
                   <div className="w-px h-full bg-red-400/50" />
                   {/* Today badge at top */}
                   <div
-                    className="absolute -top-0 -translate-x-1/2 bg-red-400 text-white text-[10px] px-1.5 py-0.5 rounded font-semibold shadow-sm whitespace-nowrap"
+                    className="absolute -top-0 -tranzinc-x-1/2 bg-red-400 text-white text-[10px] px-1.5 py-0.5 rounded font-semibold shadow-sm whitespace-nowrap"
                     style={{ top: 0 }}
                   >
                     오늘
@@ -520,7 +572,7 @@ export function GanttPage() {
 
             {/* Empty state */}
             {tasks.length === 0 && (
-              <div className="flex items-center justify-center h-32 text-sm text-slate-400">
+              <div className="flex items-center justify-center h-32 text-sm text-zinc-400">
                 이 프로젝트에 업무가 없습니다.
               </div>
             )}
@@ -529,29 +581,29 @@ export function GanttPage() {
       </div>
 
       {/* ── Legend ──────────────────────────────────────────────── */}
-      <div className="px-6 py-2.5 border-t border-slate-100 bg-white flex items-center gap-5 flex-wrap">
+      <div className="px-6 py-2.5 border-t border-zinc-100 bg-white flex items-center gap-5 flex-wrap">
         {project?.workflow.map((w) => (
-          <div key={w.id} className="flex items-center gap-1.5 text-xs text-slate-500">
+          <div key={w.id} className="flex items-center gap-1.5 text-xs text-zinc-500">
             <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: w.color }} />
             {w.label}
           </div>
         ))}
-        <div className="ml-2 flex items-center gap-1.5 text-xs text-slate-500">
+        <div className="ml-2 flex items-center gap-1.5 text-xs text-zinc-500">
           <span className="w-px h-3.5 bg-red-400" />
           오늘
         </div>
-        <div className="flex items-center gap-1.5 text-xs text-slate-500">
+        <div className="flex items-center gap-1.5 text-xs text-zinc-500">
           <svg width="20" height="10">
             <line x1="0" y1="5" x2="16" y2="5" stroke="#f97316" strokeWidth="1.5" strokeDasharray="4 2" />
             <polygon points="14,2 14,8 20,5" fill="#f97316" />
           </svg>
           선후행 관계
         </div>
-        <div className="ml-auto flex items-center gap-1 text-xs text-slate-400">
+        <div className="ml-auto flex items-center gap-1 text-xs text-zinc-400">
           <AlertTriangle size={11} className="text-orange-400" />
           선행 업무 있음
         </div>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-zinc-400">
           바를 드래그하여 일정을 조정하거나, 우측 핸들로 기간을 조정하세요.
         </p>
       </div>

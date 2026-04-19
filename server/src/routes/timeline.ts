@@ -13,11 +13,15 @@ export async function addTimelineEvent(
   type: string,
   payload: Record<string, unknown>,
 ) {
-  await db.query(
-    `INSERT INTO timeline_events (id,type,actor_id,project_id,payload,created_at)
-     VALUES ($1,$2,$3,$4,$5::jsonb,NOW())`,
-    [uuidv4(), type, actorId, projectId, JSON.stringify(payload)],
-  );
+  try {
+    await db.query(
+      `INSERT INTO timeline_events (id,type,actor_id,project_id,payload,created_at)
+       VALUES ($1,$2,$3,$4,$5::jsonb,NOW())`,
+      [uuidv4(), type, actorId || null, projectId, JSON.stringify(payload)],
+    );
+  } catch (err) {
+    console.error('[timeline] addTimelineEvent error:', err);
+  }
 }
 
 // GET /api/projects/:projectId/timeline

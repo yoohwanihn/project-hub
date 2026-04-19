@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Users, Clock, BarChart2, TrendingUp, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { Header }    from '../../components/layout/Header';
 import { Avatar }    from '../../components/ui/Avatar';
@@ -42,12 +42,20 @@ export function ResourcesPage() {
   const allWorkLogsMap       = useAppStore(s => s.workLogs);
   const selectedProjectIdRaw = useAppStore(s => s.selectedProjectId);
   const selectedProjectId    = selectedProjectIdRaw ?? '';
+  const setSelectedProject   = useAppStore(s => s.setSelectedProject);
 
   const projectList = Object.values(projects).sort(
     (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
   );
 
   const [viewProjectId, setViewProjectId] = useState(selectedProjectId);
+
+  // 전역 선택 프로젝트 변경 시 동기화
+  useEffect(() => {
+    if (selectedProjectId && selectedProjectId !== viewProjectId) {
+      setViewProjectId(selectedProjectId);
+    }
+  }, [selectedProjectId]);
   const project   = projects[viewProjectId];
   const allTasks  = useMemo(() => Object.values(allTasksMap).filter((t) => t.projectId === viewProjectId), [allTasksMap, viewProjectId]);
   const allLogs   = useMemo(() => Object.values(allWorkLogsMap), [allWorkLogsMap]);
@@ -60,7 +68,10 @@ export function ResourcesPage() {
       const done      = myTasks.filter((t) => t.statusId === 'done');
       const taskIds   = new Set(myTasks.map((t) => t.id));
       const myLogs    = allLogs.filter((l) => taskIds.has(l.taskId) && l.userId === member.id);
-      const loggedH   = parseFloat(myLogs.reduce((s, l) => s + l.hours, 0).toFixed(1));
+      // workLogs는 세션 내 임시 데이터 → task.loggedHours(DB 저장값) 우선 사용
+      const loggedH   = myLogs.length > 0
+        ? parseFloat(myLogs.reduce((s, l) => s + l.hours, 0).toFixed(1))
+        : parseFloat(myTasks.reduce((s, t) => s + (t.loggedHours ?? 0), 0).toFixed(1));
       const estimatedH = myTasks.reduce((s, t) => s + (t.estimatedHours ?? 0), 0);
       const completionRate = myTasks.length > 0 ? Math.round((done.length / myTasks.length) * 100) : 0;
       const isOverloaded = active.length >= 5;
@@ -73,7 +84,9 @@ export function ResourcesPage() {
     return projectList.map((p) => {
       const pts    = Object.values(allTasksMap).filter((t) => t.projectId === p.id);
       const pLogs  = Object.values(allWorkLogsMap).filter((l) => pts.some((t) => t.id === l.taskId));
-      const loggedH    = parseFloat(pLogs.reduce((s, l) => s + l.hours, 0).toFixed(1));
+      const loggedH = pLogs.length > 0
+        ? parseFloat(pLogs.reduce((s, l) => s + l.hours, 0).toFixed(1))
+        : parseFloat(pts.reduce((s, t) => s + (t.loggedHours ?? 0), 0).toFixed(1));
       const estimatedH = pts.reduce((s, t) => s + (t.estimatedHours ?? 0), 0);
       const done       = pts.filter((t) => t.statusId === 'done').length;
       const progress   = pts.length > 0 ? Math.round((done / pts.length) * 100) : 0;
@@ -117,7 +130,7 @@ export function ResourcesPage() {
           <select
             className="input text-xs w-52"
             value={viewProjectId}
-            onChange={(e) => setViewProjectId(e.target.value)}
+            onChange={(e) => { setViewProjectId(e.target.value); setSelectedProject(e.target.value); }}
           >
             {projectList.map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
@@ -141,8 +154,8 @@ export function ResourcesPage() {
                 <Icon size={18} className={color} />
               </div>
               <div>
-                <p className="text-2xl font-bold text-slate-900">{value}</p>
-                <p className="text-xs text-slate-500">{label}</p>
+                <p className="text-2xl font-bold text-zinc-900">{value}</p>
+                <p className="text-xs text-zinc-500">{label}</p>
               </div>
             </div>
           ))}
@@ -152,13 +165,13 @@ export function ResourcesPage() {
 
           {/* ── 팀원별 업무 현황 ─────────────────────────────── */}
           <div className="lg:col-span-2 card overflow-hidden">
-            <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
-              <Users size={14} className="text-slate-400" />
-              <h2 className="text-sm font-bold text-slate-800">팀원별 업무 현황</h2>
+            <div className="px-5 py-4 border-b border-zinc-100 flex items-center gap-2">
+              <Users size={14} className="text-zinc-400" />
+              <h2 className="text-sm font-bold text-zinc-800">팀원별 업무 현황</h2>
             </div>
-            <div className="divide-y divide-slate-50">
+            <div className="divide-y divide-zinc-50">
               {memberStats.length === 0 && (
-                <p className="text-xs text-slate-400 text-center py-8">팀원이 없습니다.</p>
+                <p className="text-xs text-zinc-400 text-center py-8">팀원이 없습니다.</p>
               )}
               {memberStats.map(({ member, total, active, done, loggedH, estimatedH, completionRate, isOverloaded }) => (
                 <div key={member.id} className="px-5 py-4">
@@ -166,48 +179,48 @@ export function ResourcesPage() {
                     <Avatar name={member.name} size="sm" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="text-sm font-semibold text-slate-800">{member.name}</p>
+                        <p className="text-sm font-semibold text-zinc-800">{member.name}</p>
                         {isOverloaded && (
                           <span className="flex items-center gap-0.5 text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded-full">
                             <AlertTriangle size={9} /> 과부하
                           </span>
                         )}
-                        <span className="text-[11px] text-slate-400 capitalize">{member.role}</span>
+                        <span className="text-[11px] text-zinc-400 capitalize">{member.role}</span>
                       </div>
-                      <p className="text-xs text-slate-400 mt-0.5">
+                      <p className="text-xs text-zinc-400 mt-0.5">
                         전체 {total}개 · 진행 <span className="text-blue-600 font-medium">{active}</span>개 · 완료 <span className="text-emerald-600 font-medium">{done}</span>개
                       </p>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <p className="text-sm font-bold text-slate-800">{loggedH}h</p>
-                      <p className="text-xs text-slate-400">{estimatedH > 0 ? `/ ${estimatedH}h 예상` : '시간 미설정'}</p>
+                      <p className="text-sm font-bold text-zinc-800">{loggedH}h</p>
+                      <p className="text-xs text-zinc-400">{estimatedH > 0 ? `/ ${estimatedH}h 예상` : '시간 미설정'}</p>
                     </div>
                   </div>
 
                   {/* Task progress bar */}
                   <div className="flex items-center gap-3">
-                    <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="flex-1 h-2 bg-zinc-100 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-emerald-400 rounded-full transition-all"
                         style={{ width: `${completionRate}%` }}
                       />
                     </div>
-                    <span className="text-xs text-slate-500 w-8 text-right flex-shrink-0">{completionRate}%</span>
+                    <span className="text-xs text-zinc-500 w-8 text-right flex-shrink-0">{completionRate}%</span>
                   </div>
 
                   {/* Time usage bar */}
                   {estimatedH > 0 && (
                     <div className="flex items-center gap-3 mt-1.5">
-                      <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="flex-1 h-1.5 bg-zinc-100 rounded-full overflow-hidden">
                         <div
                           className={cn(
                             'h-full rounded-full transition-all',
-                            loggedH > estimatedH ? 'bg-red-400' : 'bg-primary-400',
+                            loggedH > estimatedH ? 'bg-red-400' : 'bg-zinc-700',
                           )}
                           style={{ width: `${Math.min(100, Math.round((loggedH / estimatedH) * 100))}%` }}
                         />
                       </div>
-                      <span className="text-xs text-slate-400 w-8 text-right flex-shrink-0">
+                      <span className="text-xs text-zinc-400 w-8 text-right flex-shrink-0">
                         {Math.round((loggedH / estimatedH) * 100)}%
                       </span>
                     </div>
@@ -222,14 +235,14 @@ export function ResourcesPage() {
             {/* 주간 시간 기록 */}
             <div className="card p-4">
               <div className="flex items-center gap-2 mb-3">
-                <Clock size={14} className="text-primary-500" />
-                <h3 className="text-sm font-bold text-slate-800">주간 시간 기록</h3>
-                <span className="ml-auto text-xs text-slate-400">최근 7일</span>
+                <Clock size={14} className="text-zinc-700" />
+                <h3 className="text-sm font-bold text-zinc-800">주간 시간 기록</h3>
+                <span className="ml-auto text-xs text-zinc-400">최근 7일</span>
               </div>
               <MiniBarChart data={weeklyLogs} color="#3b82f6" />
-              <div className="mt-2 flex justify-between text-xs text-slate-400">
-                <span>총 <span className="font-semibold text-slate-700">{weeklyLogs.reduce((s, d) => s + d.value, 0)}h</span></span>
-                <span>일평균 <span className="font-semibold text-slate-700">
+              <div className="mt-2 flex justify-between text-xs text-zinc-400">
+                <span>총 <span className="font-semibold text-zinc-700">{weeklyLogs.reduce((s, d) => s + d.value, 0)}h</span></span>
+                <span>일평균 <span className="font-semibold text-zinc-700">
                   {(weeklyLogs.reduce((s, d) => s + d.value, 0) / 7).toFixed(1)}h
                 </span></span>
               </div>
@@ -239,14 +252,14 @@ export function ResourcesPage() {
             <div className="card p-4">
               <div className="flex items-center gap-2 mb-4">
                 <BarChart2 size={14} className="text-violet-500" />
-                <h3 className="text-sm font-bold text-slate-800">업무 상태 분포</h3>
+                <h3 className="text-sm font-bold text-zinc-800">업무 상태 분포</h3>
               </div>
               <div className="space-y-2.5">
                 {statusBreakdown.map((w) => (
                   <div key={w.id} className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: w.color }} />
-                    <span className="text-xs text-slate-600 flex-1 truncate">{w.label}</span>
-                    <div className="w-20 h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <span className="text-xs text-zinc-600 flex-1 truncate">{w.label}</span>
+                    <div className="w-20 h-2 bg-zinc-100 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full"
                         style={{
@@ -255,27 +268,27 @@ export function ResourcesPage() {
                         }}
                       />
                     </div>
-                    <span className="text-xs font-semibold text-slate-700 w-4 text-right flex-shrink-0">{w.count}</span>
+                    <span className="text-xs font-semibold text-zinc-700 w-4 text-right flex-shrink-0">{w.count}</span>
                   </div>
                 ))}
               </div>
 
               {/* Time usage overall */}
               {totalEstimated > 0 && (
-                <div className="mt-4 pt-4 border-t border-slate-100">
+                <div className="mt-4 pt-4 border-t border-zinc-100">
                   <div className="flex justify-between text-xs mb-1.5">
-                    <span className="text-slate-500">전체 시간 사용률</span>
-                    <span className={cn('font-bold', timePct >= 100 ? 'text-red-500' : 'text-slate-700')}>
+                    <span className="text-zinc-500">전체 시간 사용률</span>
+                    <span className={cn('font-bold', timePct >= 100 ? 'text-red-500' : 'text-zinc-700')}>
                       {totalLogged}h / {totalEstimated}h
                     </span>
                   </div>
-                  <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-2 bg-zinc-100 rounded-full overflow-hidden">
                     <div
-                      className={cn('h-full rounded-full', timePct >= 100 ? 'bg-red-400' : timePct >= 80 ? 'bg-amber-400' : 'bg-primary-400')}
+                      className={cn('h-full rounded-full', timePct >= 100 ? 'bg-red-400' : timePct >= 80 ? 'bg-amber-400' : 'bg-zinc-700')}
                       style={{ width: `${Math.min(100, timePct)}%` }}
                     />
                   </div>
-                  <p className="text-xs text-slate-400 mt-1 text-right">{timePct}% 사용</p>
+                  <p className="text-xs text-zinc-400 mt-1 text-right">{timePct}% 사용</p>
                 </div>
               )}
             </div>
@@ -284,45 +297,45 @@ export function ResourcesPage() {
 
         {/* ── 프로젝트별 시간 리포트 ───────────────────────── */}
         <div className="card overflow-hidden">
-          <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
-            <TrendingUp size={14} className="text-slate-400" />
-            <h2 className="text-sm font-bold text-slate-800">프로젝트별 시간 리포트</h2>
+          <div className="px-5 py-4 border-b border-zinc-100 flex items-center gap-2">
+            <TrendingUp size={14} className="text-zinc-400" />
+            <h2 className="text-sm font-bold text-zinc-800">프로젝트별 시간 리포트</h2>
           </div>
           <table className="w-full">
             <thead>
-              <tr className="border-b border-slate-100 bg-slate-50">
+              <tr className="border-b border-zinc-100 bg-zinc-50">
                 {['프로젝트', '업무 수', '진행률', '기록 시간', '예상 시간', '시간 사용률'].map((h) => (
-                  <th key={h} className="text-left text-xs font-semibold text-slate-500 px-5 py-3">{h}</th>
+                  <th key={h} className="text-left text-xs font-semibold text-zinc-500 px-5 py-3">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
+            <tbody className="divide-y divide-zinc-50">
               {projectTimeSummary.map(({ project: p, loggedH, estimatedH, progress, taskCount }) => {
                 const pct = estimatedH > 0 ? Math.round((loggedH / estimatedH) * 100) : null;
                 return (
-                  <tr key={p.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={p.id} className="hover:bg-zinc-50 transition-colors">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-2">
                         <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: p.color }} />
-                        <span className="text-sm font-medium text-slate-800">{p.name}</span>
+                        <span className="text-sm font-medium text-zinc-800">{p.name}</span>
                       </div>
                     </td>
-                    <td className="px-5 py-3.5 text-xs text-slate-600">{taskCount}개</td>
+                    <td className="px-5 py-3.5 text-xs text-zinc-600">{taskCount}개</td>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-2">
                         <ProgressBar value={progress} color={p.color} className="w-20" />
-                        <span className="text-xs text-slate-500">{progress}%</span>
+                        <span className="text-xs text-zinc-500">{progress}%</span>
                       </div>
                     </td>
-                    <td className="px-5 py-3.5 text-xs font-semibold text-slate-800">{loggedH}h</td>
-                    <td className="px-5 py-3.5 text-xs text-slate-500">{estimatedH > 0 ? `${estimatedH}h` : '—'}</td>
+                    <td className="px-5 py-3.5 text-xs font-semibold text-zinc-800">{loggedH}h</td>
+                    <td className="px-5 py-3.5 text-xs text-zinc-500">{estimatedH > 0 ? `${estimatedH}h` : '—'}</td>
                     <td className="px-5 py-3.5">
                       {pct !== null ? (
-                        <span className={cn('text-xs font-semibold', pct >= 100 ? 'text-red-500' : 'text-slate-700')}>
+                        <span className={cn('text-xs font-semibold', pct >= 100 ? 'text-red-500' : 'text-zinc-700')}>
                           {pct}%
                         </span>
                       ) : (
-                        <span className="text-xs text-slate-300">—</span>
+                        <span className="text-xs text-zinc-300">—</span>
                       )}
                     </td>
                   </tr>
