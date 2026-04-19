@@ -23,8 +23,8 @@ function addDays(dateStr: string, n: number) {
   return d.toISOString().slice(0, 10);
 }
 
-const isDone        = (statusId: string) => statusId === 'done' || statusId.endsWith('-done');
-const isInProgress  = (statusId: string) => statusId === 'in_progress';
+const isDone       = (statusId: string) => statusId === 'done'        || statusId.endsWith('-done');
+const isInProgress = (statusId: string) => statusId === 'in_progress' || statusId.endsWith('-in_progress');
 
 function timelineMessage(e: TimelineEvent, actorName: string): React.ReactNode {
   const bold = (s: string) => <span className="font-semibold text-zinc-800">{s}</span>;

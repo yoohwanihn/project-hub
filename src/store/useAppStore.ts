@@ -471,9 +471,10 @@ export const useAppStore = create<AppState & AppActions>()(
       const res = await api.get(`/projects/${projectId}/timeline`);
       const events: TimelineEvent[] = res.data;
       set((s) => {
-        // merge: keep events from other projects, replace for this project
         const others = s.timeline.filter((e) => e.projectId !== projectId);
-        s.timeline = [...events, ...others];
+        const merged = [...events, ...others];
+        merged.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+        s.timeline = merged;
       });
     },
 
