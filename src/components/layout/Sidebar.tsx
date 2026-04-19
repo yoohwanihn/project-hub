@@ -2,7 +2,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, FolderKanban, Columns3, GanttChartSquare,
   BookOpen, Clock, Paperclip, Settings, ChevronDown, Plus,
-  Megaphone, BarChart2, Vote, Shield, ClipboardList, Zap,
+  Megaphone, BarChart2, Vote, Shield, ClipboardList, Zap, Mail,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Avatar } from '../ui/Avatar';
@@ -22,6 +22,7 @@ const NAV_ITEMS = [
   { to: '/files',          icon: Paperclip,       label: '파일 보관함' },
   { to: '/resources',      icon: BarChart2,       label: '자원 관리' },
   { to: '/polls',          icon: Vote,            label: '투표' },
+  { to: '/mail',           icon: Mail,            label: '메일' },
 ];
 
 export function Sidebar() {
