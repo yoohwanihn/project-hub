@@ -30,3 +30,6 @@ npm-debug.log*
 
 # Uploads (user files, avatars)
 uploads/
+
+# Docs (internal specs / auto-generated)
+docs/

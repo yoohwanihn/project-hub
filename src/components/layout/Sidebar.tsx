@@ -131,7 +131,7 @@ export function Sidebar() {
               <Avatar name={currentUser.name} size="sm" />
               <div className="min-w-0">
                 <p className="text-xs font-semibold truncate">{currentUser.name}</p>
-                <p className="text-[10px] text-zinc-400 truncate">{currentUser.email}</p>
+                <p className="text-[10px] text-zinc-400 truncate" title={currentUser.email}>{currentUser.email}</p>
               </div>
             </div>
             <Settings size={13} className="flex-shrink-0 opacity-40" />
