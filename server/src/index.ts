@@ -14,6 +14,7 @@ import { announcementsRouter } from './routes/announcements';
 import { filesRouter }         from './routes/files';
 import { pollsRouter }         from './routes/polls';
 import { timelineRouter }      from './routes/timeline';
+import { mailRouter }          from './routes/mail';
 
 const app = express();
 app.use(cors());
@@ -38,6 +39,7 @@ app.use('/api/files',                           filesRouter);
 app.use('/api/projects/:projectId/polls',       pollsRouter);
 app.use('/api/polls',                           pollsRouter);
 app.use('/api/projects',                        timelineRouter);
+app.use('/api/mail',                            mailRouter);
 
 // 전역 에러 핸들러 (async 핸들러 미처리 예외 포함)
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

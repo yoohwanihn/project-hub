@@ -20,6 +20,7 @@ import { PollsPage }         from './pages/polls/PollsPage';
 import { SettingsPage }      from './pages/settings/SettingsPage';
 import { MyTasksPage }       from './pages/mytasks/MyTasksPage';
 import { NotFoundPage }      from './pages/errors/NotFoundPage';
+import { MailPage }          from './pages/mail/MailPage';
 
 function AppRoutes() {
   const { initializing } = useAuth();
@@ -63,6 +64,7 @@ function AppRoutes() {
         <Route path="/resources"     element={<ResourcesPage />} />
         <Route path="/polls"         element={<PollsPage />} />
         <Route path="/my-tasks"      element={<MyTasksPage />} />
+        <Route path="/mail"          element={<MailPage />} />
         <Route path="/settings"      element={<SettingsPage />} />
         <Route path="/admin" element={
           <ProtectedRoute requiredRoles={['owner', 'admin']}>
