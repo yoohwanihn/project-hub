@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import api from '../lib/api';
+import { toast } from './useToastStore';
 import {
   type AppState,
   type Project,
@@ -168,6 +169,7 @@ export const useAppStore = create<AppState & AppActions>()(
       const project: Project = res.data;
       set((s) => { s.projects[project.id] = project; });
       await get().loadTimeline(project.id);
+      toast.success(`프로젝트 "${project.name}"이(가) 생성됐습니다.`);
       return project.id;
     },
 
@@ -180,6 +182,7 @@ export const useAppStore = create<AppState & AppActions>()(
     },
 
     async deleteProject(id) {
+      const name = get().projects[id]?.name ?? '프로젝트';
       await api.delete(`/projects/${id}`);
       set((s) => {
         delete s.projects[id];
@@ -187,6 +190,7 @@ export const useAppStore = create<AppState & AppActions>()(
           if (s.tasks[tid].projectId === id) delete s.tasks[tid];
         }
       });
+      toast.success(`"${name}"이(가) 삭제됐습니다.`);
     },
 
     async addProjectMember(projectId, userId, role) {
@@ -255,6 +259,7 @@ export const useAppStore = create<AppState & AppActions>()(
       const task: Task = res.data;
       set((s) => { s.tasks[task.id] = task; });
       get().loadTimeline(data.projectId).catch(console.error);
+      toast.success('업무가 추가됐습니다.');
       return task.id;
     },
 
@@ -277,6 +282,7 @@ export const useAppStore = create<AppState & AppActions>()(
         }
       });
       await get().loadTimeline(task.projectId);
+      toast.success('업무가 삭제됐습니다.');
     },
 
     async moveTask(taskId, toStatusId, toIndex) {
@@ -357,17 +363,20 @@ export const useAppStore = create<AppState & AppActions>()(
       });
       const page: WikiPage = res.data;
       set((s) => { s.wikiPages[page.id] = page; });
+      toast.success('위키 페이지가 생성됐습니다.');
       return page.id;
     },
 
     async updateWikiPage(id, patch) {
       const res = await api.patch(`/wiki/${id}`, patch);
       set((s) => { if (s.wikiPages[id]) Object.assign(s.wikiPages[id], res.data); });
+      toast.success('위키 페이지가 저장됐습니다.');
     },
 
     async deleteWikiPage(id) {
       await api.delete(`/wiki/${id}`);
       set((s) => { delete s.wikiPages[id]; });
+      toast.success('위키 페이지가 삭제됐습니다.');
     },
 
     // ── Announcement ─────────────────────────────────────────
@@ -378,6 +387,7 @@ export const useAppStore = create<AppState & AppActions>()(
       const ann: Announcement = res.data;
       set((s) => { s.announcements[ann.id] = ann; });
       get().loadTimeline(data.projectId).catch(console.error);
+      toast.success('공지사항이 등록됐습니다.');
       return ann.id;
     },
 
@@ -389,6 +399,7 @@ export const useAppStore = create<AppState & AppActions>()(
     async deleteAnnouncement(id) {
       await api.delete(`/announcements/${id}`);
       set((s) => { delete s.announcements[id]; });
+      toast.success('공지사항이 삭제됐습니다.');
     },
 
     async togglePinAnnouncement(id) {
@@ -406,11 +417,13 @@ export const useAppStore = create<AppState & AppActions>()(
       const uploaded: FileItem[] = res.data;
       set((s) => { for (const f of uploaded) s.files[f.id] = f; });
       await get().loadTimeline(projectId);
+      toast.success(`${uploaded.length}개 파일이 업로드됐습니다.`);
     },
 
     async deleteFile(id) {
       await api.delete(`/files/${id}`);
       set((s) => { delete s.files[id]; });
+      toast.success('파일이 삭제됐습니다.');
     },
 
     // ── Poll ────────────────────────────────────────────────
