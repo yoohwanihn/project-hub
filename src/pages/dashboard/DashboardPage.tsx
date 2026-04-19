@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   CheckCircle2, Clock, AlertCircle, FolderKanban,
   ArrowRight, Plus, Circle, Link2, TrendingUp, BarChart2,
+  CalendarDays, Activity,
 } from 'lucide-react';
 import { Header }      from '../../components/layout/Header';
 import { ProgressBar } from '../../components/ui/ProgressBar';
@@ -21,6 +22,9 @@ function addDays(dateStr: string, n: number) {
   d.setDate(d.getDate() + n);
   return d.toISOString().slice(0, 10);
 }
+
+const isDone        = (statusId: string) => statusId === 'done' || statusId.endsWith('-done');
+const isInProgress  = (statusId: string) => statusId === 'in_progress';
 
 function timelineMessage(e: TimelineEvent, actorName: string): React.ReactNode {
   const bold = (s: string) => <span className="font-semibold text-zinc-800">{s}</span>;
@@ -47,9 +51,8 @@ function DonutChart({ segments, centerLabel }: { segments: DonutSegment[]; cente
   const cx = 44;
   const cy = 44;
   const circumference = 2 * Math.PI * r;
-  const gap = 2; // px gap between segments
-
-  let rotation = -90; // start from top
+  const gap = 2;
+  let rotation = -90;
 
   return (
     <svg viewBox="0 0 88 88" className="w-full h-full">
@@ -64,13 +67,8 @@ function DonutChart({ segments, centerLabel }: { segments: DonutSegment[]; cente
           rotation += pct * 360;
           return (
             <circle
-              key={i}
-              cx={cx}
-              cy={cy}
-              r={r}
-              fill="none"
-              stroke={seg.color}
-              strokeWidth="14"
+              key={i} cx={cx} cy={cy} r={r}
+              fill="none" stroke={seg.color} strokeWidth="14"
               strokeDasharray={`${dash} ${circumference - dash}`}
               transform={`rotate(${thisRotation} ${cx} ${cy})`}
               strokeLinecap="butt"
@@ -78,75 +76,37 @@ function DonutChart({ segments, centerLabel }: { segments: DonutSegment[]; cente
           );
         })
       )}
-      {/* Inner circle (white) */}
       <circle cx={cx} cy={cy} r={r - 10} fill="white" />
-      {/* Center text */}
-      <text x={cx} y={cx - 4} textAnchor="middle" fontSize="15" fontWeight="700" fill="#1e293b">
-        {total}
-      </text>
-      <text x={cx} y={cx + 9} textAnchor="middle" fontSize="6.5" fill="#94a3b8">
-        {centerLabel ?? '전체'}
-      </text>
+      <text x={cx} y={cx - 4} textAnchor="middle" fontSize="15" fontWeight="700" fill="#1e293b">{total}</text>
+      <text x={cx} y={cx + 9} textAnchor="middle" fontSize="6.5" fill="#94a3b8">{centerLabel ?? '전체'}</text>
     </svg>
   );
 }
 
-// ── CompletionTrend (line chart) ──────────────────────────────────
-function CompletionTrend({ data }: { data: { date: string; count: number }[] }) {
-  const W = 280;
-  const H = 72;
-  const padL = 6;
-  const padR = 6;
-  const padT = 8;
-  const padB = 18;
-  const chartW = W - padL - padR;
-  const chartH = H - padT - padB;
-  const maxVal = Math.max(1, ...data.map((d) => d.count));
-
-  const pts = data.map((d, i) => ({
-    x: padL + (i / Math.max(1, data.length - 1)) * chartW,
-    y: padT + chartH - (d.count / maxVal) * chartH,
-    ...d,
-  }));
-
-  const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
-  const areaPath = `${linePath} L ${pts[pts.length - 1]?.x.toFixed(1)} ${(padT + chartH).toFixed(1)} L ${padL} ${(padT + chartH).toFixed(1)} Z`;
-
+// ── WeeklyActivityBars (나의 7일 활동) ───────────────────────────
+function WeeklyActivityBars({ data }: { data: { date: string; count: number; label: string }[] }) {
+  const max = Math.max(1, ...data.map((d) => d.count));
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: 72 }}>
-      {/* Grid lines */}
-      {[0, 0.5, 1].map((t) => (
-        <line
-          key={t}
-          x1={padL}
-          y1={padT + chartH * (1 - t)}
-          x2={W - padR}
-          y2={padT + chartH * (1 - t)}
-          stroke="#f1f5f9"
-          strokeWidth="1"
-        />
+    <div className="flex items-end gap-1.5 h-16">
+      {data.map((d) => (
+        <div key={d.date} className="flex-1 flex flex-col items-center gap-1">
+          <span className="text-[10px] text-zinc-500 font-semibold">{d.count > 0 ? d.count : ''}</span>
+          <div className="w-full bg-zinc-100 rounded-t-sm overflow-hidden" style={{ height: 36 }}>
+            <div
+              className="w-full rounded-t-sm transition-all duration-500"
+              style={{
+                height:          `${Math.max(d.count > 0 ? 8 : 0, (d.count / max) * 36)}px`,
+                backgroundColor: d.date === TODAY ? '#3b82f6' : '#93c5fd',
+                marginTop:       `${36 - Math.max(d.count > 0 ? 8 : 0, (d.count / max) * 36)}px`,
+              }}
+            />
+          </div>
+          <span className={cn('text-[10px]', d.date === TODAY ? 'text-blue-600 font-bold' : 'text-zinc-400')}>
+            {d.label}
+          </span>
+        </div>
       ))}
-      {/* Area fill */}
-      {pts.length > 1 && <path d={areaPath} fill="#3b82f615" />}
-      {/* Line */}
-      {pts.length > 1 && (
-        <path d={linePath} fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      )}
-      {/* Dots */}
-      {pts.map((p, i) => (
-        <circle key={i} cx={p.x} cy={p.y} r="2" fill="white" stroke="#3b82f6" strokeWidth="1.5" />
-      ))}
-      {/* X-axis labels */}
-      {data.map((d, i) => {
-        if (i % 3 !== 0) return null;
-        const x = padL + (i / Math.max(1, data.length - 1)) * chartW;
-        return (
-          <text key={d.date} x={x} y={H - 2} textAnchor="middle" fontSize="7" fill="#94a3b8">
-            {d.date.slice(8)}
-          </text>
-        );
-      })}
-    </svg>
+    </div>
   );
 }
 
@@ -170,10 +130,7 @@ function PriorityBars({ data }: { data: { priority: string; count: number }[] })
           <div className="flex-1 h-2.5 bg-zinc-100 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-500"
-              style={{
-                width:           `${Math.max(2, (count / max) * 100)}%`,
-                backgroundColor: PRIORITY_COLORS_HEX[priority],
-              }}
+              style={{ width: `${Math.max(2, (count / max) * 100)}%`, backgroundColor: PRIORITY_COLORS_HEX[priority] }}
             />
           </div>
           <span className="text-xs font-semibold text-zinc-700 w-4 flex-shrink-0">{count}</span>
@@ -185,25 +142,17 @@ function PriorityBars({ data }: { data: { priority: string; count: number }[] })
 
 // ── BurndownMini ──────────────────────────────────────────────────
 function BurndownMini({ data }: { data: { date: string; remaining: number }[] }) {
-  const W = 280;
-  const H = 72;
-  const padL = 6;
-  const padR = 6;
-  const padT = 8;
-  const padB = 18;
-  const chartW = W - padL - padR;
-  const chartH = H - padT - padB;
+  const W = 280; const H = 72;
+  const padL = 6; const padR = 6; const padT = 8; const padB = 18;
+  const chartW = W - padL - padR; const chartH = H - padT - padB;
   const maxVal = Math.max(1, ...data.map((d) => d.remaining));
-
   const pts = data.map((d, i) => ({
     x: padL + (i / Math.max(1, data.length - 1)) * chartW,
     y: padT + chartH - (d.remaining / maxVal) * chartH,
     ...d,
   }));
-
   const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
   const areaPath = `${linePath} L ${pts[pts.length - 1]?.x.toFixed(1)} ${(padT + chartH).toFixed(1)} L ${padL} ${(padT + chartH).toFixed(1)} Z`;
-
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: 72 }}>
       {[0, 0.5, 1].map((t) => (
@@ -220,9 +169,7 @@ function BurndownMini({ data }: { data: { date: string; remaining: number }[] })
         if (i % 3 !== 0) return null;
         const x = padL + (i / Math.max(1, data.length - 1)) * chartW;
         return (
-          <text key={d.date} x={x} y={H - 2} textAnchor="middle" fontSize="7" fill="#94a3b8">
-            {d.date.slice(8)}
-          </text>
+          <text key={d.date} x={x} y={H - 2} textAnchor="middle" fontSize="7" fill="#94a3b8">{d.date.slice(8)}</text>
         );
       })}
     </svg>
@@ -242,52 +189,85 @@ export function DashboardPage() {
   const allTasks    = useMemo(() => Object.values(tasks), [tasks]);
   const allProjects = useMemo(() => Object.values(projects), [projects]);
 
-  const myTasks = useMemo(
-    () => allTasks.filter((t) => t.assigneeIds.includes(currentUserId) && t.statusId !== 'done').slice(0, 5),
+  const myAssignedTasks = useMemo(
+    () => allTasks.filter((t) => t.assigneeIds.includes(currentUserId)),
     [allTasks, currentUserId],
   );
 
-  const dueToday = allTasks.filter((t) => t.dueDate === TODAY && t.statusId !== 'done');
-  const overdue  = allTasks.filter((t) => t.dueDate && t.dueDate < TODAY && t.statusId !== 'done');
+  const myTasks = useMemo(
+    () => myAssignedTasks.filter((t) => !isDone(t.statusId)).slice(0, 5),
+    [myAssignedTasks],
+  );
+
+  // ── Personalized stats ───────────────────────────────────────
+  const myInProgress = useMemo(
+    () => myAssignedTasks.filter((t) => isInProgress(t.statusId)).length,
+    [myAssignedTasks],
+  );
+
+  const myOverdue = useMemo(
+    () => myAssignedTasks.filter((t) => t.dueDate && t.dueDate < TODAY && !isDone(t.statusId)).length,
+    [myAssignedTasks],
+  );
+
+  const weekStart = addDays(TODAY, -6);
+  const myCompletedThisWeek = useMemo(
+    () => timeline.filter(
+      (e) => e.type === 'task_completed' && e.actorId === currentUserId && e.createdAt >= weekStart,
+    ).length,
+    [timeline, currentUserId, weekStart],
+  );
+
+  const myProjects = useMemo(
+    () => allProjects.filter((p) => p.members.some((m) => m.id === currentUserId)).length,
+    [allProjects, currentUserId],
+  );
 
   const stats = [
     {
-      label: '진행 중 업무',
-      value: allTasks.filter((t) => t.statusId === 'in_progress').length,
+      label: '내 진행 중 업무',
+      value: myInProgress,
       icon:  Clock,
       color: 'text-blue-600',
       bg:    'bg-blue-50',
-      ring:  'ring-blue-100',
     },
     {
-      label: '검토 중 업무',
-      value: allTasks.filter((t) => t.statusId === 'review').length,
+      label: '내 지연 업무',
+      value: myOverdue,
       icon:  AlertCircle,
-      color: 'text-amber-600',
-      bg:    'bg-amber-50',
-      ring:  'ring-amber-100',
+      color: myOverdue > 0 ? 'text-red-600' : 'text-zinc-400',
+      bg:    myOverdue > 0 ? 'bg-red-50' : 'bg-zinc-50',
     },
     {
-      label: '완료한 업무',
-      value: allTasks.filter((t) => t.statusId === 'done').length,
+      label: '이번 주 완료',
+      value: myCompletedThisWeek,
       icon:  CheckCircle2,
       color: 'text-emerald-600',
       bg:    'bg-emerald-50',
-      ring:  'ring-emerald-100',
     },
     {
       label: '참여 프로젝트',
-      value: allProjects.filter((p) => p.members.some((m) => m.id === currentUserId)).length,
+      value: myProjects,
       icon:  FolderKanban,
       color: 'text-violet-600',
       bg:    'bg-violet-50',
-      ring:  'ring-violet-100',
     },
   ];
 
   // ── Chart data ───────────────────────────────────────────────
-  // Status distribution (donut)
-  // Use workflow from first project or fallback colors
+  const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
+
+  const weeklyActivity = useMemo(() => {
+    return Array.from({ length: 7 }, (_, i) => {
+      const date = addDays(TODAY, i - 6);
+      const count = timeline.filter(
+        (e) => e.type === 'task_completed' && e.actorId === currentUserId && e.createdAt.startsWith(date),
+      ).length;
+      const dow = new Date(date + 'T00:00:00').getDay();
+      return { date, count, label: DAY_LABELS[dow] };
+    });
+  }, [timeline, currentUserId]);
+
   const statusDistribution = useMemo(() => {
     const statusMap = new Map<string, DonutSegment>();
     for (const task of allTasks) {
@@ -299,33 +279,17 @@ export function DashboardPage() {
     return Array.from(statusMap.values());
   }, [allTasks, projects]);
 
-  // Priority distribution
   const priorityDistribution = useMemo(() => {
     const counts: Record<string, number> = { urgent: 0, high: 0, medium: 0, low: 0 };
-    for (const t of allTasks) if (t.statusId !== 'done') counts[t.priority] = (counts[t.priority] ?? 0) + 1;
+    for (const t of myAssignedTasks) if (!isDone(t.statusId)) counts[t.priority] = (counts[t.priority] ?? 0) + 1;
     return Object.entries(counts).map(([priority, count]) => ({ priority, count }));
-  }, [allTasks]);
+  }, [myAssignedTasks]);
 
-  // Completion trend (last 14 days)
-  const completionTrend = useMemo(() => {
-    const days: { date: string; count: number }[] = [];
-    for (let i = 13; i >= 0; i--) {
-      const date = addDays(TODAY, -i);
-      const count = timeline.filter(
-        (e) => e.type === 'task_completed' && e.createdAt.startsWith(date),
-      ).length;
-      days.push({ date, count });
-    }
-    return days;
-  }, [timeline]);
-
-  // Burndown: remaining non-done tasks trend (simulated from timeline)
   const burndownData = useMemo(() => {
-    const totalNonDone = allTasks.filter((t) => t.statusId !== 'done').length;
-    const completed    = allTasks.filter((t) => t.statusId === 'done').length;
-    // Build burndown: start 14 days ago, track completions
+    const totalNonDone = allTasks.filter((t) => !isDone(t.statusId)).length;
+    const completed    = allTasks.filter((t) => isDone(t.statusId)).length;
     const days: { date: string; remaining: number }[] = [];
-    let remaining = totalNonDone + completed; // approximate total at start
+    let remaining = totalNonDone + completed;
     for (let i = 13; i >= 0; i--) {
       const date = addDays(TODAY, -i);
       const completedOnDay = timeline.filter(
@@ -336,6 +300,19 @@ export function DashboardPage() {
     }
     return days;
   }, [allTasks, timeline]);
+
+  // Upcoming deadlines: next 7 days (my assigned tasks only)
+  const upcomingDeadlines = useMemo(() => {
+    const maxDate = addDays(TODAY, 7);
+    return myAssignedTasks
+      .filter((t) => t.dueDate && t.dueDate >= TODAY && t.dueDate <= maxDate && !isDone(t.statusId))
+      .sort((a, b) => (a.dueDate ?? '').localeCompare(b.dueDate ?? ''));
+  }, [myAssignedTasks]);
+
+  const overdue = useMemo(
+    () => allTasks.filter((t) => t.dueDate && t.dueDate < TODAY && !isDone(t.statusId)),
+    [allTasks],
+  );
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -369,18 +346,18 @@ export function DashboardPage() {
         {/* ── Charts row ─────────────────────────────────────── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
 
-          {/* Completion Trend */}
+          {/* Weekly Activity */}
           <div className="card p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <TrendingUp size={14} className="text-blue-500" />
-              <h3 className="text-sm font-bold text-zinc-800">업무 완료 추이</h3>
-              <span className="ml-auto text-xs text-zinc-400">최근 14일</span>
+            <div className="flex items-center gap-2 mb-4">
+              <Activity size={14} className="text-blue-500" />
+              <h3 className="text-sm font-bold text-zinc-800">나의 주간 활동</h3>
+              <span className="ml-auto text-xs text-zinc-400">최근 7일 완료</span>
             </div>
-            <CompletionTrend data={completionTrend} />
-            <div className="mt-2 flex items-center justify-between text-xs text-zinc-400">
-              <span>총 완료: <span className="font-semibold text-emerald-600">{completionTrend.reduce((s, d) => s + d.count, 0)}건</span></span>
-              <span>일 평균: <span className="font-semibold text-blue-600">
-                {(completionTrend.reduce((s, d) => s + d.count, 0) / 14).toFixed(1)}건
+            <WeeklyActivityBars data={weeklyActivity} />
+            <div className="mt-3 flex items-center justify-between text-xs text-zinc-400">
+              <span>주간 완료: <span className="font-semibold text-blue-600">{weeklyActivity.reduce((s, d) => s + d.count, 0)}건</span></span>
+              <span>일 평균: <span className="font-semibold text-zinc-600">
+                {(weeklyActivity.reduce((s, d) => s + d.count, 0) / 7).toFixed(1)}건
               </span></span>
             </div>
           </div>
@@ -406,23 +383,22 @@ export function DashboardPage() {
                     </span>
                   </div>
                 ))}
-
               </div>
             </div>
           </div>
 
-          {/* Priority Distribution */}
+          {/* Priority Distribution (my tasks) */}
           <div className="card p-4">
             <div className="flex items-center gap-2 mb-3">
               <AlertCircle size={14} className="text-orange-500" />
-              <h3 className="text-sm font-bold text-zinc-800">우선순위 분포</h3>
+              <h3 className="text-sm font-bold text-zinc-800">내 업무 우선순위</h3>
               <span className="ml-auto text-xs text-zinc-400">미완료 기준</span>
             </div>
             <PriorityBars data={priorityDistribution} />
-            {overdue.length > 0 && (
+            {myOverdue > 0 && (
               <div className="mt-3 pt-3 border-t border-zinc-100 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-red-400 flex-shrink-0" />
-                <span className="text-xs text-red-600 font-medium">지연된 업무 {overdue.length}건</span>
+                <span className="text-xs text-red-600 font-medium">내 지연 업무 {myOverdue}건</span>
               </div>
             )}
           </div>
@@ -450,11 +426,10 @@ export function DashboardPage() {
                   <p className="text-xs text-zinc-400 text-center py-8">할당된 업무가 없습니다. 🎉</p>
                 ) : (
                   myTasks.map((task) => {
-                    const project = projects[task.projectId];
-                    const status  = project?.workflow.find((s) => s.id === task.statusId);
-                    const tags    = task.tagIds.map((id) => project?.tags.find((t) => t.id === id)).filter(Boolean);
+                    const project   = projects[task.projectId];
+                    const status    = project?.workflow.find((s) => s.id === task.statusId);
+                    const tags      = task.tagIds.map((id) => project?.tags.find((t) => t.id === id)).filter(Boolean);
                     const isOverdue = task.dueDate && task.dueDate < TODAY;
-
                     return (
                       <div
                         key={task.id}
@@ -466,10 +441,7 @@ export function DashboardPage() {
                           <p className="text-sm text-zinc-800 font-medium truncate">{task.title}</p>
                           <div className="flex items-center gap-2 mt-1 flex-wrap">
                             {status && (
-                              <span
-                                className="badge"
-                                style={{ backgroundColor: `${status.color}20`, color: status.color }}
-                              >
+                              <span className="badge" style={{ backgroundColor: `${status.color}20`, color: status.color }}>
                                 {status.label}
                               </span>
                             )}
@@ -477,10 +449,7 @@ export function DashboardPage() {
                               {PRIORITY_LABEL[task.priority]}
                             </span>
                             {task.dueDate && (
-                              <span className={cn(
-                                'text-xs font-medium',
-                                isOverdue ? 'text-red-500' : 'text-zinc-400',
-                              )}>
+                              <span className={cn('text-xs font-medium', isOverdue ? 'text-red-500' : 'text-zinc-400')}>
                                 {isOverdue ? '⚠ ' : ''}{formatDate(task.dueDate)} 마감
                               </span>
                             )}
@@ -550,37 +519,53 @@ export function DashboardPage() {
               </div>
               <BurndownMini data={burndownData} />
               <div className="mt-2 flex items-center justify-between text-xs text-zinc-400">
-                <span>남은 업무: <span className="font-semibold text-zinc-700">{allTasks.filter(t => t.statusId !== 'done').length}건</span></span>
+                <span>남은 업무: <span className="font-semibold text-zinc-700">{allTasks.filter(t => !isDone(t.statusId)).length}건</span></span>
                 <span>완료율: <span className="font-semibold text-emerald-600">
-                  {allTasks.length > 0 ? Math.round((allTasks.filter(t => t.statusId === 'done').length / allTasks.length) * 100) : 0}%
+                  {allTasks.length > 0 ? Math.round((allTasks.filter(t => isDone(t.statusId)).length / allTasks.length) * 100) : 0}%
                 </span></span>
               </div>
             </div>
 
-            {/* Due today */}
+            {/* Upcoming Deadlines (7 days) */}
             <div className="card">
               <div className="px-4 py-3.5 border-b border-zinc-100 flex items-center justify-between">
-                <h2 className="text-sm font-bold text-zinc-800">오늘 마감</h2>
-                {dueToday.length > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <CalendarDays size={13} className="text-zinc-500" />
+                  <h2 className="text-sm font-bold text-zinc-800">다가오는 마감</h2>
+                </div>
+                {upcomingDeadlines.length > 0 && (
                   <span className="text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
-                    {dueToday.length}건
+                    {upcomingDeadlines.length}건
                   </span>
                 )}
               </div>
               <div className="p-4 space-y-2">
-                {dueToday.length === 0 ? (
-                  <p className="text-xs text-zinc-400 text-center py-4">오늘 마감 업무가 없습니다. 🎉</p>
+                {upcomingDeadlines.length === 0 ? (
+                  <p className="text-xs text-zinc-400 text-center py-4">7일 내 마감 업무가 없습니다. 🎉</p>
                 ) : (
-                  dueToday.map((t) => (
-                    <div
-                      key={t.id}
-                      className="flex items-center gap-2 p-2.5 rounded-lg bg-amber-50 border border-amber-100 cursor-pointer hover:bg-amber-100 transition-colors"
-                      onClick={() => navigate(`/projects/${t.projectId}`)}
-                    >
-                      <AlertCircle size={13} className="text-amber-500 flex-shrink-0" />
-                      <span className="text-xs text-zinc-700 font-medium truncate">{t.title}</span>
-                    </div>
-                  ))
+                  upcomingDeadlines.map((t) => {
+                    const isToday = t.dueDate === TODAY;
+                    return (
+                      <div
+                        key={t.id}
+                        className={cn(
+                          'flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-colors',
+                          isToday
+                            ? 'bg-red-50 border-red-100 hover:bg-red-100'
+                            : 'bg-zinc-50 border-zinc-100 hover:bg-zinc-100',
+                        )}
+                        onClick={() => navigate(`/projects/${t.projectId}`)}
+                      >
+                        <AlertCircle size={13} className={isToday ? 'text-red-500 flex-shrink-0' : 'text-zinc-400 flex-shrink-0'} />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-xs text-zinc-700 font-medium truncate block">{t.title}</span>
+                          <span className={cn('text-[11px]', isToday ? 'text-red-500 font-semibold' : 'text-zinc-400')}>
+                            {isToday ? '오늘 마감' : formatDate(t.dueDate!)}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })
                 )}
               </div>
             </div>
@@ -604,9 +589,7 @@ export function DashboardPage() {
                     <div key={e.id} className="flex gap-3">
                       <Avatar name={actor.name} size="xs" className="mt-0.5 flex-shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-xs text-zinc-700 leading-relaxed">
-                          {timelineMessage(e, actor.name)}
-                        </p>
+                        <p className="text-xs text-zinc-700 leading-relaxed">{timelineMessage(e, actor.name)}</p>
                         <p className="text-[11px] text-zinc-400 mt-0.5">{timeAgo(e.createdAt)}</p>
                       </div>
                     </div>
