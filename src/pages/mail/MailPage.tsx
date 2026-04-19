@@ -54,18 +54,19 @@ const GUIDE_STEPS = [
 ];
 
 // ── ConnectScreen ─────────────────────────────────────────────────
-function ConnectScreen({ email, onConnect }: { email: string; onConnect: () => void }) {
-  const [pw, setPw]           = useState('');
-  const [show, setShow]       = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState('');
+function ConnectScreen({ onConnect }: { onConnect: () => void }) {
+  const [daumEmail, setDaumEmail] = useState('');
+  const [pw, setPw]               = useState('');
+  const [show, setShow]           = useState(false);
+  const [loading, setLoading]     = useState(false);
+  const [error, setError]         = useState('');
   const [guideOpen, setGuideOpen] = useState(false);
 
   async function handleConnect() {
-    if (!pw) return;
+    if (!daumEmail || !pw) return;
     setLoading(true); setError('');
     try {
-      await api.post('/mail/connect', { password: pw });
+      await api.post('/mail/connect', { daumEmail, password: pw });
       toast.success('Daum 메일에 연결됐습니다.');
       onConnect();
     } catch (e: any) {
@@ -85,8 +86,7 @@ function ConnectScreen({ email, onConnect }: { email: string; onConnect: () => v
         </div>
         <h2 className="text-base font-bold text-zinc-900 mb-1">Daum 메일 연결</h2>
         <p className="text-xs text-zinc-500 mb-5">
-          <span className="font-semibold text-zinc-700">{email}</span> 계정의<br />
-          Daum 메일 앱 비밀번호를 입력하세요.
+          Daum 메일 주소와 앱 비밀번호를 입력하세요.
         </p>
 
         {error && (
@@ -96,31 +96,46 @@ function ConnectScreen({ email, onConnect }: { email: string; onConnect: () => v
           </div>
         )}
 
-        <div className="relative mb-3">
-          <input
-            type={show ? 'text' : 'password'}
-            className="input pr-10"
-            placeholder="앱 비밀번호 입력"
-            value={pw}
-            onChange={(e) => setPw(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleConnect()}
-            autoFocus
-          />
-          <button
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
-            onClick={() => setShow((v) => !v)}
-            type="button"
-          >
-            {show ? <EyeOff size={14} /> : <Eye size={14} />}
-          </button>
+        <div className="space-y-2.5 mb-3 text-left">
+          <div>
+            <label className="block text-xs font-semibold text-zinc-500 mb-1">Daum 메일 주소</label>
+            <input
+              type="email"
+              className="input"
+              placeholder="example@daum.net 또는 example@hanmail.net"
+              value={daumEmail}
+              onChange={(e) => setDaumEmail(e.target.value)}
+              autoFocus
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-zinc-500 mb-1">앱 비밀번호</label>
+            <div className="relative">
+              <input
+                type={show ? 'text' : 'password'}
+                className="input pr-10"
+                placeholder="앱 비밀번호 (일반 비밀번호 아님)"
+                value={pw}
+                onChange={(e) => setPw(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleConnect()}
+              />
+              <button
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                onClick={() => setShow((v) => !v)}
+                type="button"
+              >
+                {show ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            </div>
+          </div>
         </div>
 
-        <button className="btn-primary w-full justify-center" onClick={handleConnect} disabled={loading || !pw}>
+        <button className="btn-primary w-full justify-center" onClick={handleConnect} disabled={loading || !pw || !daumEmail}>
           {loading ? <><Loader2 size={14} className="animate-spin" /> 연결 중...</> : '연결하기'}
         </button>
 
         <p className="text-[11px] text-zinc-400 mt-4">
-          입력한 비밀번호는 암호화되어 안전하게 저장됩니다.
+          입력한 정보는 암호화되어 안전하게 저장됩니다.
         </p>
       </div>
 
@@ -441,7 +456,7 @@ export function MailPage() {
     <div className="flex flex-col h-full overflow-hidden">
       <Header title="메일" />
       <div className="flex-1 overflow-y-auto">
-        <ConnectScreen email={email} onConnect={handleConnected} />
+        <ConnectScreen onConnect={handleConnected} />
       </div>
     </div>
   );
