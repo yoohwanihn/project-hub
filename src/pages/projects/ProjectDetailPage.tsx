@@ -177,7 +177,7 @@ export function ProjectDetailPage() {
                       return (
                         <div
                           key={a.id}
-                          className={cn('p-3 rounded-xl border text-xs', a.isPinned ? 'bg-amber-50 border-amber-100' : 'bg-zinc-50 border-zinc-100')}
+                          className={cn('p-3 rounded-xl border text-xs', a.isPinned ? 'bg-zinc-100 border-zinc-200' : 'bg-zinc-50 border-zinc-100')}
                         >
                           <div className="flex gap-1.5">
                             {a.isPinned && <span className="text-amber-500">📌</span>}
@@ -307,7 +307,7 @@ export function ProjectDetailPage() {
                         <div className="flex items-center gap-2">
                           <p className="text-sm font-medium text-zinc-800 truncate">{task.title}</p>
                           {task.blockedBy.length > 0 && (
-                            <span className="inline-flex items-center gap-1 text-[10px] text-amber-600 flex-shrink-0">
+                            <span className="inline-flex items-center gap-1 text-[10px] text-zinc-500 flex-shrink-0">
                               <Link2 size={9} /> {task.blockedBy.length}
                             </span>
                           )}

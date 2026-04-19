@@ -77,7 +77,7 @@ function TaskCard({ task, projectId, overlay = false }: TaskCardProps) {
           <div className="flex items-center gap-1 flex-wrap">
             {tags.map((tag) => <TagBadge key={tag!.id} name={tag!.name} color={tag!.color} />)}
             {hasBlocker && (
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-amber-50 text-amber-600">
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-zinc-100 text-zinc-500">
                 <Link2 size={9} /> {task.blockedBy.length}
               </span>
             )}
@@ -119,7 +119,7 @@ function TaskCard({ task, projectId, overlay = false }: TaskCardProps) {
             </div>
             <div className="h-1 bg-zinc-100 rounded-full overflow-hidden">
               <div
-                className={cn('h-full rounded-full transition-all', progress >= 100 ? 'bg-emerald-500' : progress >= 60 ? 'bg-zinc-600' : 'bg-amber-400')}
+                className={cn('h-full rounded-full transition-all', progress >= 100 ? 'bg-zinc-900' : progress >= 60 ? 'bg-zinc-600' : 'bg-zinc-300')}
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -191,7 +191,7 @@ function WorkloadPanel({ projectId, tasks }: { projectId: string; tasks: Task[] 
                 </div>
                 <div className="w-4 flex flex-col justify-end h-full">
                   <div
-                    className="w-full rounded-t-sm bg-emerald-300"
+                    className="w-full rounded-t-sm bg-zinc-600"
                     style={{ height: `${Math.max(0, Math.round((done.length / Math.max(1, active.length + done.length)) * 48))}%` }}
                   />
                 </div>
@@ -211,7 +211,7 @@ function WorkloadPanel({ projectId, tasks }: { projectId: string; tasks: Task[] 
             <span className="w-2.5 h-2.5 rounded-sm bg-zinc-700" /> 진행 중
           </div>
           <div className="flex items-center gap-1.5 text-[10px] text-zinc-500">
-            <span className="w-2.5 h-2.5 rounded-sm bg-emerald-300" /> 완료
+            <span className="w-2.5 h-2.5 rounded-sm bg-zinc-600" /> 완료
           </div>
           <div className="flex items-center gap-1.5 text-[10px] text-red-400">
             <span className="w-2.5 h-2.5 rounded-sm bg-red-400" /> 과부하(5+)

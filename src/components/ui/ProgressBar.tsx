@@ -14,12 +14,12 @@ export function ProgressBar({ value, max = 100, className, color, showLabel = fa
   const barColor = color
     ? undefined
     : pct >= 80
-    ? 'bg-emerald-500'
+    ? 'bg-zinc-800'
     : pct >= 50
     ? 'bg-zinc-600'
     : pct >= 25
-    ? 'bg-amber-500'
-    : 'bg-red-400';
+    ? 'bg-zinc-400'
+    : 'bg-zinc-200';
 
   return (
     <div className={cn('flex items-center gap-2', className)}>

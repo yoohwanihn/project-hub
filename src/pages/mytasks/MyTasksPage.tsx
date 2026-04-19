@@ -24,7 +24,7 @@ type GroupKey = 'overdue' | 'today' | 'this_week' | 'later' | 'no_date';
 
 const GROUP_META: Record<GroupKey, { label: string; color: string; icon: React.ReactNode }> = {
   overdue:   { label: '기한 초과',  color: 'text-red-600',    icon: <AlertTriangle size={14} className="text-red-500" /> },
-  today:     { label: '오늘',       color: 'text-orange-600', icon: <Clock size={14} className="text-orange-500" /> },
+  today:     { label: '오늘',       color: 'text-zinc-900',   icon: <Clock size={14} className="text-zinc-700" /> },
   this_week: { label: '이번 주',    color: 'text-zinc-900',icon: <CalendarDays size={14} className="text-zinc-700" /> },
   later:     { label: '나중에',     color: 'text-zinc-600',  icon: <Flag size={14} className="text-zinc-400" /> },
   no_date:   { label: '날짜 미설정',color: 'text-zinc-500',  icon: <Inbox size={14} className="text-zinc-400" /> },
@@ -32,8 +32,8 @@ const GROUP_META: Record<GroupKey, { label: string; color: string; icon: React.R
 
 const PRIORITY_LABEL: Record<string, { label: string; color: string }> = {
   urgent: { label: '긴급', color: 'bg-red-100 text-red-700' },
-  high:   { label: '높음', color: 'bg-orange-100 text-orange-700' },
-  medium: { label: '보통', color: 'bg-yellow-100 text-yellow-700' },
+  high:   { label: '높음', color: 'bg-zinc-200 text-zinc-800' },
+  medium: { label: '보통', color: 'bg-zinc-100 text-zinc-600' },
   low:    { label: '낮음', color: 'bg-zinc-100 text-zinc-600' },
 };
 
@@ -119,7 +119,7 @@ function TaskRow({ task, projectName, projectColor, statusLabel, statusColor, on
         <span className={cn(
           'text-[11px] flex-shrink-0',
           task.dueDate < TODAY ? 'text-red-500 font-semibold'
-          : task.dueDate === TODAY ? 'text-orange-500 font-semibold'
+          : task.dueDate === TODAY ? 'text-zinc-900 font-semibold'
           : 'text-zinc-400',
         )}>
           {task.dueDate.slice(5).replace('-', '/')}

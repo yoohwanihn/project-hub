@@ -17,8 +17,8 @@ type FilterTab = 'all' | UserStatus;
 
 const STATUS_LABEL: Record<UserStatus, string> = { pending: '승인 대기', active: '활성', rejected: '거절됨' };
 const STATUS_CLASS: Record<UserStatus, string> = {
-  pending: 'bg-amber-100 text-amber-700',
-  active: 'bg-green-100 text-green-700',
+  pending: 'bg-zinc-100 text-zinc-600',
+  active: 'bg-zinc-900 text-white',
   rejected: 'bg-red-100 text-red-600',
 };
 
@@ -57,7 +57,7 @@ export function AdminPage() {
                 tab === id ? 'border-zinc-800 text-zinc-900' : 'border-transparent text-zinc-500 hover:text-zinc-700')}>
               {label}
               <span className={cn('ml-1.5 text-xs px-1.5 py-0.5 rounded-full',
-                id === 'pending' && count > 0 ? 'bg-amber-100 text-amber-700' : 'bg-zinc-100 text-zinc-400')}>
+                id === 'pending' && count > 0 ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-400')}>
                 {count}
               </span>
             </button>

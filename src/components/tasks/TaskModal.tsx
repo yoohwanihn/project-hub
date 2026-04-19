@@ -52,7 +52,7 @@ function WorkLogSection({ task }: { task: Task }) {
         {task.estimatedHours ? (
           <div className="h-2 bg-zinc-200 rounded-full overflow-hidden">
             <div
-              className={cn('h-full rounded-full transition-all', pct! >= 100 ? 'bg-red-400' : pct! >= 80 ? 'bg-amber-400' : 'bg-zinc-700')}
+              className={cn('h-full rounded-full transition-all', pct! >= 100 ? 'bg-red-400' : pct! >= 80 ? 'bg-zinc-400' : 'bg-zinc-700')}
               style={{ width: `${pct}%` }}
             />
           </div>
@@ -197,8 +197,8 @@ function DependencySelector({
             const t = tasks.find((x) => x.id === id);
             if (!t) return null;
             return (
-              <div key={id} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-50 border border-amber-100">
-                <Link2 size={12} className="text-amber-500 flex-shrink-0" />
+              <div key={id} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200">
+                <Link2 size={12} className="text-zinc-400 flex-shrink-0" />
                 <span className="text-xs text-zinc-700 flex-1 truncate">{t.title}</span>
                 <button type="button" onClick={() => onChange(blockedBy.filter((x) => x !== id))}
                   className="text-zinc-400 hover:text-red-500">

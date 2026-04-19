@@ -30,10 +30,10 @@ export const PRIORITY_LABEL: Record<string, string> = {
 };
 
 export const PRIORITY_COLOR: Record<string, string> = {
-  low:    'bg-slate-100 text-slate-600',
-  medium: 'bg-zinc-100 text-zinc-700',
-  high:   'bg-orange-100 text-orange-700',
-  urgent: 'bg-red-100 text-red-700',
+  low:    'bg-zinc-50 text-zinc-400',
+  medium: 'bg-zinc-100 text-zinc-600',
+  high:   'bg-zinc-200 text-zinc-800',
+  urgent: 'bg-zinc-900 text-white',
 };
 
 export const STATUS_LABEL: Record<string, string> = {
@@ -41,8 +41,8 @@ export const STATUS_LABEL: Record<string, string> = {
 };
 
 export const STATUS_COLOR: Record<string, string> = {
-  todo:        'bg-slate-100 text-slate-600',
-  in_progress: 'bg-zinc-100 text-zinc-800',
-  review:      'bg-yellow-100 text-yellow-700',
-  done:        'bg-green-100 text-green-700',
+  todo:        'bg-zinc-50 text-zinc-500',
+  in_progress: 'bg-zinc-100 text-zinc-700',
+  review:      'bg-zinc-200 text-zinc-700',
+  done:        'bg-zinc-900 text-white',
 };

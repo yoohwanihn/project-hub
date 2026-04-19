@@ -158,12 +158,12 @@ function BurndownMini({ data }: { data: { date: string; remaining: number }[] })
       {[0, 0.5, 1].map((t) => (
         <line key={t} x1={padL} y1={padT + chartH * (1 - t)} x2={W - padR} y2={padT + chartH * (1 - t)} stroke="#f1f5f9" strokeWidth="1" />
       ))}
-      {pts.length > 1 && <path d={areaPath} fill="#10b98115" />}
+      {pts.length > 1 && <path d={areaPath} fill="#52525b15" />}
       {pts.length > 1 && (
-        <path d={linePath} fill="none" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d={linePath} fill="none" stroke="#52525b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       )}
       {pts.map((p, i) => (
-        <circle key={i} cx={p.x} cy={p.y} r="2" fill="white" stroke="#10b981" strokeWidth="1.5" />
+        <circle key={i} cx={p.x} cy={p.y} r="2" fill="white" stroke="#52525b" strokeWidth="1.5" />
       ))}
       {data.map((d, i) => {
         if (i % 3 !== 0) return null;
@@ -242,15 +242,15 @@ export function DashboardPage() {
       label: '이번 주 완료',
       value: myCompletedThisWeek,
       icon:  CheckCircle2,
-      color: 'text-emerald-600',
-      bg:    'bg-emerald-50',
+      color: 'text-zinc-700',
+      bg:    'bg-zinc-50',
     },
     {
       label: '참여 프로젝트',
       value: myProjects,
       icon:  FolderKanban,
-      color: 'text-violet-600',
-      bg:    'bg-violet-50',
+      color: 'text-zinc-600',
+      bg:    'bg-zinc-50',
     },
   ];
 
@@ -365,7 +365,7 @@ export function DashboardPage() {
           {/* Status Donut */}
           <div className="card p-4">
             <div className="flex items-center gap-2 mb-3">
-              <BarChart2 size={14} className="text-violet-500" />
+              <BarChart2 size={14} className="text-zinc-400" />
               <h3 className="text-sm font-bold text-zinc-800">업무 상태 분포</h3>
             </div>
             <div className="flex items-center gap-4">
@@ -390,7 +390,7 @@ export function DashboardPage() {
           {/* Priority Distribution (my tasks) */}
           <div className="card p-4">
             <div className="flex items-center gap-2 mb-3">
-              <AlertCircle size={14} className="text-orange-500" />
+              <AlertCircle size={14} className="text-zinc-400" />
               <h3 className="text-sm font-bold text-zinc-800">내 업무 우선순위</h3>
               <span className="ml-auto text-xs text-zinc-400">미완료 기준</span>
             </div>
@@ -454,7 +454,7 @@ export function DashboardPage() {
                               </span>
                             )}
                             {task.blockedBy.length > 0 && (
-                              <span className="text-[10px] text-amber-600 flex items-center gap-0.5">
+                              <span className="text-[10px] text-zinc-500 flex items-center gap-0.5">
                                 <Link2 size={9} /> 선행 {task.blockedBy.length}개
                               </span>
                             )}
@@ -513,14 +513,14 @@ export function DashboardPage() {
             {/* Burndown Mini */}
             <div className="card p-4">
               <div className="flex items-center gap-2 mb-3">
-                <TrendingUp size={14} className="text-emerald-500" />
+                <TrendingUp size={14} className="text-zinc-400" />
                 <h3 className="text-sm font-bold text-zinc-800">번다운 추이</h3>
                 <span className="ml-auto text-xs text-zinc-400">최근 14일</span>
               </div>
               <BurndownMini data={burndownData} />
               <div className="mt-2 flex items-center justify-between text-xs text-zinc-400">
                 <span>남은 업무: <span className="font-semibold text-zinc-700">{allTasks.filter(t => !isDone(t.statusId)).length}건</span></span>
-                <span>완료율: <span className="font-semibold text-emerald-600">
+                <span>완료율: <span className="font-semibold text-zinc-700">
                   {allTasks.length > 0 ? Math.round((allTasks.filter(t => isDone(t.statusId)).length / allTasks.length) * 100) : 0}%
                 </span></span>
               </div>
@@ -534,7 +534,7 @@ export function DashboardPage() {
                   <h2 className="text-sm font-bold text-zinc-800">다가오는 마감</h2>
                 </div>
                 {upcomingDeadlines.length > 0 && (
-                  <span className="text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
+                  <span className="text-xs font-semibold text-zinc-700 bg-zinc-100 px-2 py-0.5 rounded-full">
                     {upcomingDeadlines.length}건
                   </span>
                 )}

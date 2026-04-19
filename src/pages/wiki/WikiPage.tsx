@@ -17,7 +17,7 @@ function renderMarkdown(content: string): string {
     .replace(/^### (.+)$/gm, '<h3 class="text-sm font-bold text-zinc-800 mt-4 mb-1">$1</h3>')
     .replace(/^## (.+)$/gm,  '<h2 class="text-base font-bold text-zinc-900 mt-5 mb-2 pb-1 border-b border-zinc-100">$1</h2>')
     .replace(/^# (.+)$/gm,   '<h1 class="text-lg font-bold text-zinc-900 mb-3">$1</h1>')
-    .replace(/```(\w*)\n([\s\S]*?)```/gm, '<pre class="bg-zinc-900 text-emerald-400 rounded-xl p-4 text-xs overflow-x-auto my-3 font-mono"><code>$2</code></pre>')
+    .replace(/```(\w*)\n([\s\S]*?)```/gm, '<pre class="bg-zinc-900 text-zinc-300 rounded-xl p-4 text-xs overflow-x-auto my-3 font-mono"><code>$2</code></pre>')
     .replace(/`([^`]+)`/g,   '<code class="bg-zinc-100 text-zinc-900 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>')
     .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold">$1</strong>')
     .replace(/^- (.+)$/gm,   '<li class="text-sm text-zinc-700 mb-1">$1</li>')

@@ -6,14 +6,14 @@ import { formatDate, timeAgo } from '../../lib/utils';
 import type { TimelineEvent } from '../../types';
 
 const EVENT_CONFIG: Record<string, { icon: React.ElementType; color: string; bg: string; label: string }> = {
-  task_completed:  { icon: CheckCircle2,  color: 'text-emerald-600', bg: 'bg-emerald-50',  label: '업무 완료' },
-  task_created:    { icon: FilePlus,      color: 'text-zinc-700',    bg: 'bg-zinc-100',    label: '업무 생성' },
-  task_updated:    { icon: Edit,          color: 'text-amber-600',   bg: 'bg-amber-50',    label: '업무 수정' },
-  task_deleted:    { icon: Trash2,        color: 'text-red-500',     bg: 'bg-red-50',      label: '업무 삭제' },
-  comment_added:   { icon: MessageSquare, color: 'text-violet-600',  bg: 'bg-violet-50',   label: '댓글 추가' },
-  file_uploaded:   { icon: Upload,        color: 'text-cyan-600',    bg: 'bg-cyan-50',     label: '파일 업로드' },
-  member_joined:   { icon: UserPlus,      color: 'text-pink-600',    bg: 'bg-pink-50',     label: '멤버 합류' },
-  project_created: { icon: FolderKanban,  color: 'text-zinc-900', bg: 'bg-zinc-100',  label: '프로젝트 생성' },
+  task_completed:  { icon: CheckCircle2,  color: 'text-zinc-900',  bg: 'bg-zinc-100',  label: '업무 완료' },
+  task_created:    { icon: FilePlus,      color: 'text-zinc-700',  bg: 'bg-zinc-50',   label: '업무 생성' },
+  task_updated:    { icon: Edit,          color: 'text-zinc-600',  bg: 'bg-zinc-50',   label: '업무 수정' },
+  task_deleted:    { icon: Trash2,        color: 'text-red-500',   bg: 'bg-red-50',    label: '업무 삭제' },
+  comment_added:   { icon: MessageSquare, color: 'text-zinc-600',  bg: 'bg-zinc-50',   label: '댓글 추가' },
+  file_uploaded:   { icon: Upload,        color: 'text-zinc-600',  bg: 'bg-zinc-50',   label: '파일 업로드' },
+  member_joined:   { icon: UserPlus,      color: 'text-zinc-700',  bg: 'bg-zinc-100',  label: '멤버 합류' },
+  project_created: { icon: FolderKanban,  color: 'text-zinc-900',  bg: 'bg-zinc-100',  label: '프로젝트 생성' },
 };
 
 function Message({ e, actorName }: { e: TimelineEvent; actorName: string }) {

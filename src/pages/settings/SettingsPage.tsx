@@ -172,7 +172,7 @@ function ProfileSection() {
           {saving ? '저장 중...' : '변경사항 저장'}
         </button>
         {success && (
-          <span className="flex items-center gap-1 text-xs text-emerald-600">
+          <span className="flex items-center gap-1 text-xs text-zinc-600">
             <Check size={13} /> 저장되었습니다
           </span>
         )}
@@ -288,7 +288,7 @@ function SecuritySection() {
           {saving ? '변경 중...' : '비밀번호 변경'}
         </button>
         {success && (
-          <span className="flex items-center gap-1 text-xs text-emerald-600">
+          <span className="flex items-center gap-1 text-xs text-zinc-600">
             <Check size={13} /> 변경되었습니다
           </span>
         )}
@@ -377,7 +377,7 @@ function NotificationsSection() {
               : '브라우저가 닫혀있어도 알림을 받을 수 있습니다.'}
           </p>
           {settings.push_enabled && !pushGranted && (
-            <p className="text-xs text-amber-500 mt-1">브라우저 권한이 필요합니다. 주소창 자물쇠 아이콘에서 허용해 주세요.</p>
+            <p className="text-xs text-zinc-500 mt-1">브라우저 권한이 필요합니다. 주소창 자물쇠 아이콘에서 허용해 주세요.</p>
           )}
         </div>
         <Toggle value={settings.push_enabled} onChange={togglePush} />

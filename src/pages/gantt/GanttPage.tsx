@@ -440,7 +440,7 @@ export function GanttPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1">
                         {isBlocked && (
-                          <AlertTriangle size={10} className="text-orange-400 flex-shrink-0" />
+                          <AlertTriangle size={10} className="text-zinc-400 flex-shrink-0" />
                         )}
                         <p className="text-xs font-medium text-zinc-700 truncate">{task.title}</p>
                       </div>
@@ -626,7 +626,7 @@ export function GanttPage() {
           선후행 관계
         </div>
         <div className="ml-auto flex items-center gap-1 text-xs text-zinc-400">
-          <AlertTriangle size={11} className="text-orange-400" />
+          <AlertTriangle size={11} className="text-zinc-400" />
           선행 업무 있음
         </div>
         <p className="text-xs text-zinc-400">

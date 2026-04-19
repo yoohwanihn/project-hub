@@ -144,10 +144,10 @@ export function ResourcesPage() {
         {/* ── 상단 요약 카드 ────────────────────────────────── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: '전체 업무', value: allTasks.length, icon: BarChart2, color: 'text-violet-600', bg: 'bg-violet-50' },
+            { label: '전체 업무', value: allTasks.length, icon: BarChart2, color: 'text-zinc-600', bg: 'bg-zinc-100' },
             { label: '진행 중',   value: allTasks.filter(t => t.statusId !== 'done').length, icon: Clock,       color: 'text-zinc-700',   bg: 'bg-zinc-100' },
-            { label: '완료',      value: allTasks.filter(t => t.statusId === 'done').length, icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-            { label: '기록 시간', value: `${totalLogged}h`, icon: TrendingUp, color: 'text-amber-600',  bg: 'bg-amber-50' },
+            { label: '완료',      value: allTasks.filter(t => t.statusId === 'done').length, icon: CheckCircle2, color: 'text-zinc-700', bg: 'bg-zinc-50' },
+            { label: '기록 시간', value: `${totalLogged}h`, icon: TrendingUp, color: 'text-zinc-600',  bg: 'bg-zinc-100' },
           ].map(({ label, value, icon: Icon, color, bg }) => (
             <div key={label} className="card p-4 flex items-center gap-3">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${bg}`}>
@@ -188,7 +188,7 @@ export function ResourcesPage() {
                         <span className="text-[11px] text-zinc-400 capitalize">{member.role}</span>
                       </div>
                       <p className="text-xs text-zinc-400 mt-0.5">
-                        전체 {total}개 · 진행 <span className="text-zinc-700 font-medium">{active}</span>개 · 완료 <span className="text-emerald-600 font-medium">{done}</span>개
+                        전체 {total}개 · 진행 <span className="text-zinc-700 font-medium">{active}</span>개 · 완료 <span className="text-zinc-700 font-medium">{done}</span>개
                       </p>
                     </div>
                     <div className="text-right flex-shrink-0">
@@ -201,7 +201,7 @@ export function ResourcesPage() {
                   <div className="flex items-center gap-3">
                     <div className="flex-1 h-2 bg-zinc-100 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-emerald-400 rounded-full transition-all"
+                        className="h-full bg-zinc-700 rounded-full transition-all"
                         style={{ width: `${completionRate}%` }}
                       />
                     </div>
@@ -251,7 +251,7 @@ export function ResourcesPage() {
             {/* 업무 상태 분포 */}
             <div className="card p-4">
               <div className="flex items-center gap-2 mb-4">
-                <BarChart2 size={14} className="text-violet-500" />
+                <BarChart2 size={14} className="text-zinc-400" />
                 <h3 className="text-sm font-bold text-zinc-800">업무 상태 분포</h3>
               </div>
               <div className="space-y-2.5">
@@ -284,7 +284,7 @@ export function ResourcesPage() {
                   </div>
                   <div className="h-2 bg-zinc-100 rounded-full overflow-hidden">
                     <div
-                      className={cn('h-full rounded-full', timePct >= 100 ? 'bg-red-400' : timePct >= 80 ? 'bg-amber-400' : 'bg-zinc-700')}
+                      className={cn('h-full rounded-full', timePct >= 100 ? 'bg-red-400' : timePct >= 80 ? 'bg-zinc-400' : 'bg-zinc-700')}
                       style={{ width: `${Math.min(100, timePct)}%` }}
                     />
                   </div>

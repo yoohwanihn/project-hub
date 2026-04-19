@@ -29,10 +29,10 @@ export interface WorkflowStatus {
 }
 
 export const DEFAULT_WORKFLOW: WorkflowStatus[] = [
-  { id: 'todo',        label: '진행 전', color: '#94a3b8', order: 0 },
+  { id: 'todo',        label: '진행 전', color: '#a1a1aa', order: 0 },
   { id: 'in_progress', label: '진행 중', color: '#52525b', order: 1 },
-  { id: 'review',      label: '검토 중', color: '#f59e0b', order: 2 },
-  { id: 'done',        label: '완료',    color: '#10b981', order: 3 },
+  { id: 'review',      label: '검토 중', color: '#71717a', order: 2 },
+  { id: 'done',        label: '완료',    color: '#18181b', order: 3 },
 ];
 
 // ── Project ────────────────────────────────────────────────────
