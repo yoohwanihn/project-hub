@@ -7,7 +7,7 @@ import type { TimelineEvent } from '../../types';
 
 const EVENT_CONFIG: Record<string, { icon: React.ElementType; color: string; bg: string; label: string }> = {
   task_completed:  { icon: CheckCircle2,  color: 'text-emerald-600', bg: 'bg-emerald-50',  label: '업무 완료' },
-  task_created:    { icon: FilePlus,      color: 'text-blue-600',    bg: 'bg-blue-50',     label: '업무 생성' },
+  task_created:    { icon: FilePlus,      color: 'text-zinc-700',    bg: 'bg-zinc-100',    label: '업무 생성' },
   task_updated:    { icon: Edit,          color: 'text-amber-600',   bg: 'bg-amber-50',    label: '업무 수정' },
   task_deleted:    { icon: Trash2,        color: 'text-red-500',     bg: 'bg-red-50',      label: '업무 삭제' },
   comment_added:   { icon: MessageSquare, color: 'text-violet-600',  bg: 'bg-violet-50',   label: '댓글 추가' },

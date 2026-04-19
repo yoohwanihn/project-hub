@@ -6,7 +6,7 @@ import { cn } from '../../lib/utils';
 const STYLES = {
   success: { icon: CheckCircle2, bar: 'bg-emerald-500', text: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-100' },
   error:   { icon: XCircle,      bar: 'bg-red-500',     text: 'text-red-700',     bg: 'bg-red-50 border-red-100' },
-  info:    { icon: Info,         bar: 'bg-blue-500',    text: 'text-blue-700',    bg: 'bg-blue-50 border-blue-100' },
+  info:    { icon: Info,         bar: 'bg-zinc-600',    text: 'text-zinc-700',    bg: 'bg-zinc-50 border-zinc-200' },
   warning: { icon: AlertTriangle,bar: 'bg-amber-500',   text: 'text-amber-700',   bg: 'bg-amber-50 border-amber-100' },
 };
 

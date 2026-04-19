@@ -31,7 +31,7 @@ export const PRIORITY_LABEL: Record<string, string> = {
 
 export const PRIORITY_COLOR: Record<string, string> = {
   low:    'bg-slate-100 text-slate-600',
-  medium: 'bg-blue-100 text-blue-700',
+  medium: 'bg-zinc-100 text-zinc-700',
   high:   'bg-orange-100 text-orange-700',
   urgent: 'bg-red-100 text-red-700',
 };
@@ -42,7 +42,7 @@ export const STATUS_LABEL: Record<string, string> = {
 
 export const STATUS_COLOR: Record<string, string> = {
   todo:        'bg-slate-100 text-slate-600',
-  in_progress: 'bg-blue-100 text-blue-700',
+  in_progress: 'bg-zinc-100 text-zinc-800',
   review:      'bg-yellow-100 text-yellow-700',
   done:        'bg-green-100 text-green-700',
 };

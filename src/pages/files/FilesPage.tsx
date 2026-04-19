@@ -14,13 +14,13 @@ import type { FileItem } from '../../types';
 
 // ── helpers ───────────────────────────────────────────────────────
 function fileIcon(mimeType: string, size = 20) {
-  if (mimeType.startsWith('image/'))           return <Image     size={size} className="text-blue-500"    />;
+  if (mimeType.startsWith('image/'))           return <Image     size={size} className="text-zinc-500"    />;
   if (mimeType.includes('pdf'))                return <FileText  size={size} className="text-red-500"     />;
   if (mimeType.includes('sheet') || mimeType.includes('excel'))
                                                return <FileText  size={size} className="text-emerald-600" />;
   if (mimeType.includes('presentation'))       return <FileText  size={size} className="text-amber-500"   />;
   if (mimeType.includes('word') || mimeType.includes('document'))
-                                               return <FileText  size={size} className="text-blue-600"    />;
+                                               return <FileText  size={size} className="text-zinc-600"    />;
   return <File size={size} className="text-zinc-400" />;
 }
 

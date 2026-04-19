@@ -710,7 +710,7 @@ export function MailPage() {
                   className={cn(
                     'flex items-start gap-2.5 px-4 py-3.5 hover:bg-zinc-50 transition-colors cursor-pointer',
                     selectedUid === m.uid && 'bg-zinc-50',
-                    checkedUids.has(m.uid) && 'bg-blue-50/40',
+                    checkedUids.has(m.uid) && 'bg-zinc-100/70',
                   )}
                 >
                   <input

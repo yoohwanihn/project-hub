@@ -119,7 +119,7 @@ function TaskCard({ task, projectId, overlay = false }: TaskCardProps) {
             </div>
             <div className="h-1 bg-zinc-100 rounded-full overflow-hidden">
               <div
-                className={cn('h-full rounded-full transition-all', progress >= 100 ? 'bg-emerald-500' : progress >= 60 ? 'bg-blue-500' : 'bg-amber-400')}
+                className={cn('h-full rounded-full transition-all', progress >= 100 ? 'bg-emerald-500' : progress >= 60 ? 'bg-zinc-600' : 'bg-amber-400')}
                 style={{ width: `${progress}%` }}
               />
             </div>

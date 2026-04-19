@@ -7,7 +7,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { cn }          from '../../lib/utils';
 
 // ── Mini bar chart (SVG) ──────────────────────────────────────────
-function MiniBarChart({ data, color = '#3b82f6' }: { data: { label: string; value: number }[]; color?: string }) {
+function MiniBarChart({ data, color = '#52525b' }: { data: { label: string; value: number }[]; color?: string }) {
   const max = Math.max(1, ...data.map((d) => d.value));
   const W = 240, H = 60, barW = Math.floor((W - (data.length - 1) * 4) / data.length);
 
@@ -145,7 +145,7 @@ export function ResourcesPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             { label: '전체 업무', value: allTasks.length, icon: BarChart2, color: 'text-violet-600', bg: 'bg-violet-50' },
-            { label: '진행 중',   value: allTasks.filter(t => t.statusId !== 'done').length, icon: Clock,       color: 'text-blue-600',   bg: 'bg-blue-50' },
+            { label: '진행 중',   value: allTasks.filter(t => t.statusId !== 'done').length, icon: Clock,       color: 'text-zinc-700',   bg: 'bg-zinc-100' },
             { label: '완료',      value: allTasks.filter(t => t.statusId === 'done').length, icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-50' },
             { label: '기록 시간', value: `${totalLogged}h`, icon: TrendingUp, color: 'text-amber-600',  bg: 'bg-amber-50' },
           ].map(({ label, value, icon: Icon, color, bg }) => (
@@ -188,7 +188,7 @@ export function ResourcesPage() {
                         <span className="text-[11px] text-zinc-400 capitalize">{member.role}</span>
                       </div>
                       <p className="text-xs text-zinc-400 mt-0.5">
-                        전체 {total}개 · 진행 <span className="text-blue-600 font-medium">{active}</span>개 · 완료 <span className="text-emerald-600 font-medium">{done}</span>개
+                        전체 {total}개 · 진행 <span className="text-zinc-700 font-medium">{active}</span>개 · 완료 <span className="text-emerald-600 font-medium">{done}</span>개
                       </p>
                     </div>
                     <div className="text-right flex-shrink-0">
@@ -239,7 +239,7 @@ export function ResourcesPage() {
                 <h3 className="text-sm font-bold text-zinc-800">주간 시간 기록</h3>
                 <span className="ml-auto text-xs text-zinc-400">최근 7일</span>
               </div>
-              <MiniBarChart data={weeklyLogs} color="#3b82f6" />
+              <MiniBarChart data={weeklyLogs} color="#52525b" />
               <div className="mt-2 flex justify-between text-xs text-zinc-400">
                 <span>총 <span className="font-semibold text-zinc-700">{weeklyLogs.reduce((s, d) => s + d.value, 0)}h</span></span>
                 <span>일평균 <span className="font-semibold text-zinc-700">

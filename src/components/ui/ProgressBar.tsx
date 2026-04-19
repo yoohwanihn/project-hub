@@ -16,7 +16,7 @@ export function ProgressBar({ value, max = 100, className, color, showLabel = fa
     : pct >= 80
     ? 'bg-emerald-500'
     : pct >= 50
-    ? 'bg-blue-500'
+    ? 'bg-zinc-600'
     : pct >= 25
     ? 'bg-amber-500'
     : 'bg-red-400';

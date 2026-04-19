@@ -96,12 +96,12 @@ function WeeklyActivityBars({ data }: { data: { date: string; count: number; lab
               className="w-full rounded-t-sm transition-all duration-500"
               style={{
                 height:          `${Math.max(d.count > 0 ? 8 : 0, (d.count / max) * 36)}px`,
-                backgroundColor: d.date === TODAY ? '#3b82f6' : '#93c5fd',
+                backgroundColor: d.date === TODAY ? '#18181b' : '#71717a',
                 marginTop:       `${36 - Math.max(d.count > 0 ? 8 : 0, (d.count / max) * 36)}px`,
               }}
             />
           </div>
-          <span className={cn('text-[10px]', d.date === TODAY ? 'text-blue-600 font-bold' : 'text-zinc-400')}>
+          <span className={cn('text-[10px]', d.date === TODAY ? 'text-zinc-900 font-bold' : 'text-zinc-400')}>
             {d.label}
           </span>
         </div>
@@ -114,7 +114,7 @@ function WeeklyActivityBars({ data }: { data: { date: string; count: number; lab
 const PRIORITY_COLORS_HEX: Record<string, string> = {
   urgent: '#ef4444',
   high:   '#f97316',
-  medium: '#3b82f6',
+  medium: '#52525b',
   low:    '#94a3b8',
 };
 
@@ -228,8 +228,8 @@ export function DashboardPage() {
       label: '내 진행 중 업무',
       value: myInProgress,
       icon:  Clock,
-      color: 'text-blue-600',
-      bg:    'bg-blue-50',
+      color: 'text-zinc-700',
+      bg:    'bg-zinc-100',
     },
     {
       label: '내 지연 업무',
@@ -349,13 +349,13 @@ export function DashboardPage() {
           {/* Weekly Activity */}
           <div className="card p-4">
             <div className="flex items-center gap-2 mb-4">
-              <Activity size={14} className="text-blue-500" />
+              <Activity size={14} className="text-zinc-500" />
               <h3 className="text-sm font-bold text-zinc-800">나의 주간 활동</h3>
               <span className="ml-auto text-xs text-zinc-400">최근 7일 완료</span>
             </div>
             <WeeklyActivityBars data={weeklyActivity} />
             <div className="mt-3 flex items-center justify-between text-xs text-zinc-400">
-              <span>주간 완료: <span className="font-semibold text-blue-600">{weeklyActivity.reduce((s, d) => s + d.count, 0)}건</span></span>
+              <span>주간 완료: <span className="font-semibold text-zinc-800">{weeklyActivity.reduce((s, d) => s + d.count, 0)}건</span></span>
               <span>일 평균: <span className="font-semibold text-zinc-600">
                 {(weeklyActivity.reduce((s, d) => s + d.count, 0) / 7).toFixed(1)}건
               </span></span>

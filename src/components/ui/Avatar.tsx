@@ -1,8 +1,8 @@
 import { getInitials, cn } from '../../lib/utils';
 
 const COLORS = [
-  'bg-blue-500', 'bg-violet-500', 'bg-emerald-500', 'bg-amber-500',
-  'bg-rose-500', 'bg-cyan-500', 'bg-pink-500', 'bg-indigo-500',
+  'bg-zinc-700', 'bg-zinc-500', 'bg-zinc-800', 'bg-zinc-600',
+  'bg-zinc-900', 'bg-zinc-400', 'bg-zinc-700', 'bg-zinc-600',
 ];
 
 function colorFromName(name: string) {

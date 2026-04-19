@@ -512,7 +512,7 @@ export function GanttPage() {
                       'text-[11px] leading-none',
                       isToday  ? 'text-zinc-900 font-bold'
                       : isSun  ? 'text-red-400'
-                      : isSat  ? 'text-blue-400'
+                      : isSat  ? 'text-zinc-400'
                       : 'text-zinc-400',
                     )}>
                       {date.getDate()}
@@ -521,7 +521,7 @@ export function GanttPage() {
                       'text-[10px] leading-none mt-0.5',
                       isToday  ? 'text-zinc-700'
                       : isSun  ? 'text-red-300'
-                      : isSat  ? 'text-blue-300'
+                      : isSat  ? 'text-zinc-300'
                       : 'text-zinc-300',
                     )}>
                       {WEEK_DAYS[date.getDay()]}
