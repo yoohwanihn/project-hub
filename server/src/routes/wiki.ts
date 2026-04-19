@@ -2,6 +2,9 @@ import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { db } from '../db';
 import { authMiddleware, requireProjectMember } from '../middleware/auth';
+import logger from '../logger';
+
+const log = logger.child({ module: 'wiki' });
 
 export const wikiRouter = Router({ mergeParams: true });
 wikiRouter.use(authMiddleware);
@@ -32,6 +35,7 @@ wikiRouter.post('/', requireProjectMember, async (req, res) => {
     `SELECT id, project_id AS "projectId", title, content, version,
             author_id AS "authorId", updated_at AS "updatedAt"
      FROM wiki_pages WHERE id=$1`, [id]);
+  log.info({ userId, projectId: req.params.projectId, pageId: id, title }, 'wiki page created');
   res.status(201).json(row);
 });
 
@@ -54,11 +58,15 @@ wikiRouter.patch('/:id', async (req, res) => {
             author_id AS "authorId", updated_at AS "updatedAt"
      FROM wiki_pages WHERE id=$1`, [req.params.id]);
   if (!row) return res.status(404).json({ error: 'Not found' });
+  log.info({ userId, pageId: req.params.id, title: row.title, version: row.version }, 'wiki page updated');
   res.json(row);
 });
 
 // DELETE /api/wiki/:id
 wikiRouter.delete('/:id', async (req, res) => {
+  const userId = req.user!.sub;
+  const { rows: [page] } = await db.query('SELECT title, project_id FROM wiki_pages WHERE id=$1', [req.params.id]);
   await db.query('DELETE FROM wiki_pages WHERE id=$1', [req.params.id]);
+  log.info({ userId, pageId: req.params.id, title: page?.title }, 'wiki page deleted');
   res.json({ ok: true });
 });

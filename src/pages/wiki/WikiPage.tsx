@@ -228,9 +228,18 @@ export function WikiPage() {
           ) : (
             /* READ MODE */
             <div className="flex-1 overflow-y-auto">
-              <div className="max-w-3xl mx-auto px-8 py-8">
-                <div className="mb-6 pb-5 border-b border-zinc-100">
-                  <h1 className="text-xl font-bold text-zinc-900 mb-3">{page.title}</h1>
+              <div className="px-6 py-4">
+                <div className="mb-4 pb-4 border-b border-zinc-100">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <h1 className="text-xl font-bold text-zinc-900">{page.title}</h1>
+                    <div className="flex items-center gap-1.5">
+                      <button className="btn-primary flex items-center gap-1.5 text-xs" onClick={startEdit}><Pencil size={12} /> 편집</button>
+                      <button
+                        className="btn-secondary flex items-center gap-1.5 text-xs text-red-600 hover:bg-red-50 hover:border-red-200"
+                        onClick={() => setDeleteTarget(page)}
+                      ><Trash2 size={12} /> 삭제</button>
+                    </div>
+                  </div>
                   <div className="flex items-center gap-4 text-xs text-zinc-400">
                     <div className="flex items-center gap-1.5">
                       {users[page.authorId] && <Avatar name={users[page.authorId].name} size="xs" />}
@@ -244,14 +253,6 @@ export function WikiPage() {
                 </div>
                 <div className="prose prose-sm max-w-none text-zinc-700 leading-relaxed"
                   dangerouslySetInnerHTML={{ __html: renderMarkdown(page.content) }} />
-                <div className="mt-10 pt-5 border-t border-zinc-100 flex items-center gap-2">
-                  <button className="btn-primary flex items-center gap-1.5" onClick={startEdit}><Pencil size={13} /> 편집</button>
-                  <button
-                    className="btn-secondary flex items-center gap-1.5 text-red-600 hover:bg-red-50 hover:border-red-200"
-                    onClick={() => setDeleteTarget(page)}
-                  ><Trash2 size={13} /> 삭제</button>
-                  <span className="ml-auto text-xs text-zinc-400">버전 {page.version} · {timeAgo(page.updatedAt)}</span>
-                </div>
               </div>
             </div>
           )}
