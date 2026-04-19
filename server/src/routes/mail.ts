@@ -42,20 +42,20 @@ async function createImapClient(email: string, password: string): Promise<ImapFl
   return client;
 }
 
-async function getOrReconnect(userId: string, email: string): Promise<ImapFlow | null> {
+async function getOrReconnect(userId: string): Promise<ImapFlow | null> {
   const existing = sessions.get(userId);
   if (existing) return existing;
 
-  // DB에 저장된 비밀번호로 자동 재연결
-  const row = await db.query<{ mail_app_password: string | null }>(
-    'SELECT mail_app_password FROM users WHERE id = $1', [userId]
+  const row = await db.query<{ mail_app_password: string | null; mail_daum_email: string | null }>(
+    'SELECT mail_app_password, mail_daum_email FROM users WHERE id = $1', [userId]
   );
-  const enc = row.rows[0]?.mail_app_password;
-  if (!enc) return null;
+  const enc       = row.rows[0]?.mail_app_password;
+  const daumEmail = row.rows[0]?.mail_daum_email;
+  if (!enc || !daumEmail) return null;
 
   try {
     const password = decryptPassword(enc);
-    const client   = await createImapClient(email, password);
+    const client   = await createImapClient(daumEmail, password);
     sessions.set(userId, client);
     return client;
   } catch {
@@ -65,26 +65,30 @@ async function getOrReconnect(userId: string, email: string): Promise<ImapFlow |
 
 // ── POST /api/mail/connect ─────────────────────────────────────────
 mailRouter.post('/connect', async (req, res) => {
-  const userId = (req as any).user.sub  as string;
-  const email  = (req as any).user.email as string;
-  const { password } = req.body as { password: string };
+  const userId = (req as any).user.sub as string;
+  const { daumEmail, password } = req.body as { daumEmail: string; password: string };
 
-  if (!password) return res.status(400).json({ error: '비밀번호를 입력해주세요.' });
+  if (!daumEmail || !password) return res.status(400).json({ error: 'Daum 메일 주소와 비밀번호를 입력해주세요.' });
+
+  const normalizedEmail = daumEmail.trim().toLowerCase();
 
   // 기존 연결 해제
   const existing = sessions.get(userId);
   if (existing) { await existing.logout().catch(() => {}); sessions.delete(userId); }
 
   try {
-    const client = await createImapClient(email, password);
+    const client = await createImapClient(normalizedEmail, password);
     sessions.set(userId, client);
 
     // 암호화 후 DB 저장
-    await db.query('UPDATE users SET mail_app_password = $1 WHERE id = $2', [encryptPassword(password), userId]);
+    await db.query(
+      'UPDATE users SET mail_app_password = $1, mail_daum_email = $2 WHERE id = $3',
+      [encryptPassword(password), normalizedEmail, userId]
+    );
 
-    res.json({ ok: true, email });
+    res.json({ ok: true, email: normalizedEmail });
   } catch {
-    res.status(401).json({ error: '연결 실패. 비밀번호를 확인하거나 Daum 메일 설정에서 IMAP을 허용해주세요.' });
+    res.status(401).json({ error: '연결 실패. Daum 메일 주소와 앱 비밀번호를 확인하고, IMAP이 허용되어 있는지 확인해주세요.' });
   }
 });
 
@@ -98,20 +102,20 @@ mailRouter.post('/disconnect', async (req, res) => {
 });
 
 // ── GET /api/mail/status ──────────────────────────────────────────
-// DB에 저장된 비밀번호 있으면 자동 재연결
 mailRouter.get('/status', async (req, res) => {
-  const userId = (req as any).user.sub   as string;
-  const email  = (req as any).user.email as string;
-
-  const client = await getOrReconnect(userId, email);
-  res.json({ connected: !!client, email });
+  const userId = (req as any).user.sub as string;
+  const row    = await db.query<{ mail_daum_email: string | null }>(
+    'SELECT mail_daum_email FROM users WHERE id = $1', [userId]
+  );
+  const daumEmail = row.rows[0]?.mail_daum_email ?? null;
+  const client    = await getOrReconnect(userId);
+  res.json({ connected: !!client, email: daumEmail });
 });
 
 // ── GET /api/mail/folders ─────────────────────────────────────────
 mailRouter.get('/folders', async (req, res) => {
-  const userId = (req as any).user.sub   as string;
-  const email  = (req as any).user.email as string;
-  const client = await getOrReconnect(userId, email);
+  const userId = (req as any).user.sub as string;
+  const client = await getOrReconnect(userId);
   if (!client) return res.status(401).json({ error: '메일 연결이 필요합니다.' });
 
   try {
@@ -124,9 +128,8 @@ mailRouter.get('/folders', async (req, res) => {
 
 // ── GET /api/mail/messages ────────────────────────────────────────
 mailRouter.get('/messages', async (req, res) => {
-  const userId = (req as any).user.sub   as string;
-  const email  = (req as any).user.email as string;
-  const client = await getOrReconnect(userId, email);
+  const userId = (req as any).user.sub as string;
+  const client = await getOrReconnect(userId);
   if (!client) return res.status(401).json({ error: '메일 연결이 필요합니다.' });
 
   const folder = (req.query.folder as string) || 'INBOX';
@@ -170,9 +173,8 @@ mailRouter.get('/messages', async (req, res) => {
 
 // ── GET /api/mail/messages/:uid ───────────────────────────────────
 mailRouter.get('/messages/:uid', async (req, res) => {
-  const userId = (req as any).user.sub   as string;
-  const email  = (req as any).user.email as string;
-  const client = await getOrReconnect(userId, email);
+  const userId = (req as any).user.sub as string;
+  const client = await getOrReconnect(userId);
   if (!client) return res.status(401).json({ error: '메일 연결이 필요합니다.' });
 
   const folder = (req.query.folder as string) || 'INBOX';
@@ -217,13 +219,13 @@ mailRouter.get('/messages/:uid', async (req, res) => {
 // ── POST /api/mail/send ───────────────────────────────────────────
 mailRouter.post('/send', async (req, res) => {
   const userId = (req as any).user.sub as string;
-  const row    = await db.query<{ mail_app_password: string | null }>(
-    'SELECT mail_app_password FROM users WHERE id = $1', [userId]
+  const row    = await db.query<{ mail_app_password: string | null; mail_daum_email: string | null }>(
+    'SELECT mail_app_password, mail_daum_email FROM users WHERE id = $1', [userId]
   );
-  const enc = row.rows[0]?.mail_app_password;
-  if (!enc) return res.status(401).json({ error: '메일 연결이 필요합니다.' });
+  const enc       = row.rows[0]?.mail_app_password;
+  const email     = row.rows[0]?.mail_daum_email;
+  if (!enc || !email) return res.status(401).json({ error: '메일 연결이 필요합니다.' });
 
-  const email    = (req as any).user.email as string;
   const password = decryptPassword(enc);
   const { to, cc, subject, body } = req.body as {
     to: string; cc?: string; subject: string; body: string;
@@ -248,9 +250,8 @@ mailRouter.post('/send', async (req, res) => {
 
 // ── DELETE /api/mail/messages/:uid ───────────────────────────────
 mailRouter.delete('/messages/:uid', async (req, res) => {
-  const userId = (req as any).user.sub   as string;
-  const email  = (req as any).user.email as string;
-  const client = await getOrReconnect(userId, email);
+  const userId = (req as any).user.sub as string;
+  const client = await getOrReconnect(userId);
   if (!client) return res.status(401).json({ error: '메일 연결이 필요합니다.' });
 
   const folder = (req.query.folder as string) || 'INBOX';
