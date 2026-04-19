@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   Mail, Send, Inbox, RefreshCw, Trash2, ChevronLeft, ChevronRight,
   Pen, Eye, EyeOff, LogOut, AlertCircle, X, Reply, Loader2,
-  ArrowLeft,
+  ArrowLeft, ChevronDown, ChevronUp, ExternalLink, Settings, Key, Shield,
 } from 'lucide-react';
 import { Header } from '../../components/layout/Header';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -29,12 +29,37 @@ function addrStr(a: MailAddress | null | undefined): string {
   return a.name ? `${a.name} <${a.address ?? ''}>` : (a.address ?? '');
 }
 
+// ── IMAP 설정 가이드 스텝 ─────────────────────────────────────────
+const GUIDE_STEPS = [
+  {
+    icon: ExternalLink,
+    title: 'Daum 메일 접속',
+    desc: '브라우저에서 mail.daum.net에 접속 후 로그인하세요.',
+  },
+  {
+    icon: Settings,
+    title: '환경설정 열기',
+    desc: '우측 상단 톱니바퀴(⚙) 아이콘 → [환경설정]을 클릭하세요.',
+  },
+  {
+    icon: Shield,
+    title: 'IMAP 허용',
+    desc: '[메일 관리] → [POP3/IMAP 설정] → IMAP 사용을 "사용함"으로 변경 후 저장하세요.',
+  },
+  {
+    icon: Key,
+    title: '앱 비밀번호 생성',
+    desc: '[보안] → [앱 비밀번호] → 앱 이름 입력 후 생성된 비밀번호를 아래에 입력하세요.',
+  },
+];
+
 // ── ConnectScreen ─────────────────────────────────────────────────
 function ConnectScreen({ email, onConnect }: { email: string; onConnect: () => void }) {
   const [pw, setPw]           = useState('');
   const [show, setShow]       = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
+  const [guideOpen, setGuideOpen] = useState(false);
 
   async function handleConnect() {
     if (!pw) return;
@@ -51,15 +76,17 @@ function ConnectScreen({ email, onConnect }: { email: string; onConnect: () => v
   }
 
   return (
-    <div className="flex flex-col h-full items-center justify-center bg-zinc-50 p-6">
-      <div className="card p-8 w-full max-w-sm text-center">
+    <div className="flex-1 overflow-y-auto flex flex-col items-center justify-start bg-zinc-50 p-6 gap-4">
+
+      {/* 연결 카드 */}
+      <div className="card p-8 w-full max-w-md text-center">
         <div className="w-14 h-14 rounded-2xl bg-zinc-900 flex items-center justify-center mx-auto mb-4">
           <Mail size={24} className="text-white" />
         </div>
         <h2 className="text-base font-bold text-zinc-900 mb-1">Daum 메일 연결</h2>
         <p className="text-xs text-zinc-500 mb-5">
           <span className="font-semibold text-zinc-700">{email}</span> 계정의<br />
-          Daum 메일 비밀번호를 입력하세요.
+          Daum 메일 앱 비밀번호를 입력하세요.
         </p>
 
         {error && (
@@ -73,7 +100,7 @@ function ConnectScreen({ email, onConnect }: { email: string; onConnect: () => v
           <input
             type={show ? 'text' : 'password'}
             className="input pr-10"
-            placeholder="Daum 메일 비밀번호"
+            placeholder="앱 비밀번호 입력"
             value={pw}
             onChange={(e) => setPw(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleConnect()}
@@ -93,8 +120,71 @@ function ConnectScreen({ email, onConnect }: { email: string; onConnect: () => v
         </button>
 
         <p className="text-[11px] text-zinc-400 mt-4">
-          비밀번호는 서버 메모리에만 유지되며<br />앱 종료 시 자동으로 삭제됩니다.
+          입력한 비밀번호는 암호화되어 안전하게 저장됩니다.
         </p>
+      </div>
+
+      {/* 가이드 아코디언 */}
+      <div className="card w-full max-w-md overflow-hidden">
+        <button
+          className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-zinc-50 transition-colors"
+          onClick={() => setGuideOpen((v) => !v)}
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-zinc-100 flex items-center justify-center">
+              <Key size={13} className="text-zinc-600" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-zinc-800">앱 비밀번호 설정 방법</p>
+              <p className="text-xs text-zinc-400">처음 사용하신다면 여기를 확인하세요</p>
+            </div>
+          </div>
+          {guideOpen
+            ? <ChevronUp size={15} className="text-zinc-400 shrink-0" />
+            : <ChevronDown size={15} className="text-zinc-400 shrink-0" />
+          }
+        </button>
+
+        {guideOpen && (
+          <div className="px-5 pb-5 border-t border-zinc-100">
+            <div className="space-y-4 pt-4">
+              {GUIDE_STEPS.map((step, i) => {
+                const Icon = step.icon;
+                return (
+                  <div key={i} className="flex gap-3.5">
+                    {/* 스텝 번호 + 선 */}
+                    <div className="flex flex-col items-center gap-1 shrink-0">
+                      <div className="w-7 h-7 rounded-full bg-zinc-900 text-white flex items-center justify-center text-xs font-bold">
+                        {i + 1}
+                      </div>
+                      {i < GUIDE_STEPS.length - 1 && (
+                        <div className="w-px flex-1 bg-zinc-100 min-h-[16px]" />
+                      )}
+                    </div>
+                    {/* 내용 */}
+                    <div className="pb-2">
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <Icon size={12} className="text-zinc-500" />
+                        <p className="text-xs font-bold text-zinc-800">{step.title}</p>
+                      </div>
+                      <p className="text-xs text-zinc-500 leading-relaxed">{step.desc}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* 바로가기 버튼 */}
+            <a
+              href="https://mail.daum.net"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-4 flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl border border-zinc-200 text-xs font-semibold text-zinc-600 hover:bg-zinc-50 transition-colors"
+            >
+              <ExternalLink size={12} /> Daum 메일 바로가기
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -350,7 +440,9 @@ export function MailPage() {
   if (!connected) return (
     <div className="flex flex-col h-full overflow-hidden">
       <Header title="메일" />
-      <ConnectScreen email={email} onConnect={handleConnected} />
+      <div className="flex-1 overflow-y-auto">
+        <ConnectScreen email={email} onConnect={handleConnected} />
+      </div>
     </div>
   );
 
