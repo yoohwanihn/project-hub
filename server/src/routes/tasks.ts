@@ -3,6 +3,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { db } from '../db';
 import { authMiddleware, requireProjectMember } from '../middleware/auth';
 import { addTimelineEvent } from './timeline';
+import logger from '../logger';
+
+const log = logger.child({ module: 'tasks' });
 
 export const tasksRouter = Router({ mergeParams: true });
 tasksRouter.use(authMiddleware);
@@ -74,6 +77,7 @@ tasksRouter.post('/', requireProjectMember, async (req, res) => {
   await addTimelineEvent(req.params.projectId, userId, 'task_created', { taskId: id, taskTitle: title });
 
   const { rows: [row] } = await db.query('SELECT * FROM tasks WHERE id=$1', [id]);
+  log.info({ userId, projectId: req.params.projectId, taskId: id, title }, 'task created');
   res.status(201).json(mapTask(row));
 });
 
@@ -118,6 +122,9 @@ tasksRouter.patch('/:taskId', async (req, res) => {
       taskId: prev.id, taskTitle: prev.title,
       field: 'status', from: prev.status_id, to: req.body.statusId,
     });
+    log.info({ userId, taskId: prev.id, from: prev.status_id, to: req.body.statusId }, 'task status changed');
+  } else {
+    log.info({ userId, taskId: prev.id, fields: Object.keys(req.body) }, 'task updated');
   }
 
   const { rows: [row] } = await db.query('SELECT * FROM tasks WHERE id=$1', [req.params.taskId]);
@@ -132,6 +139,7 @@ tasksRouter.delete('/:taskId', async (req, res) => {
 
   await db.query('DELETE FROM tasks WHERE id=$1', [req.params.taskId]);
   await addTimelineEvent(task.project_id, userId, 'task_deleted', { taskId: task.id, taskTitle: task.title });
+  log.info({ userId, taskId: task.id, title: task.title, projectId: task.project_id }, 'task deleted');
   res.json({ ok: true });
 });
 

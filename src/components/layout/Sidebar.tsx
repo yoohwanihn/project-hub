@@ -1,7 +1,8 @@
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, FolderKanban, Columns3, GanttChartSquare,
-  BookOpen, Clock, Paperclip, Settings, ChevronDown, Plus, Megaphone, BarChart2, Vote, Shield,
+  BookOpen, Clock, Paperclip, Settings, ChevronDown, Plus,
+  Megaphone, BarChart2, Vote, Shield, ClipboardList, Zap, Mail,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Avatar } from '../ui/Avatar';
@@ -10,16 +11,18 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useState, useMemo } from 'react';
 
 const NAV_ITEMS = [
-  { to: '/dashboard', icon: LayoutDashboard, label: '대시보드' },
-  { to: '/projects',  icon: FolderKanban,    label: '프로젝트' },
-  { to: '/kanban',    icon: Columns3,        label: '칸반 보드' },
-  { to: '/gantt',     icon: GanttChartSquare,label: '간트차트' },
-  { to: '/wiki',          icon: BookOpen,   label: '위키' },
-  { to: '/announcements', icon: Megaphone,  label: '공지사항' },
-  { to: '/timeline',      icon: Clock,      label: '타임라인' },
-  { to: '/files',         icon: Paperclip,  label: '파일 보관함' },
-  { to: '/resources',     icon: BarChart2,  label: '자원 관리' },
-  { to: '/polls',         icon: Vote,       label: '투표' },
+  { to: '/dashboard',      icon: LayoutDashboard, label: '대시보드' },
+  { to: '/my-tasks',       icon: ClipboardList,   label: '내 업무' },
+  { to: '/projects',       icon: FolderKanban,    label: '프로젝트' },
+  { to: '/kanban',         icon: Columns3,        label: '칸반 보드' },
+  { to: '/gantt',          icon: GanttChartSquare,label: '간트차트' },
+  { to: '/wiki',           icon: BookOpen,        label: '위키' },
+  { to: '/announcements',  icon: Megaphone,       label: '공지사항' },
+  { to: '/timeline',       icon: Clock,           label: '타임라인' },
+  { to: '/files',          icon: Paperclip,       label: '파일 보관함' },
+  { to: '/resources',      icon: BarChart2,       label: '자원 관리' },
+  { to: '/polls',          icon: Vote,            label: '투표' },
+  { to: '/mail',           icon: Mail,            label: '메일' },
 ];
 
 export function Sidebar() {
@@ -32,19 +35,22 @@ export function Sidebar() {
   const projects = useMemo(
     () => Object.values(projectsMap)
       .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-      .slice(0, 3),
+      .slice(0, 4),
     [projectsMap],
   );
 
   return (
-    <aside className="w-60 shrink-0 h-screen bg-white border-r border-slate-200 flex flex-col">
+    <aside className="w-60 shrink-0 h-screen bg-white border-r border-zinc-100 flex flex-col">
       {/* Logo */}
-      <div className="px-5 py-4 border-b border-slate-100">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center">
-            <FolderKanban size={16} className="text-white" />
+      <div className="px-4 py-4 border-b border-zinc-100">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-2xl bg-zinc-900 flex items-center justify-center shadow-sm">
+            <Zap size={16} className="text-white" fill="white" />
           </div>
-          <span className="text-sm font-bold text-slate-900 tracking-tight">ProjectHub</span>
+          <div>
+            <span className="text-sm font-bold text-zinc-900 tracking-tight leading-none">ProjectHub</span>
+            <p className="text-[10px] text-zinc-400 mt-0.5">스마트 협업 플랫폼</p>
+          </div>
         </div>
       </div>
 
@@ -56,21 +62,21 @@ export function Sidebar() {
             to={to}
             className={({ isActive }) => cn('sidebar-item', isActive && 'active')}
           >
-            <Icon size={16} />
+            <Icon size={15} />
             {label}
           </NavLink>
         ))}
 
         {/* Recent Projects */}
-        <div className="pt-4">
+        <div className="pt-3">
           <button
-            className="flex items-center justify-between w-full px-3 py-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider hover:text-slate-600"
+            className="flex items-center justify-between w-full px-3 py-1.5 text-[11px] font-semibold text-zinc-400 uppercase tracking-widest hover:text-zinc-600 transition-colors"
             onClick={() => setProjectsOpen((o) => !o)}
           >
             <span>최근 프로젝트</span>
             <ChevronDown
-              size={12}
-              className={cn('transition-transform', !projectsOpen && '-rotate-90')}
+              size={11}
+              className={cn('transition-transform duration-200', !projectsOpen && '-rotate-90')}
             />
           </button>
           {projectsOpen && (
@@ -80,19 +86,23 @@ export function Sidebar() {
                   key={p.id}
                   to={`/projects/${p.id}`}
                   className={cn(
-                    'flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 font-medium hover:bg-slate-50 transition-colors',
-                    location.pathname === `/projects/${p.id}` && 'bg-slate-50 text-slate-900',
+                    'flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-zinc-500 font-medium hover:bg-zinc-50 hover:text-zinc-800 transition-colors',
+                    location.pathname === `/projects/${p.id}` && 'bg-zinc-50 text-zinc-900',
                   )}
                 >
-                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: p.color }} />
+                  <span
+                    className="w-2 h-2 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: p.color }}
+                  />
                   <span className="truncate">{p.name}</span>
                 </NavLink>
               ))}
               <button
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-primary-600 font-medium hover:bg-primary-50 w-full"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-zinc-400 font-medium hover:bg-zinc-50 hover:text-zinc-700 w-full transition-colors"
                 onClick={() => navigate('/projects')}
               >
-                <Plus size={12} /> 새 프로젝트
+                <Plus size={12} />
+                <span>새 프로젝트</span>
               </button>
             </div>
           )}
@@ -101,18 +111,15 @@ export function Sidebar() {
 
       {/* User Profile */}
       {currentUser && (
-        <div className="px-3 py-3 border-t border-slate-100 space-y-0.5">
+        <div className="px-3 py-3 border-t border-zinc-100 space-y-0.5">
           {(currentUser.role === 'owner' || currentUser.role === 'admin') && (
             <NavLink
               to="/admin"
               className={({ isActive }) =>
-                cn('flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-                  isActive
-                    ? 'bg-primary-50 text-primary-700'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800')
+                cn('sidebar-item', isActive && 'active')
               }
             >
-              <Shield size={16} />
+              <Shield size={15} />
               <span>회원 관리</span>
             </NavLink>
           )}
@@ -123,11 +130,11 @@ export function Sidebar() {
             <div className="flex items-center gap-2.5">
               <Avatar name={currentUser.name} size="sm" />
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-slate-700 truncate">{currentUser.name}</p>
-                <p className="text-[10px] text-slate-400 truncate">{currentUser.email}</p>
+                <p className="text-xs font-semibold truncate">{currentUser.name}</p>
+                <p className="text-[10px] text-zinc-400 truncate">{currentUser.email}</p>
               </div>
             </div>
-            <Settings size={14} className="text-slate-400 flex-shrink-0" />
+            <Settings size={13} className="flex-shrink-0 opacity-40" />
           </NavLink>
         </div>
       )}

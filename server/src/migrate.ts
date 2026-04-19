@@ -152,6 +152,8 @@ CREATE TABLE IF NOT EXISTS poll_votes (
 
 const ALTER_SQL = `
 ALTER TABLE files ADD COLUMN IF NOT EXISTS storage_path TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS mail_app_password TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS mail_daum_email TEXT;
 `;
 
 async function migrate() {

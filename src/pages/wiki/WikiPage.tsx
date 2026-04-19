@@ -14,13 +14,13 @@ import type { WikiPage as WikiPageType } from '../../types';
 // ── Markdown renderer ─────────────────────────────────────────────
 function renderMarkdown(content: string): string {
   return content
-    .replace(/^### (.+)$/gm, '<h3 class="text-sm font-bold text-slate-800 mt-4 mb-1">$1</h3>')
-    .replace(/^## (.+)$/gm,  '<h2 class="text-base font-bold text-slate-900 mt-5 mb-2 pb-1 border-b border-slate-100">$1</h2>')
-    .replace(/^# (.+)$/gm,   '<h1 class="text-lg font-bold text-slate-900 mb-3">$1</h1>')
-    .replace(/```(\w*)\n([\s\S]*?)```/gm, '<pre class="bg-slate-900 text-emerald-400 rounded-xl p-4 text-xs overflow-x-auto my-3 font-mono"><code>$2</code></pre>')
-    .replace(/`([^`]+)`/g,   '<code class="bg-slate-100 text-primary-700 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>')
+    .replace(/^### (.+)$/gm, '<h3 class="text-sm font-bold text-zinc-800 mt-4 mb-1">$1</h3>')
+    .replace(/^## (.+)$/gm,  '<h2 class="text-base font-bold text-zinc-900 mt-5 mb-2 pb-1 border-b border-zinc-100">$1</h2>')
+    .replace(/^# (.+)$/gm,   '<h1 class="text-lg font-bold text-zinc-900 mb-3">$1</h1>')
+    .replace(/```(\w*)\n([\s\S]*?)```/gm, '<pre class="bg-zinc-900 text-emerald-400 rounded-xl p-4 text-xs overflow-x-auto my-3 font-mono"><code>$2</code></pre>')
+    .replace(/`([^`]+)`/g,   '<code class="bg-zinc-100 text-zinc-900 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>')
     .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold">$1</strong>')
-    .replace(/^- (.+)$/gm,   '<li class="text-sm text-slate-700 mb-1">$1</li>')
+    .replace(/^- (.+)$/gm,   '<li class="text-sm text-zinc-700 mb-1">$1</li>')
     .replace(/(<li[\s\S]*?<\/li>)/g, '<ul class="list-disc list-inside space-y-1 my-2">$1</ul>')
     .replace(/\n\n/g, '<br/><br/>');
 }
@@ -36,8 +36,8 @@ function NewPageModal({ open, onClose, onSubmit }: {
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-white rounded-2xl shadow-modal w-full max-w-sm mx-4 p-6">
-        <h2 className="text-base font-bold text-slate-900 mb-4">새 위키 페이지</h2>
-        <label className="block text-xs font-semibold text-slate-600 mb-1.5">페이지 제목</label>
+        <h2 className="text-base font-bold text-zinc-900 mb-4">새 위키 페이지</h2>
+        <label className="block text-xs font-semibold text-zinc-600 mb-1.5">페이지 제목</label>
         <input
           className="input w-full"
           placeholder="예: API 가이드, 온보딩 문서…"
@@ -57,14 +57,20 @@ function NewPageModal({ open, onClose, onSubmit }: {
 
 // ── WikiPage ──────────────────────────────────────────────────────
 export function WikiPage() {
-  const allWiki             = useAppStore(s => s.wikiPages);
-  const users               = useAppStore(s => s.users);
+  const allWiki              = useAppStore(s => s.wikiPages);
+  const users                = useAppStore(s => s.users);
   const selectedProjectIdRaw = useAppStore(s => s.selectedProjectId);
-  const selectedProjectId   = selectedProjectIdRaw ?? '';
-  const createWikiPage      = useAppStore(s => s.createWikiPage);
-  const updateWikiPage      = useAppStore(s => s.updateWikiPage);
-  const deleteWikiPage      = useAppStore(s => s.deleteWikiPage);
-  const currentUserId       = useAuthStore(s => s.currentUser?.id ?? '');
+  const selectedProjectId    = selectedProjectIdRaw ?? '';
+  const createWikiPage       = useAppStore(s => s.createWikiPage);
+  const updateWikiPage       = useAppStore(s => s.updateWikiPage);
+  const deleteWikiPage       = useAppStore(s => s.deleteWikiPage);
+  const loadProjectData      = useAppStore(s => s.loadProjectData);
+  const currentUserId        = useAuthStore(s => s.currentUser?.id ?? '');
+
+  // 페이지 진입 또는 프로젝트 전환 시 데이터 보장
+  useEffect(() => {
+    if (selectedProjectId) loadProjectData(selectedProjectId);
+  }, [selectedProjectId]);
 
   const wikiPages = Object.values(allWiki)
     .filter((w) => w.projectId === selectedProjectId)
@@ -137,18 +143,18 @@ export function WikiPage() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <div className="w-60 shrink-0 border-r border-slate-200 bg-white overflow-y-auto">
+        <div className="w-60 shrink-0 border-r border-zinc-200 bg-white overflow-y-auto">
           <div className="p-3">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-2 mb-2">
-              페이지 목록 <span className="text-slate-300 font-normal normal-case">({wikiPages.length})</span>
+            <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider px-2 mb-2">
+              페이지 목록 <span className="text-zinc-300 font-normal normal-case">({wikiPages.length})</span>
             </p>
             <div className="space-y-0.5">
-              {wikiPages.length === 0 && <p className="text-xs text-slate-400 text-center py-6">페이지가 없습니다.</p>}
+              {wikiPages.length === 0 && <p className="text-xs text-zinc-400 text-center py-6">페이지가 없습니다.</p>}
               {wikiPages.map((wp) => (
                 <button
                   key={wp.id}
                   className={`w-full text-left flex items-center gap-2 px-3 py-2.5 rounded-lg transition-colors ${
-                    page?.id === wp.id ? 'bg-primary-50 text-primary-700' : 'text-slate-600 hover:bg-slate-50'
+                    page?.id === wp.id ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-600 hover:bg-zinc-50'
                   }`}
                   onClick={() => { setSelectedId(wp.id); if (isEditing) cancelEdit(); }}
                 >
@@ -165,24 +171,24 @@ export function WikiPage() {
         <div className="flex-1 overflow-hidden flex flex-col bg-white">
           {!page ? (
             <div className="flex-1 flex flex-col items-center justify-center gap-3">
-              <FileText size={36} className="text-slate-200" />
-              <p className="text-sm text-slate-400">페이지를 선택하거나 새로 만드세요.</p>
+              <FileText size={36} className="text-zinc-200" />
+              <p className="text-sm text-zinc-400">페이지를 선택하거나 새로 만드세요.</p>
               <button className="btn-primary text-xs" onClick={() => setShowNew(true)}><Plus size={12} /> 새 페이지</button>
             </div>
           ) : isEditing ? (
             /* EDIT MODE */
             <div className="flex flex-col flex-1 overflow-hidden">
               {/* Toolbar */}
-              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-100 bg-slate-50 shrink-0">
+              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-zinc-100 bg-zinc-50 shrink-0">
                 <input
-                  className="input flex-1 font-semibold text-slate-900 py-2"
+                  className="input flex-1 font-semibold text-zinc-900 py-2"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
                   placeholder="페이지 제목"
                 />
                 <button
                   className={`px-3 py-2 rounded-lg border text-xs flex items-center gap-1.5 transition-colors ${
-                    splitView ? 'bg-primary-50 text-primary-600 border-primary-200' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
+                    splitView ? 'bg-zinc-100 text-zinc-900 border-zinc-200' : 'bg-white text-zinc-500 border-zinc-200 hover:bg-zinc-50'
                   }`}
                   onClick={() => setSplitView((v) => !v)}
                 >
@@ -193,13 +199,13 @@ export function WikiPage() {
               </div>
 
               {/* Editor + Preview split */}
-              <div className={`flex-1 overflow-hidden flex ${splitView ? 'divide-x divide-slate-100' : ''}`}>
+              <div className={`flex-1 overflow-hidden flex ${splitView ? 'divide-x divide-zinc-100' : ''}`}>
                 <div className={`flex flex-col overflow-hidden ${splitView ? 'w-1/2' : 'w-full'}`}>
-                  <div className="px-4 py-1.5 bg-slate-50 border-b border-slate-100">
-                    <span className="text-[11px] text-slate-400 font-medium uppercase tracking-wide">마크다운</span>
+                  <div className="px-4 py-1.5 bg-zinc-50 border-b border-zinc-100">
+                    <span className="text-[11px] text-zinc-400 font-medium uppercase tracking-wide">마크다운</span>
                   </div>
                   <textarea
-                    className="flex-1 resize-none px-6 py-5 text-sm text-slate-700 font-mono leading-relaxed focus:outline-none"
+                    className="flex-1 resize-none px-6 py-5 text-sm text-zinc-700 font-mono leading-relaxed focus:outline-none"
                     value={editContent}
                     onChange={(e) => setEditContent(e.target.value)}
                     placeholder="# 제목&#10;&#10;내용을 마크다운으로 작성하세요..."
@@ -208,11 +214,11 @@ export function WikiPage() {
                 </div>
                 {splitView && (
                   <div className="w-1/2 flex flex-col overflow-hidden">
-                    <div className="px-4 py-1.5 bg-slate-50 border-b border-slate-100">
-                      <span className="text-[11px] text-slate-400 font-medium uppercase tracking-wide">미리보기</span>
+                    <div className="px-4 py-1.5 bg-zinc-50 border-b border-zinc-100">
+                      <span className="text-[11px] text-zinc-400 font-medium uppercase tracking-wide">미리보기</span>
                     </div>
                     <div className="flex-1 overflow-y-auto px-6 py-5">
-                      <div className="prose prose-sm max-w-none text-slate-700 leading-relaxed"
+                      <div className="prose prose-sm max-w-none text-zinc-700 leading-relaxed"
                         dangerouslySetInnerHTML={{ __html: renderMarkdown(editContent) }} />
                     </div>
                   </div>
@@ -222,30 +228,31 @@ export function WikiPage() {
           ) : (
             /* READ MODE */
             <div className="flex-1 overflow-y-auto">
-              <div className="max-w-3xl mx-auto px-8 py-8">
-                <div className="mb-6 pb-5 border-b border-slate-100">
-                  <h1 className="text-xl font-bold text-slate-900 mb-3">{page.title}</h1>
-                  <div className="flex items-center gap-4 text-xs text-slate-400">
+              <div className="px-6 py-4">
+                <div className="mb-4 pb-4 border-b border-zinc-100">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <h1 className="text-xl font-bold text-zinc-900">{page.title}</h1>
+                    <div className="flex items-center gap-1.5">
+                      <button className="btn-primary flex items-center gap-1.5 text-xs" onClick={startEdit}><Pencil size={12} /> 편집</button>
+                      <button
+                        className="btn-secondary flex items-center gap-1.5 text-xs text-red-600 hover:bg-red-50 hover:border-red-200"
+                        onClick={() => setDeleteTarget(page)}
+                      ><Trash2 size={12} /> 삭제</button>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 text-xs text-zinc-400">
                     <div className="flex items-center gap-1.5">
                       {users[page.authorId] && <Avatar name={users[page.authorId].name} size="xs" />}
                       <span>{users[page.authorId]?.name ?? '알 수 없음'}</span>
                     </div>
                     <div className="flex items-center gap-1"><Clock size={11} /><span>{timeAgo(page.updatedAt)}</span></div>
                     <div className="flex items-center gap-1"><History size={11} /><span>v{page.version}</span></div>
-                    <span className="text-slate-300">|</span>
+                    <span className="text-zinc-300">|</span>
                     <span>{formatDate(page.updatedAt, 'yyyy.MM.dd HH:mm')}</span>
                   </div>
                 </div>
-                <div className="prose prose-sm max-w-none text-slate-700 leading-relaxed"
+                <div className="prose prose-sm max-w-none text-zinc-700 leading-relaxed"
                   dangerouslySetInnerHTML={{ __html: renderMarkdown(page.content) }} />
-                <div className="mt-10 pt-5 border-t border-slate-100 flex items-center gap-2">
-                  <button className="btn-primary flex items-center gap-1.5" onClick={startEdit}><Pencil size={13} /> 편집</button>
-                  <button
-                    className="btn-secondary flex items-center gap-1.5 text-red-600 hover:bg-red-50 hover:border-red-200"
-                    onClick={() => setDeleteTarget(page)}
-                  ><Trash2 size={13} /> 삭제</button>
-                  <span className="ml-auto text-xs text-slate-400">버전 {page.version} · {timeAgo(page.updatedAt)}</span>
-                </div>
               </div>
             </div>
           )}

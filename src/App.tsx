@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import { AppLayout } from './components/layout/AppLayout';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { ToastContainer } from './components/ui/Toast';
 import { LoginPage }         from './pages/auth/LoginPage';
 import { RegisterPage }      from './pages/auth/RegisterPage';
 import { AdminPage }         from './pages/admin/AdminPage';
@@ -17,17 +18,25 @@ import { AnnouncementsPage } from './pages/announcements/AnnouncementsPage';
 import { ResourcesPage }     from './pages/resources/ResourcesPage';
 import { PollsPage }         from './pages/polls/PollsPage';
 import { SettingsPage }      from './pages/settings/SettingsPage';
+import { MyTasksPage }       from './pages/mytasks/MyTasksPage';
+import { NotFoundPage }      from './pages/errors/NotFoundPage';
+import { MailPage }          from './pages/mail/MailPage';
 
 function AppRoutes() {
   const { initializing } = useAuth();
 
   if (initializing) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <svg className="animate-spin h-8 w-8 text-primary-500" viewBox="0 0 24 24" fill="none">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-        </svg>
+      <div className="min-h-screen flex items-center justify-center bg-zinc-50">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 rounded-2xl bg-zinc-900 flex items-center justify-center shadow-sm">
+            <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+            </svg>
+          </div>
+          <p className="text-xs text-zinc-400 font-medium">불러오는 중...</p>
+        </div>
       </div>
     );
   }
@@ -54,13 +63,18 @@ function AppRoutes() {
         <Route path="/announcements" element={<AnnouncementsPage />} />
         <Route path="/resources"     element={<ResourcesPage />} />
         <Route path="/polls"         element={<PollsPage />} />
+        <Route path="/my-tasks"      element={<MyTasksPage />} />
+        <Route path="/mail"          element={<MailPage />} />
         <Route path="/settings"      element={<SettingsPage />} />
         <Route path="/admin" element={
           <ProtectedRoute requiredRoles={['owner', 'admin']}>
             <AdminPage />
           </ProtectedRoute>
         } />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
+
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }
@@ -69,6 +83,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AppRoutes />
+      <ToastContainer />
     </BrowserRouter>
   );
 }

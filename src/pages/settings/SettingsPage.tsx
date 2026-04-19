@@ -26,12 +26,12 @@ function Toggle({ value, onChange }: { value: boolean; onChange: () => void }) {
       onClick={onChange}
       className={cn(
         'relative w-10 h-[22px] rounded-full transition-colors flex-shrink-0',
-        value ? 'bg-primary-500' : 'bg-slate-200',
+        value ? 'bg-zinc-800' : 'bg-zinc-200',
       )}
     >
       <span className={cn(
         'absolute top-[3px] w-4 h-4 bg-white rounded-full shadow-sm transition-transform',
-        value ? 'translate-x-[22px]' : 'translate-x-[3px]',
+        value ? 'tranzinc-x-[22px]' : 'tranzinc-x-[3px]',
       )} />
     </button>
   );
@@ -101,7 +101,7 @@ function ProfileSection() {
     <div className="space-y-6">
       {/* 프로필 사진 */}
       <div>
-        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">프로필 사진</h3>
+        <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wide mb-3">프로필 사진</h3>
         <div className="flex items-center gap-5">
           <div className="relative">
             <Avatar name={name || currentUser?.name || '?'} src={avatarSrc} size="lg" className="w-16 h-16 text-lg" />
@@ -127,17 +127,17 @@ function ProfileSection() {
               <Camera size={13} />
               {uploading ? '업로드 중...' : '사진 변경'}
             </button>
-            <p className="text-[11px] text-slate-400">JPG, PNG, WebP · 최대 10MB</p>
+            <p className="text-[11px] text-zinc-400">JPG, PNG, WebP · 최대 10MB</p>
           </div>
         </div>
       </div>
 
       {/* 기본 정보 */}
       <div>
-        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">기본 정보</h3>
+        <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wide mb-3">기본 정보</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1.5">이름 *</label>
+            <label className="block text-xs font-semibold text-zinc-600 mb-1.5">이름 *</label>
             <input
               className="input"
               value={name}
@@ -146,7 +146,7 @@ function ProfileSection() {
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1.5">이메일 *</label>
+            <label className="block text-xs font-semibold text-zinc-600 mb-1.5">이메일 *</label>
             <input
               type="email"
               className="input"
@@ -220,7 +220,7 @@ function SecuritySection() {
   }) {
     return (
       <div>
-        <label className="block text-xs font-semibold text-slate-600 mb-1.5">{label}</label>
+        <label className="block text-xs font-semibold text-zinc-600 mb-1.5">{label}</label>
         <div className="relative">
           <input
             type={show ? 'text' : 'password'}
@@ -231,7 +231,7 @@ function SecuritySection() {
           />
           <button
             type="button"
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+            className="absolute right-2.5 top-1/2 -tranzinc-y-1/2 text-zinc-400 hover:text-zinc-600"
             onClick={onToggle}
           >
             {show ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -243,7 +243,7 @@ function SecuritySection() {
 
   return (
     <div className="space-y-5 max-w-sm">
-      <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wide">비밀번호 변경</h3>
+      <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wide">비밀번호 변경</h3>
 
       <PwInput
         label="현재 비밀번호"
@@ -261,7 +261,7 @@ function SecuritySection() {
         placeholder="8자 이상"
       />
       <div>
-        <label className="block text-xs font-semibold text-slate-600 mb-1.5">새 비밀번호 확인</label>
+        <label className="block text-xs font-semibold text-zinc-600 mb-1.5">새 비밀번호 확인</label>
         <input
           type="password"
           className={cn('input', confirm && next !== confirm && 'border-red-300 focus:ring-red-200')}
@@ -308,12 +308,12 @@ function NotificationsSection() {
   }) {
     return (
       <div className={cn(
-        'flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-100',
+        'flex items-center justify-between p-3.5 rounded-xl bg-zinc-50 border border-zinc-100',
         indent && 'ml-4',
       )}>
         <div className="min-w-0 mr-3">
-          <p className="text-sm font-medium text-slate-700">{label}</p>
-          <p className="text-xs text-slate-400 mt-0.5">{desc}</p>
+          <p className="text-sm font-medium text-zinc-700">{label}</p>
+          <p className="text-xs text-zinc-400 mt-0.5">{desc}</p>
         </div>
         <Toggle value={checked} onChange={onToggle} />
       </div>
@@ -323,8 +323,8 @@ function NotificationsSection() {
   function GroupLabel({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
     return (
       <div className="flex items-center gap-2 mt-6 mb-2 first:mt-0">
-        <Icon size={14} className="text-slate-400" />
-        <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">{label}</span>
+        <Icon size={14} className="text-zinc-400" />
+        <span className="text-xs font-bold text-zinc-500 uppercase tracking-wide">{label}</span>
       </div>
     );
   }
@@ -368,10 +368,10 @@ function NotificationsSection() {
 
       {/* 브라우저 푸시 */}
       <GroupLabel icon={Smartphone} label="브라우저 푸시" />
-      <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+      <div className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-50 border border-zinc-100">
         <div className="min-w-0 mr-3">
-          <p className="text-sm font-medium text-slate-700">브라우저 푸시 알림</p>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-sm font-medium text-zinc-700">브라우저 푸시 알림</p>
+          <p className="text-xs text-zinc-400 mt-0.5">
             {settings.push_enabled && pushGranted
               ? '브라우저 푸시 알림이 활성화되어 있습니다.'
               : '브라우저가 닫혀있어도 알림을 받을 수 있습니다.'}
@@ -411,17 +411,17 @@ export function SettingsPage() {
               <button
                 key={id}
                 className={cn(
-                  'w-full text-left flex items-center gap-3 px-4 py-3.5 transition-colors border-b border-slate-50 last:border-0',
-                  section === id ? 'bg-primary-50 text-primary-700' : 'hover:bg-slate-50 text-slate-600',
+                  'w-full text-left flex items-center gap-3 px-4 py-3.5 transition-colors border-b border-zinc-50 last:border-0',
+                  section === id ? 'bg-zinc-100 text-zinc-900' : 'hover:bg-zinc-50 text-zinc-600',
                 )}
                 onClick={() => setSection(id)}
               >
                 <Icon size={15} className="flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold">{label}</p>
-                  <p className="text-[11px] text-slate-400 truncate">{desc}</p>
+                  <p className="text-[11px] text-zinc-400 truncate">{desc}</p>
                 </div>
-                <ChevronRight size={12} className="text-slate-300 flex-shrink-0" />
+                <ChevronRight size={12} className="text-zinc-300 flex-shrink-0" />
               </button>
             ))}
           </div>
@@ -430,8 +430,8 @@ export function SettingsPage() {
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
           <div className="card p-6">
-            <h2 className="text-base font-bold text-slate-900 mb-1">{current.label}</h2>
-            <p className="text-xs text-slate-400 mb-6">{current.desc}</p>
+            <h2 className="text-base font-bold text-zinc-900 mb-1">{current.label}</h2>
+            <p className="text-xs text-zinc-400 mb-6">{current.desc}</p>
             {renderContent()}
           </div>
         </div>

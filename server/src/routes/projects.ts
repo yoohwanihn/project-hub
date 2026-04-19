@@ -3,6 +3,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { db } from '../db';
 import { authMiddleware, requireProjectRole } from '../middleware/auth';
 import { addTimelineEvent } from './timeline';
+import logger from '../logger';
+
+const log = logger.child({ module: 'projects' });
 
 export const projectsRouter = Router();
 projectsRouter.use(authMiddleware);
@@ -44,10 +47,10 @@ async function fetchFullProject(projectId: string) {
 projectsRouter.get('/', async (req, res) => {
   const userId = req.user!.sub;
   const { rows } = await db.query(
-    `SELECT DISTINCT p.id FROM projects p
+    `SELECT DISTINCT p.id, p.updated_at FROM projects p
      JOIN project_members pm ON pm.project_id=p.id
      WHERE pm.user_id=$1
-     ORDER BY p.id`,
+     ORDER BY p.updated_at DESC`,
     [userId],
   );
   const projects = await Promise.all(rows.map((r) => fetchFullProject(r.id)));
@@ -92,6 +95,7 @@ projectsRouter.post('/', async (req, res) => {
   await addTimelineEvent(id, userId, 'project_created', { projectName: name });
 
   const project = await fetchFullProject(id);
+  log.info({ userId, projectId: id, projectName: name }, 'project created');
   res.status(201).json(project);
 });
 
@@ -119,12 +123,14 @@ projectsRouter.patch('/:id', requireProjectRole('admin', 'owner'), async (req, r
   vals.push(req.params.id);
 
   await db.query(`UPDATE projects SET ${fields.join(',')} WHERE id=$${idx}`, vals);
+  log.info({ userId: req.user!.sub, projectId: req.params.id }, 'project updated');
   res.json(await fetchFullProject(req.params.id));
 });
 
 // DELETE /api/projects/:id
 projectsRouter.delete('/:id', requireProjectRole('owner'), async (req, res) => {
   await db.query('DELETE FROM projects WHERE id=$1', [req.params.id]);
+  log.info({ userId: req.user!.sub, projectId: req.params.id }, 'project deleted');
   res.json({ ok: true });
 });
 

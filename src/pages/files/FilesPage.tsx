@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import {
   Upload, Search, FileText, Image, File, Download,
   Trash2, LayoutGrid, List, ArrowUpDown, ArrowUp, ArrowDown,
@@ -21,7 +21,7 @@ function fileIcon(mimeType: string, size = 20) {
   if (mimeType.includes('presentation'))       return <FileText  size={size} className="text-amber-500"   />;
   if (mimeType.includes('word') || mimeType.includes('document'))
                                                return <FileText  size={size} className="text-blue-600"    />;
-  return <File size={size} className="text-slate-400" />;
+  return <File size={size} className="text-zinc-400" />;
 }
 
 function fileExt(name: string) {
@@ -57,7 +57,13 @@ export function FilesPage() {
   const selectedProjectId    = selectedProjectIdRaw ?? '';
   const uploadFiles          = useAppStore(s => s.uploadFiles);
   const deleteFile           = useAppStore(s => s.deleteFile);
+  const loadProjectData      = useAppStore(s => s.loadProjectData);
   const accessToken          = useAuthStore(s => s.accessToken);
+
+  // 페이지 진입 또는 프로젝트 전환 시 데이터 보장
+  useEffect(() => {
+    if (selectedProjectId) loadProjectData(selectedProjectId);
+  }, [selectedProjectId]);
 
   async function downloadFile(f: FileItem) {
     try {
@@ -109,10 +115,10 @@ export function FilesPage() {
   }
 
   function SortIcon({ k }: { k: SortKey }) {
-    if (sortKey !== k) return <ArrowUpDown size={12} className="text-slate-300" />;
+    if (sortKey !== k) return <ArrowUpDown size={12} className="text-zinc-300" />;
     return sortDir === 'asc'
-      ? <ArrowUp   size={12} className="text-primary-500" />
-      : <ArrowDown size={12} className="text-primary-500" />;
+      ? <ArrowUp   size={12} className="text-zinc-700" />
+      : <ArrowDown size={12} className="text-zinc-700" />;
   }
 
   // ── file upload ────────────────────────────────────────────
@@ -166,7 +172,7 @@ export function FilesPage() {
         <div className="flex items-center gap-3 mb-5 flex-wrap">
           {/* Search */}
           <div className="relative flex-1 min-w-48 max-w-xs">
-            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search size={13} className="absolute left-3 top-1/2 -tranzinc-y-1/2 text-zinc-400" />
             <input
               type="text"
               placeholder="파일 검색..."
@@ -188,16 +194,16 @@ export function FilesPage() {
           </select>
 
           {/* View toggle */}
-          <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white ml-auto">
+          <div className="flex items-center border border-zinc-200 rounded-lg overflow-hidden bg-white ml-auto">
             <button
-              className={cn('px-3 py-2 transition-colors', view === 'grid' ? 'bg-primary-50 text-primary-600' : 'text-slate-500 hover:bg-slate-50')}
+              className={cn('px-3 py-2 transition-colors', view === 'grid' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50')}
               onClick={() => setView('grid')}
               title="그리드 보기"
             >
               <LayoutGrid size={14} />
             </button>
             <button
-              className={cn('px-3 py-2 transition-colors', view === 'list' ? 'bg-primary-50 text-primary-600' : 'text-slate-500 hover:bg-slate-50')}
+              className={cn('px-3 py-2 transition-colors', view === 'list' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50')}
               onClick={() => setView('list')}
               title="목록 보기"
             >
@@ -211,8 +217,8 @@ export function FilesPage() {
           className={cn(
             'border-2 border-dashed rounded-xl p-8 text-center mb-5 transition-all cursor-pointer group',
             isDragging
-              ? 'border-primary-400 bg-primary-50'
-              : 'border-slate-200 hover:border-primary-300 hover:bg-primary-50/50',
+              ? 'border-zinc-500 bg-zinc-100'
+              : 'border-zinc-200 hover:border-zinc-400 hover:bg-zinc-100/50',
           )}
           onDrop={onDrop}
           onDragOver={onDragOver}
@@ -221,19 +227,19 @@ export function FilesPage() {
         >
           <Upload size={24} className={cn(
             'mx-auto mb-2 transition-colors',
-            isDragging ? 'text-primary-500' : 'text-slate-300 group-hover:text-primary-400',
+            isDragging ? 'text-zinc-700' : 'text-zinc-300 group-hover:text-zinc-500',
           )} />
-          <p className={cn('text-sm transition-colors', isDragging ? 'text-primary-600 font-medium' : 'text-slate-500 group-hover:text-primary-600')}>
+          <p className={cn('text-sm transition-colors', isDragging ? 'text-zinc-900 font-medium' : 'text-zinc-500 group-hover:text-zinc-900')}>
             {isDragging ? '여기에 놓으세요!' : '여기에 파일을 드래그하거나 클릭하여 업로드'}
           </p>
-          <p className="text-xs text-slate-400 mt-1">모든 파일 형식 지원 · 최대 100MB</p>
+          <p className="text-xs text-zinc-400 mt-1">모든 파일 형식 지원 · 최대 100MB</p>
         </div>
 
         {/* Empty state */}
         {filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16 gap-3">
-            <FolderOpen size={36} className="text-slate-200" />
-            <p className="text-sm text-slate-400">
+            <FolderOpen size={36} className="text-zinc-200" />
+            <p className="text-sm text-zinc-400">
               {query || filterType ? '검색 결과가 없습니다.' : '업로드된 파일이 없습니다.'}
             </p>
           </div>
@@ -244,10 +250,10 @@ export function FilesPage() {
           <div className="card overflow-hidden">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50">
+                <tr className="border-b border-zinc-100 bg-zinc-50">
                   <th className="text-left px-5 py-3">
                     <button
-                      className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-700"
+                      className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-zinc-700"
                       onClick={() => toggleSort('name')}
                     >
                       파일명 <SortIcon k="name" />
@@ -255,16 +261,16 @@ export function FilesPage() {
                   </th>
                   <th className="text-left px-4 py-3 hidden md:table-cell">
                     <button
-                      className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-700"
+                      className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-zinc-700"
                       onClick={() => toggleSort('size')}
                     >
                       크기 <SortIcon k="size" />
                     </button>
                   </th>
-                  <th className="text-left text-xs font-semibold text-slate-500 px-4 py-3 hidden lg:table-cell">업로더</th>
+                  <th className="text-left text-xs font-semibold text-zinc-500 px-4 py-3 hidden lg:table-cell">업로더</th>
                   <th className="text-left px-4 py-3 hidden lg:table-cell">
                     <button
-                      className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-700"
+                      className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-zinc-700"
                       onClick={() => toggleSort('createdAt')}
                     >
                       날짜 <SortIcon k="createdAt" />
@@ -273,41 +279,41 @@ export function FilesPage() {
                   <th className="px-4 py-3 w-20" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-zinc-50">
                 {filtered.map((f) => (
-                  <tr key={f.id} className="hover:bg-slate-50 cursor-pointer group transition-colors">
+                  <tr key={f.id} className="hover:bg-zinc-50 cursor-pointer group transition-colors">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
                         {fileIcon(f.mimeType)}
                         <div>
-                          <p className="text-sm font-medium text-slate-800">{f.name}</p>
-                          <p className="text-xs text-slate-400">{fileExt(f.name)}</p>
+                          <p className="text-sm font-medium text-zinc-800">{f.name}</p>
+                          <p className="text-xs text-zinc-400">{fileExt(f.name)}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3.5 hidden md:table-cell text-xs text-slate-500">
+                    <td className="px-4 py-3.5 hidden md:table-cell text-xs text-zinc-500">
                       {formatBytes(f.size)}
                     </td>
                     <td className="px-4 py-3.5 hidden lg:table-cell">
                       <div className="flex items-center gap-2">
                         {users[f.uploaderId] && <Avatar name={users[f.uploaderId].name} size="xs" />}
-                        <span className="text-xs text-slate-600">{users[f.uploaderId]?.name ?? '알 수 없음'}</span>
+                        <span className="text-xs text-zinc-600">{users[f.uploaderId]?.name ?? '알 수 없음'}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3.5 hidden lg:table-cell text-xs text-slate-500">
+                    <td className="px-4 py-3.5 hidden lg:table-cell text-xs text-zinc-500">
                       {formatDate(f.createdAt, 'yyyy.MM.dd HH:mm')}
                     </td>
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity justify-end">
                         <button
-                          className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                          className="p-1.5 rounded-lg text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
                           title="다운로드"
                           onClick={() => downloadFile(f)}
                         >
                           <Download size={14} />
                         </button>
                         <button
-                          className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500"
+                          className="p-1.5 rounded-lg text-zinc-400 hover:bg-red-50 hover:text-red-500"
                           title="삭제"
                           onClick={() => setDeleteTarget(f)}
                         >
@@ -330,23 +336,23 @@ export function FilesPage() {
                 key={f.id}
                 className="card p-4 cursor-pointer hover:shadow-md transition-all group flex flex-col items-center gap-3"
               >
-                <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-xl bg-zinc-50 flex items-center justify-center">
                   {fileIcon(f.mimeType, 22)}
                 </div>
                 <div className="text-center min-w-0 w-full">
-                  <p className="text-xs font-medium text-slate-700 truncate" title={f.name}>{f.name}</p>
-                  <p className="text-[11px] text-slate-400 mt-0.5">{formatBytes(f.size)}</p>
-                  <p className="text-[10px] text-slate-300 mt-0.5">{formatDate(f.createdAt, 'yyyy.MM.dd')}</p>
+                  <p className="text-xs font-medium text-zinc-700 truncate" title={f.name}>{f.name}</p>
+                  <p className="text-[11px] text-zinc-400 mt-0.5">{formatBytes(f.size)}</p>
+                  <p className="text-[10px] text-zinc-300 mt-0.5">{formatDate(f.createdAt, 'yyyy.MM.dd')}</p>
                 </div>
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
-                    className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                    className="p-1.5 rounded-lg text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
                     onClick={() => downloadFile(f)}
                   >
                     <Download size={12} />
                   </button>
                   <button
-                    className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500"
+                    className="p-1.5 rounded-lg text-zinc-400 hover:bg-red-50 hover:text-red-500"
                     onClick={() => setDeleteTarget(f)}
                   >
                     <Trash2 size={12} />
