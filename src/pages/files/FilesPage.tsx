@@ -194,16 +194,16 @@ export function FilesPage() {
           </select>
 
           {/* View toggle */}
-          <div className="flex items-center border border-zinc-200 rounded-lg overflow-hidden bg-white ml-auto">
+          <div className="flex items-center border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden bg-white dark:bg-zinc-800 ml-auto">
             <button
-              className={cn('px-3 py-2 transition-colors', view === 'grid' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50')}
+              className={cn('px-3 py-2 transition-colors', view === 'grid' ? 'bg-zinc-100 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-50' : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-700')}
               onClick={() => setView('grid')}
               title="그리드 보기"
             >
               <LayoutGrid size={14} />
             </button>
             <button
-              className={cn('px-3 py-2 transition-colors', view === 'list' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50')}
+              className={cn('px-3 py-2 transition-colors', view === 'list' ? 'bg-zinc-100 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-50' : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-700')}
               onClick={() => setView('list')}
               title="목록 보기"
             >
@@ -217,8 +217,8 @@ export function FilesPage() {
           className={cn(
             'border-2 border-dashed rounded-xl p-8 text-center mb-5 transition-all cursor-pointer group',
             isDragging
-              ? 'border-zinc-500 bg-zinc-100'
-              : 'border-zinc-200 hover:border-zinc-400 hover:bg-zinc-100/50',
+              ? 'border-zinc-500 bg-zinc-100 dark:bg-zinc-700'
+              : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-500 hover:bg-zinc-100/50 dark:hover:bg-zinc-800',
           )}
           onDrop={onDrop}
           onDragOver={onDragOver}
@@ -227,18 +227,18 @@ export function FilesPage() {
         >
           <Upload size={24} className={cn(
             'mx-auto mb-2 transition-colors',
-            isDragging ? 'text-zinc-700' : 'text-zinc-300 group-hover:text-zinc-500',
+            isDragging ? 'text-zinc-700 dark:text-zinc-200' : 'text-zinc-300 dark:text-zinc-600 group-hover:text-zinc-500',
           )} />
-          <p className={cn('text-sm transition-colors', isDragging ? 'text-zinc-900 font-medium' : 'text-zinc-500 group-hover:text-zinc-900')}>
+          <p className={cn('text-sm transition-colors', isDragging ? 'text-zinc-900 dark:text-zinc-50 font-medium' : 'text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100')}>
             {isDragging ? '여기에 놓으세요!' : '여기에 파일을 드래그하거나 클릭하여 업로드'}
           </p>
-          <p className="text-xs text-zinc-400 mt-1">모든 파일 형식 지원 · 최대 100MB</p>
+          <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">모든 파일 형식 지원 · 최대 100MB</p>
         </div>
 
         {/* Empty state */}
         {filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16 gap-3">
-            <FolderOpen size={36} className="text-zinc-200" />
+            <FolderOpen size={36} className="text-zinc-200 dark:text-zinc-700" />
             <p className="text-sm text-zinc-400">
               {query || filterType ? '검색 결과가 없습니다.' : '업로드된 파일이 없습니다.'}
             </p>
@@ -250,10 +250,10 @@ export function FilesPage() {
           <div className="card overflow-hidden">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-zinc-100 bg-zinc-50">
+                <tr className="border-b border-zinc-100 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800">
                   <th className="text-left px-5 py-3">
                     <button
-                      className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-zinc-700"
+                      className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
                       onClick={() => toggleSort('name')}
                     >
                       파일명 <SortIcon k="name" />
@@ -261,16 +261,16 @@ export function FilesPage() {
                   </th>
                   <th className="text-left px-4 py-3 hidden md:table-cell">
                     <button
-                      className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-zinc-700"
+                      className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
                       onClick={() => toggleSort('size')}
                     >
                       크기 <SortIcon k="size" />
                     </button>
                   </th>
-                  <th className="text-left text-xs font-semibold text-zinc-500 px-4 py-3 hidden lg:table-cell">업로더</th>
+                  <th className="text-left text-xs font-semibold text-zinc-500 dark:text-zinc-400 px-4 py-3 hidden lg:table-cell">업로더</th>
                   <th className="text-left px-4 py-3 hidden lg:table-cell">
                     <button
-                      className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-zinc-700"
+                      className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
                       onClick={() => toggleSort('createdAt')}
                     >
                       날짜 <SortIcon k="createdAt" />
@@ -279,28 +279,28 @@ export function FilesPage() {
                   <th className="px-4 py-3 w-20" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-50">
+              <tbody className="divide-y divide-zinc-50 dark:divide-zinc-800">
                 {filtered.map((f) => (
-                  <tr key={f.id} className="hover:bg-zinc-50 cursor-pointer group transition-colors">
+                  <tr key={f.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer group transition-colors">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
                         {fileIcon(f.mimeType)}
                         <div>
-                          <p className="text-sm font-medium text-zinc-800">{f.name}</p>
-                          <p className="text-xs text-zinc-400">{fileExt(f.name)}</p>
+                          <p className="text-sm font-medium text-zinc-800 dark:text-zinc-100">{f.name}</p>
+                          <p className="text-xs text-zinc-400 dark:text-zinc-500">{fileExt(f.name)}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3.5 hidden md:table-cell text-xs text-zinc-500">
+                    <td className="px-4 py-3.5 hidden md:table-cell text-xs text-zinc-500 dark:text-zinc-400">
                       {formatBytes(f.size)}
                     </td>
                     <td className="px-4 py-3.5 hidden lg:table-cell">
                       <div className="flex items-center gap-2">
                         {users[f.uploaderId] && <Avatar name={users[f.uploaderId].name} size="xs" />}
-                        <span className="text-xs text-zinc-600">{users[f.uploaderId]?.name ?? '알 수 없음'}</span>
+                        <span className="text-xs text-zinc-600 dark:text-zinc-300">{users[f.uploaderId]?.name ?? '알 수 없음'}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3.5 hidden lg:table-cell text-xs text-zinc-500">
+                    <td className="px-4 py-3.5 hidden lg:table-cell text-xs text-zinc-500 dark:text-zinc-400">
                       {formatDate(f.createdAt, 'yyyy.MM.dd HH:mm')}
                     </td>
                     <td className="px-4 py-3.5">
@@ -336,13 +336,13 @@ export function FilesPage() {
                 key={f.id}
                 className="card p-4 cursor-pointer hover:shadow-md transition-all group flex flex-col items-center gap-3"
               >
-                <div className="w-12 h-12 rounded-xl bg-zinc-50 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-xl bg-zinc-50 dark:bg-zinc-700 flex items-center justify-center">
                   {fileIcon(f.mimeType, 22)}
                 </div>
                 <div className="text-center min-w-0 w-full">
-                  <p className="text-xs font-medium text-zinc-700 truncate" title={f.name}>{f.name}</p>
-                  <p className="text-[11px] text-zinc-400 mt-0.5">{formatBytes(f.size)}</p>
-                  <p className="text-[10px] text-zinc-300 mt-0.5">{formatDate(f.createdAt, 'yyyy.MM.dd')}</p>
+                  <p className="text-xs font-medium text-zinc-700 dark:text-zinc-200 truncate" title={f.name}>{f.name}</p>
+                  <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-0.5">{formatBytes(f.size)}</p>
+                  <p className="text-[10px] text-zinc-300 dark:text-zinc-600 mt-0.5">{formatDate(f.createdAt, 'yyyy.MM.dd')}</p>
                 </div>
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button

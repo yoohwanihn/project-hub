@@ -17,23 +17,23 @@ const EVENT_CONFIG: Record<string, { icon: React.ElementType; color: string; bg:
 };
 
 function Message({ e, actorName }: { e: TimelineEvent; actorName: string }) {
-  const bold = (s: string) => <span className="font-semibold text-zinc-800">{s}</span>;
-  const em   = (s: string) => <span className="font-medium text-zinc-700">{s}</span>;
+  const bold = (s: string) => <span className="font-semibold text-zinc-800 dark:text-zinc-100">{s}</span>;
+  const em   = (s: string) => <span className="font-medium text-zinc-700 dark:text-zinc-200">{s}</span>;
 
   switch (e.type) {
-    case 'task_completed':  return <p className="text-sm text-zinc-700">{bold(actorName)}님이 {em(`"${String(e.payload.taskTitle)}"`)}&nbsp;업무를 완료했습니다.</p>;
-    case 'task_created':    return <p className="text-sm text-zinc-700">{bold(actorName)}님이 {em(`"${String(e.payload.taskTitle)}"`)}&nbsp;업무를 생성했습니다.</p>;
-    case 'task_deleted':    return <p className="text-sm text-zinc-700">{bold(actorName)}님이 업무를 삭제했습니다.</p>;
-    case 'task_updated':    return <p className="text-sm text-zinc-700">{bold(actorName)}님이 {em(`"${String(e.payload.taskTitle)}"`)}&nbsp;{e.payload.field === 'status' ? '상태를' : '정보를'}&nbsp;변경했습니다.</p>;
-    case 'file_uploaded':   return <p className="text-sm text-zinc-700">{bold(actorName)}님이 {em(`"${String(e.payload.fileName)}"`)}&nbsp;파일을 업로드했습니다.</p>;
-    case 'member_joined':   return <p className="text-sm text-zinc-700">{bold(actorName)}님이 프로젝트에 합류했습니다. 👋</p>;
-    case 'project_created': return <p className="text-sm text-zinc-700">{bold(actorName)}님이 새 프로젝트를 생성했습니다.</p>;
+    case 'task_completed':  return <p className="text-sm text-zinc-700 dark:text-zinc-200">{bold(actorName)}님이 {em(`"${String(e.payload.taskTitle)}"`)}&nbsp;업무를 완료했습니다.</p>;
+    case 'task_created':    return <p className="text-sm text-zinc-700 dark:text-zinc-200">{bold(actorName)}님이 {em(`"${String(e.payload.taskTitle)}"`)}&nbsp;업무를 생성했습니다.</p>;
+    case 'task_deleted':    return <p className="text-sm text-zinc-700 dark:text-zinc-200">{bold(actorName)}님이 업무를 삭제했습니다.</p>;
+    case 'task_updated':    return <p className="text-sm text-zinc-700 dark:text-zinc-200">{bold(actorName)}님이 {em(`"${String(e.payload.taskTitle)}"`)}&nbsp;{e.payload.field === 'status' ? '상태를' : '정보를'}&nbsp;변경했습니다.</p>;
+    case 'file_uploaded':   return <p className="text-sm text-zinc-700 dark:text-zinc-200">{bold(actorName)}님이 {em(`"${String(e.payload.fileName)}"`)}&nbsp;파일을 업로드했습니다.</p>;
+    case 'member_joined':   return <p className="text-sm text-zinc-700 dark:text-zinc-200">{bold(actorName)}님이 프로젝트에 합류했습니다. 👋</p>;
+    case 'project_created': return <p className="text-sm text-zinc-700 dark:text-zinc-200">{bold(actorName)}님이 새 프로젝트를 생성했습니다.</p>;
     case 'comment_added':
       return (
         <div>
           <p className="text-sm text-zinc-700">{bold(actorName)}님이 {em(`"${String(e.payload.taskTitle)}"`)}&nbsp;에 댓글을 남겼습니다.</p>
           {!!e.payload.comment && (
-            <blockquote className="mt-1.5 pl-3 border-l-2 border-zinc-200 text-zinc-500 text-xs italic">
+            <blockquote className="mt-1.5 pl-3 border-l-2 border-zinc-200 dark:border-zinc-600 text-zinc-500 dark:text-zinc-400 text-xs italic">
               {String(e.payload.comment)}
             </blockquote>
           )}
@@ -68,11 +68,11 @@ export function TimelinePage() {
           {grouped.map(([date, events]) => (
             <div key={date}>
               <div className="flex items-center gap-3 mb-5">
-                <div className="flex-1 h-px bg-zinc-200" />
-                <span className="text-xs font-semibold text-zinc-400 px-3 py-1 bg-zinc-100 rounded-full">
+                <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-700" />
+                <span className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 px-3 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-full">
                   {formatDate(date, 'yyyy년 MM월 dd일')}
                 </span>
-                <div className="flex-1 h-px bg-zinc-200" />
+                <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-700" />
               </div>
 
               <div className="space-y-3">
@@ -95,7 +95,7 @@ export function TimelinePage() {
                           <Avatar name={actor.name} size="sm" className="flex-shrink-0 mt-0.5" />
                           <div className="flex-1 min-w-0">
                             <Message e={e} actorName={actor.name} />
-                            <p className="text-xs text-zinc-400 mt-1">{timeAgo(e.createdAt)}</p>
+                            <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">{timeAgo(e.createdAt)}</p>
                           </div>
                           <span className={`badge flex-shrink-0 text-xs ${cfg.bg} ${cfg.color}`}>
                             {cfg.label}
@@ -110,7 +110,7 @@ export function TimelinePage() {
           ))}
 
           {grouped.length === 0 && (
-            <p className="text-center text-sm text-zinc-400 py-16">아직 활동이 없습니다.</p>
+            <p className="text-center text-sm text-zinc-400 dark:text-zinc-500 py-16">아직 활동이 없습니다.</p>
           )}
         </div>
       </div>

@@ -40,16 +40,16 @@ export function Sidebar() {
   );
 
   return (
-    <aside className="w-60 shrink-0 h-screen bg-white border-r border-zinc-100 flex flex-col">
+    <aside className="w-60 shrink-0 h-screen bg-white dark:bg-zinc-900 border-r border-zinc-100 dark:border-zinc-700 flex flex-col">
       {/* Logo */}
-      <div className="px-4 py-4 border-b border-zinc-100">
+      <div className="px-4 py-4 border-b border-zinc-100 dark:border-zinc-700">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-2xl bg-zinc-900 flex items-center justify-center shadow-sm">
-            <Zap size={16} className="text-white" fill="white" />
+          <div className="w-9 h-9 rounded-2xl bg-zinc-900 dark:bg-white flex items-center justify-center shadow-sm">
+            <Zap size={16} className="text-white dark:text-zinc-900" fill="currentColor" />
           </div>
           <div>
-            <span className="text-sm font-bold text-zinc-900 tracking-tight leading-none">ProjectHub</span>
-            <p className="text-[10px] text-zinc-400 mt-0.5">스마트 협업 플랫폼</p>
+            <span className="text-sm font-bold text-zinc-900 dark:text-zinc-50 tracking-tight leading-none">ProjectHub</span>
+            <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5">스마트 협업 플랫폼</p>
           </div>
         </div>
       </div>
@@ -70,7 +70,7 @@ export function Sidebar() {
         {/* Recent Projects */}
         <div className="pt-3">
           <button
-            className="flex items-center justify-between w-full px-3 py-1.5 text-[11px] font-semibold text-zinc-400 uppercase tracking-widest hover:text-zinc-600 transition-colors"
+            className="flex items-center justify-between w-full px-3 py-1.5 text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
             onClick={() => setProjectsOpen((o) => !o)}
           >
             <span>최근 프로젝트</span>
@@ -86,8 +86,8 @@ export function Sidebar() {
                   key={p.id}
                   to={`/projects/${p.id}`}
                   className={cn(
-                    'flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-zinc-500 font-medium hover:bg-zinc-50 hover:text-zinc-800 transition-colors',
-                    location.pathname === `/projects/${p.id}` && 'bg-zinc-50 text-zinc-900',
+                    'flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-zinc-500 dark:text-zinc-400 font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:text-zinc-800 dark:hover:text-zinc-100 transition-colors',
+                    location.pathname === `/projects/${p.id}` && 'bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50',
                   )}
                 >
                   <span
@@ -98,7 +98,7 @@ export function Sidebar() {
                 </NavLink>
               ))}
               <button
-                className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-zinc-400 font-medium hover:bg-zinc-50 hover:text-zinc-700 w-full transition-colors"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-zinc-400 dark:text-zinc-500 font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:text-zinc-700 dark:hover:text-zinc-300 w-full transition-colors"
                 onClick={() => navigate('/projects')}
               >
                 <Plus size={12} />
@@ -111,7 +111,7 @@ export function Sidebar() {
 
       {/* User Profile */}
       {currentUser && (
-        <div className="px-3 py-3 border-t border-zinc-100 space-y-0.5">
+        <div className="px-3 py-3 border-t border-zinc-100 dark:border-zinc-700 space-y-0.5">
           {(currentUser.role === 'owner' || currentUser.role === 'admin') && (
             <NavLink
               to="/admin"
@@ -131,7 +131,7 @@ export function Sidebar() {
               <Avatar name={currentUser.name} size="sm" />
               <div className="min-w-0">
                 <p className="text-xs font-semibold truncate">{currentUser.name}</p>
-                <p className="text-[10px] text-zinc-400 truncate" title={currentUser.email}>{currentUser.email}</p>
+                <p className="text-[10px] text-zinc-400 dark:text-zinc-500 truncate" title={currentUser.email}>{currentUser.email}</p>
               </div>
             </div>
             <Settings size={13} className="flex-shrink-0 opacity-40" />

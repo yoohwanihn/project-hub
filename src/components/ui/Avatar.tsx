@@ -26,14 +26,14 @@ export function Avatar({ name, src, size = 'md', className }: AvatarProps) {
       <img
         src={src}
         alt={name}
-        className={cn('rounded-full object-cover ring-2 ring-white', SIZE[size], className)}
+        className={cn('rounded-full object-cover ring-2 ring-white dark:ring-zinc-800', SIZE[size], className)}
       />
     );
   }
   return (
     <span
       className={cn(
-        'inline-flex items-center justify-center rounded-full font-semibold text-white ring-2 ring-white flex-shrink-0',
+        'inline-flex items-center justify-center rounded-full font-semibold text-white ring-2 ring-white dark:ring-zinc-800 flex-shrink-0',
         colorFromName(name), SIZE[size], className,
       )}
       title={name}
@@ -59,7 +59,7 @@ export function AvatarGroup({ users, max = 3, size = 'sm' }: AvatarGroupProps) {
       ))}
       {rest > 0 && (
         <span className={cn(
-          'inline-flex items-center justify-center rounded-full bg-zinc-200 text-zinc-600 font-semibold ring-2 ring-white',
+          'inline-flex items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-600 text-zinc-600 dark:text-zinc-200 font-semibold ring-2 ring-white dark:ring-zinc-800',
           SIZE[size],
         )}>
           +{rest}

@@ -171,7 +171,7 @@ export function ProjectModal({ open, onClose, project }: ProjectModalProps) {
       }
     >
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-zinc-100 -mx-6 px-6 mb-5">
+      <div className="flex gap-1 border-b border-zinc-100 dark:border-zinc-700 -mx-6 px-6 mb-5">
         {TABS.map(({ id, label }) => (
           <button
             key={id}
@@ -179,8 +179,8 @@ export function ProjectModal({ open, onClose, project }: ProjectModalProps) {
             className={cn(
               'px-3 py-2 text-xs font-semibold border-b-2 -mb-px transition-colors',
               tab === id
-                ? 'border-zinc-800 text-zinc-900'
-                : 'border-transparent text-zinc-500 hover:text-zinc-700',
+                ? 'border-zinc-800 dark:border-zinc-200 text-zinc-900 dark:text-zinc-50'
+                : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200',
             )}
             onClick={() => setTab(id)}
           >
@@ -202,7 +202,7 @@ export function ProjectModal({ open, onClose, project }: ProjectModalProps) {
                 {name.charAt(0) || 'P'}
               </div>
               <div className="flex-1">
-                <label className="block text-xs font-semibold text-zinc-600 mb-1">프로젝트명 *</label>
+                <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1">프로젝트명 *</label>
                 <input
                   className="input"
                   value={name}
@@ -215,7 +215,7 @@ export function ProjectModal({ open, onClose, project }: ProjectModalProps) {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-600 mb-1">설명</label>
+              <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1">설명</label>
               <textarea
                 className="input resize-none"
                 rows={2}
@@ -226,13 +226,13 @@ export function ProjectModal({ open, onClose, project }: ProjectModalProps) {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-600 mb-2">프로젝트 색상</label>
+              <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-2">프로젝트 색상</label>
               <ColorPicker value={color} onChange={setColor} />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-zinc-600 mb-1">시작일 *</label>
+                <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1">시작일 *</label>
                 <input
                   type="date"
                   className="input"
@@ -241,7 +241,7 @@ export function ProjectModal({ open, onClose, project }: ProjectModalProps) {
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-zinc-600 mb-1">마감일 *</label>
+                <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1">마감일 *</label>
                 <input
                   type="date"
                   className="input"
@@ -257,7 +257,7 @@ export function ProjectModal({ open, onClose, project }: ProjectModalProps) {
         {/* Workflow tab */}
         {tab === 'workflow' && (
           <div>
-            <p className="text-xs text-zinc-500 mb-4">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-4">
               업무 상태 컬럼을 원하는 대로 추가하거나 이름과 색상을 변경할 수 있습니다.
               최소 2개, 최대 8개까지 설정 가능합니다.
             </p>
@@ -269,7 +269,7 @@ export function ProjectModal({ open, onClose, project }: ProjectModalProps) {
         {tab === 'members' && (
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-zinc-600 mb-2">팀원 추가</label>
+              <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-2">팀원 추가</label>
               <MultiSelect
                 options={userOptions}
                 value={memberIds}
@@ -283,15 +283,15 @@ export function ProjectModal({ open, onClose, project }: ProjectModalProps) {
                 const u = users[uid];
                 if (!u) return null;
                 return (
-                  <div key={uid} className="flex items-center gap-3 p-3 rounded-xl bg-zinc-50 border border-zinc-100">
+                  <div key={uid} className="flex items-center gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700">
                     <Avatar name={u.name} size="sm" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-zinc-700">{u.name}</p>
-                      <p className="text-xs text-zinc-400">{u.email}</p>
+                      <p className="text-sm font-medium text-zinc-700 dark:text-zinc-200">{u.name}</p>
+                      <p className="text-xs text-zinc-400 dark:text-zinc-500">{u.email}</p>
                     </div>
                     <span className={cn(
                       'badge',
-                      idx === 0 ? 'bg-zinc-100 text-zinc-900' : 'bg-zinc-100 text-zinc-600',
+                      idx === 0 ? 'bg-zinc-100 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-50' : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300',
                     )}>
                       {idx === 0 ? '소유자' : '멤버'}
                     </span>

@@ -84,7 +84,7 @@ export function PollCreateModal({ open, projectId, authorId, onClose, onSubmit }
       <form id="poll-form" onSubmit={handleSubmit} className="space-y-4">
         {/* 제목 */}
         <div>
-          <label className="block text-xs font-semibold text-zinc-600 mb-1">제목 *</label>
+          <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1">제목 *</label>
           <input
             className="input"
             placeholder="투표 제목을 입력하세요"
@@ -96,7 +96,7 @@ export function PollCreateModal({ open, projectId, authorId, onClose, onSubmit }
 
         {/* 설명 */}
         <div>
-          <label className="block text-xs font-semibold text-zinc-600 mb-1">설명</label>
+          <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1">설명</label>
           <textarea
             className="input resize-none"
             rows={2}
@@ -108,13 +108,13 @@ export function PollCreateModal({ open, projectId, authorId, onClose, onSubmit }
 
         {/* 선택지 */}
         <div>
-          <label className="block text-xs font-semibold text-zinc-600 mb-2">
-            선택지 * <span className="font-normal text-zinc-400">({options.length}/10)</span>
+          <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-2">
+            선택지 * <span className="font-normal text-zinc-400 dark:text-zinc-500">({options.length}/10)</span>
           </label>
           <div className="space-y-2">
             {options.map((opt, idx) => (
               <div key={opt.id} className="flex items-center gap-2">
-                <span className="text-xs text-zinc-400 w-4 text-right">{idx + 1}</span>
+                <span className="text-xs text-zinc-400 dark:text-zinc-500 w-4 text-right">{idx + 1}</span>
                 <input
                   className="input flex-1"
                   placeholder={`선택지 ${idx + 1}`}
@@ -146,8 +146,8 @@ export function PollCreateModal({ open, projectId, authorId, onClose, onSubmit }
 
         {/* 옵션 설정 */}
         <div className="grid grid-cols-2 gap-3 pt-1">
-          <div className="p-3 rounded-lg border border-zinc-200 bg-zinc-50">
-            <p className="text-xs font-semibold text-zinc-700 mb-2">선택 방식</p>
+          <div className="p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800">
+            <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200 mb-2">선택 방식</p>
             <div className="flex gap-3">
               {([false, true] as const).map((v) => (
                 <label key={String(v)} className="flex items-center gap-1.5 cursor-pointer">
@@ -158,14 +158,14 @@ export function PollCreateModal({ open, projectId, authorId, onClose, onSubmit }
                     onChange={() => setIsMultiple(v)}
                     className="accent-zinc-900"
                   />
-                  <span className="text-xs text-zinc-600">{v ? '복수 선택' : '단일 선택'}</span>
+                  <span className="text-xs text-zinc-600 dark:text-zinc-300">{v ? '복수 선택' : '단일 선택'}</span>
                 </label>
               ))}
             </div>
           </div>
 
-          <div className="p-3 rounded-lg border border-zinc-200 bg-zinc-50">
-            <p className="text-xs font-semibold text-zinc-700 mb-2">결과 공개</p>
+          <div className="p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800">
+            <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200 mb-2">결과 공개</p>
             <div className="flex gap-3">
               {([true, false] as const).map((v) => (
                 <label key={String(v)} className="flex items-center gap-1.5 cursor-pointer">
@@ -176,7 +176,7 @@ export function PollCreateModal({ open, projectId, authorId, onClose, onSubmit }
                     onChange={() => setShowBefore(v)}
                     className="accent-zinc-900"
                   />
-                  <span className="text-xs text-zinc-600">{v ? '실시간' : '마감 후'}</span>
+                  <span className="text-xs text-zinc-600 dark:text-zinc-300">{v ? '실시간' : '마감 후'}</span>
                 </label>
               ))}
             </div>
@@ -185,8 +185,8 @@ export function PollCreateModal({ open, projectId, authorId, onClose, onSubmit }
 
         {/* 마감일 */}
         <div>
-          <label className="block text-xs font-semibold text-zinc-600 mb-1">
-            마감일 <span className="font-normal text-zinc-400">(선택)</span>
+          <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1">
+            마감일 <span className="font-normal text-zinc-400 dark:text-zinc-500">(선택)</span>
           </label>
           <div className="flex items-center gap-2">
             <input

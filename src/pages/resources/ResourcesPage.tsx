@@ -4,10 +4,12 @@ import { Header }    from '../../components/layout/Header';
 import { Avatar }    from '../../components/ui/Avatar';
 import { ProgressBar } from '../../components/ui/ProgressBar';
 import { useAppStore } from '../../store/useAppStore';
+import { useUIStore }  from '../../store/useUIStore';
 import { cn }          from '../../lib/utils';
 
 // ── Mini bar chart (SVG) ──────────────────────────────────────────
 function MiniBarChart({ data, color = '#52525b' }: { data: { label: string; value: number }[]; color?: string }) {
+  const isDark = useUIStore(s => s.isDark);
   const max = Math.max(1, ...data.map((d) => d.value));
   const W = 240, H = 60, barW = Math.floor((W - (data.length - 1) * 4) / data.length);
 
@@ -19,12 +21,12 @@ function MiniBarChart({ data, color = '#52525b' }: { data: { label: string; valu
         const y = H - barH;
         return (
           <g key={d.label}>
-            <rect x={x} y={y} width={barW} height={barH} rx="2" fill={color} opacity="0.8" />
-            <text x={x + barW / 2} y={H + 13} textAnchor="middle" fontSize="8" fill="#94a3b8">
+            <rect x={x} y={y} width={barW} height={barH} rx="2" fill={isDark ? '#a1a1aa' : color} opacity="0.8" />
+            <text x={x + barW / 2} y={H + 13} textAnchor="middle" fontSize="8" fill={isDark ? '#71717a' : '#94a3b8'}>
               {d.label}
             </text>
             {d.value > 0 && (
-              <text x={x + barW / 2} y={y - 2} textAnchor="middle" fontSize="8" fill="#64748b" fontWeight="600">
+              <text x={x + barW / 2} y={y - 2} textAnchor="middle" fontSize="8" fill={isDark ? '#a1a1aa' : '#64748b'} fontWeight="600">
                 {d.value}
               </text>
             )}
@@ -50,7 +52,6 @@ export function ResourcesPage() {
 
   const [viewProjectId, setViewProjectId] = useState(selectedProjectId);
 
-  // 전역 선택 프로젝트 변경 시 동기화
   useEffect(() => {
     if (selectedProjectId && selectedProjectId !== viewProjectId) {
       setViewProjectId(selectedProjectId);
@@ -60,7 +61,6 @@ export function ResourcesPage() {
   const allTasks  = useMemo(() => Object.values(allTasksMap).filter((t) => t.projectId === viewProjectId), [allTasksMap, viewProjectId]);
   const allLogs   = useMemo(() => Object.values(allWorkLogsMap), [allWorkLogsMap]);
 
-  // ── Per-member stats ─────────────────────────────────────────
   const memberStats = useMemo(() => {
     return (project?.members ?? []).map((member) => {
       const myTasks   = allTasks.filter((t) => t.assigneeIds.includes(member.id));
@@ -68,7 +68,6 @@ export function ResourcesPage() {
       const done      = myTasks.filter((t) => t.statusId === 'done');
       const taskIds   = new Set(myTasks.map((t) => t.id));
       const myLogs    = allLogs.filter((l) => taskIds.has(l.taskId) && l.userId === member.id);
-      // workLogs는 세션 내 임시 데이터 → task.loggedHours(DB 저장값) 우선 사용
       const loggedH   = myLogs.length > 0
         ? parseFloat(myLogs.reduce((s, l) => s + l.hours, 0).toFixed(1))
         : parseFloat(myTasks.reduce((s, t) => s + (t.loggedHours ?? 0), 0).toFixed(1));
@@ -79,7 +78,6 @@ export function ResourcesPage() {
     });
   }, [project, allTasks, allLogs]);
 
-  // ── Project-level time summary ────────────────────────────────
   const projectTimeSummary = useMemo(() => {
     return projectList.map((p) => {
       const pts    = Object.values(allTasksMap).filter((t) => t.projectId === p.id);
@@ -94,7 +92,6 @@ export function ResourcesPage() {
     });
   }, [projectList, allTasksMap, allWorkLogsMap]);
 
-  // ── Weekly log breakdown (last 7 days) ───────────────────────
   const weeklyLogs = useMemo(() => {
     const today = new Date();
     return Array.from({ length: 7 }, (_, i) => {
@@ -108,7 +105,6 @@ export function ResourcesPage() {
     });
   }, [allLogs]);
 
-  // ── Task status breakdown for selected project ────────────────
   const statusBreakdown = useMemo(() => {
     const wf = project?.workflow ?? [];
     return wf.map((w) => ({
@@ -144,18 +140,18 @@ export function ResourcesPage() {
         {/* ── 상단 요약 카드 ────────────────────────────────── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: '전체 업무', value: allTasks.length, icon: BarChart2, color: 'text-zinc-600', bg: 'bg-zinc-100' },
-            { label: '진행 중',   value: allTasks.filter(t => t.statusId !== 'done').length, icon: Clock,       color: 'text-zinc-700',   bg: 'bg-zinc-100' },
-            { label: '완료',      value: allTasks.filter(t => t.statusId === 'done').length, icon: CheckCircle2, color: 'text-zinc-700', bg: 'bg-zinc-50' },
-            { label: '기록 시간', value: `${totalLogged}h`, icon: TrendingUp, color: 'text-zinc-600',  bg: 'bg-zinc-100' },
+            { label: '전체 업무', value: allTasks.length, icon: BarChart2, color: 'text-zinc-600 dark:text-zinc-300', bg: 'bg-zinc-100 dark:bg-zinc-700' },
+            { label: '진행 중',   value: allTasks.filter(t => t.statusId !== 'done').length, icon: Clock,       color: 'text-zinc-700 dark:text-zinc-200',   bg: 'bg-zinc-100 dark:bg-zinc-700' },
+            { label: '완료',      value: allTasks.filter(t => t.statusId === 'done').length, icon: CheckCircle2, color: 'text-zinc-700 dark:text-zinc-200', bg: 'bg-zinc-50 dark:bg-zinc-800' },
+            { label: '기록 시간', value: `${totalLogged}h`, icon: TrendingUp, color: 'text-zinc-600 dark:text-zinc-300',  bg: 'bg-zinc-100 dark:bg-zinc-700' },
           ].map(({ label, value, icon: Icon, color, bg }) => (
             <div key={label} className="card p-4 flex items-center gap-3">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${bg}`}>
                 <Icon size={18} className={color} />
               </div>
               <div>
-                <p className="text-2xl font-bold text-zinc-900">{value}</p>
-                <p className="text-xs text-zinc-500">{label}</p>
+                <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{value}</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">{label}</p>
               </div>
             </div>
           ))}
@@ -165,13 +161,13 @@ export function ResourcesPage() {
 
           {/* ── 팀원별 업무 현황 ─────────────────────────────── */}
           <div className="lg:col-span-2 card overflow-hidden">
-            <div className="px-5 py-4 border-b border-zinc-100 flex items-center gap-2">
-              <Users size={14} className="text-zinc-400" />
-              <h2 className="text-sm font-bold text-zinc-800">팀원별 업무 현황</h2>
+            <div className="px-5 py-4 border-b border-zinc-100 dark:border-zinc-700 flex items-center gap-2">
+              <Users size={14} className="text-zinc-400 dark:text-zinc-500" />
+              <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-100">팀원별 업무 현황</h2>
             </div>
-            <div className="divide-y divide-zinc-50">
+            <div className="divide-y divide-zinc-50 dark:divide-zinc-800">
               {memberStats.length === 0 && (
-                <p className="text-xs text-zinc-400 text-center py-8">팀원이 없습니다.</p>
+                <p className="text-xs text-zinc-400 dark:text-zinc-500 text-center py-8">팀원이 없습니다.</p>
               )}
               {memberStats.map(({ member, total, active, done, loggedH, estimatedH, completionRate, isOverloaded }) => (
                 <div key={member.id} className="px-5 py-4">
@@ -179,48 +175,46 @@ export function ResourcesPage() {
                     <Avatar name={member.name} size="sm" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="text-sm font-semibold text-zinc-800">{member.name}</p>
+                        <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{member.name}</p>
                         {isOverloaded && (
-                          <span className="flex items-center gap-0.5 text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded-full">
+                          <span className="flex items-center gap-0.5 text-[10px] font-bold text-red-500 bg-red-50 dark:bg-red-900/20 px-1.5 py-0.5 rounded-full">
                             <AlertTriangle size={9} /> 과부하
                           </span>
                         )}
-                        <span className="text-[11px] text-zinc-400 capitalize">{member.role}</span>
+                        <span className="text-[11px] text-zinc-400 dark:text-zinc-500 capitalize">{member.role}</span>
                       </div>
-                      <p className="text-xs text-zinc-400 mt-0.5">
-                        전체 {total}개 · 진행 <span className="text-zinc-700 font-medium">{active}</span>개 · 완료 <span className="text-zinc-700 font-medium">{done}</span>개
+                      <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
+                        전체 {total}개 · 진행 <span className="text-zinc-700 dark:text-zinc-300 font-medium">{active}</span>개 · 완료 <span className="text-zinc-700 dark:text-zinc-300 font-medium">{done}</span>개
                       </p>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <p className="text-sm font-bold text-zinc-800">{loggedH}h</p>
-                      <p className="text-xs text-zinc-400">{estimatedH > 0 ? `/ ${estimatedH}h 예상` : '시간 미설정'}</p>
+                      <p className="text-sm font-bold text-zinc-800 dark:text-zinc-100">{loggedH}h</p>
+                      <p className="text-xs text-zinc-400 dark:text-zinc-500">{estimatedH > 0 ? `/ ${estimatedH}h 예상` : '시간 미설정'}</p>
                     </div>
                   </div>
 
-                  {/* Task progress bar */}
                   <div className="flex items-center gap-3">
-                    <div className="flex-1 h-2 bg-zinc-100 rounded-full overflow-hidden">
+                    <div className="flex-1 h-2 bg-zinc-100 dark:bg-zinc-700 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-zinc-700 rounded-full transition-all"
+                        className="h-full bg-zinc-700 dark:bg-zinc-300 rounded-full transition-all"
                         style={{ width: `${completionRate}%` }}
                       />
                     </div>
-                    <span className="text-xs text-zinc-500 w-8 text-right flex-shrink-0">{completionRate}%</span>
+                    <span className="text-xs text-zinc-500 dark:text-zinc-400 w-8 text-right flex-shrink-0">{completionRate}%</span>
                   </div>
 
-                  {/* Time usage bar */}
                   {estimatedH > 0 && (
                     <div className="flex items-center gap-3 mt-1.5">
-                      <div className="flex-1 h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+                      <div className="flex-1 h-1.5 bg-zinc-100 dark:bg-zinc-700 rounded-full overflow-hidden">
                         <div
                           className={cn(
                             'h-full rounded-full transition-all',
-                            loggedH > estimatedH ? 'bg-red-400' : 'bg-zinc-700',
+                            loggedH > estimatedH ? 'bg-red-400' : 'bg-zinc-700 dark:bg-zinc-300',
                           )}
                           style={{ width: `${Math.min(100, Math.round((loggedH / estimatedH) * 100))}%` }}
                         />
                       </div>
-                      <span className="text-xs text-zinc-400 w-8 text-right flex-shrink-0">
+                      <span className="text-xs text-zinc-400 dark:text-zinc-500 w-8 text-right flex-shrink-0">
                         {Math.round((loggedH / estimatedH) * 100)}%
                       </span>
                     </div>
@@ -232,34 +226,32 @@ export function ResourcesPage() {
 
           {/* ── 우측 컬럼 ────────────────────────────────────── */}
           <div className="space-y-4">
-            {/* 주간 시간 기록 */}
             <div className="card p-4">
               <div className="flex items-center gap-2 mb-3">
-                <Clock size={14} className="text-zinc-700" />
-                <h3 className="text-sm font-bold text-zinc-800">주간 시간 기록</h3>
-                <span className="ml-auto text-xs text-zinc-400">최근 7일</span>
+                <Clock size={14} className="text-zinc-700 dark:text-zinc-300" />
+                <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-100">주간 시간 기록</h3>
+                <span className="ml-auto text-xs text-zinc-400 dark:text-zinc-500">최근 7일</span>
               </div>
               <MiniBarChart data={weeklyLogs} color="#52525b" />
-              <div className="mt-2 flex justify-between text-xs text-zinc-400">
-                <span>총 <span className="font-semibold text-zinc-700">{weeklyLogs.reduce((s, d) => s + d.value, 0)}h</span></span>
-                <span>일평균 <span className="font-semibold text-zinc-700">
+              <div className="mt-2 flex justify-between text-xs text-zinc-400 dark:text-zinc-500">
+                <span>총 <span className="font-semibold text-zinc-700 dark:text-zinc-300">{weeklyLogs.reduce((s, d) => s + d.value, 0)}h</span></span>
+                <span>일평균 <span className="font-semibold text-zinc-700 dark:text-zinc-300">
                   {(weeklyLogs.reduce((s, d) => s + d.value, 0) / 7).toFixed(1)}h
                 </span></span>
               </div>
             </div>
 
-            {/* 업무 상태 분포 */}
             <div className="card p-4">
               <div className="flex items-center gap-2 mb-4">
-                <BarChart2 size={14} className="text-zinc-400" />
-                <h3 className="text-sm font-bold text-zinc-800">업무 상태 분포</h3>
+                <BarChart2 size={14} className="text-zinc-400 dark:text-zinc-500" />
+                <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-100">업무 상태 분포</h3>
               </div>
               <div className="space-y-2.5">
                 {statusBreakdown.map((w) => (
                   <div key={w.id} className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: w.color }} />
-                    <span className="text-xs text-zinc-600 flex-1 truncate">{w.label}</span>
-                    <div className="w-20 h-2 bg-zinc-100 rounded-full overflow-hidden">
+                    <span className="text-xs text-zinc-600 dark:text-zinc-300 flex-1 truncate">{w.label}</span>
+                    <div className="w-20 h-2 bg-zinc-100 dark:bg-zinc-700 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full"
                         style={{
@@ -268,27 +260,26 @@ export function ResourcesPage() {
                         }}
                       />
                     </div>
-                    <span className="text-xs font-semibold text-zinc-700 w-4 text-right flex-shrink-0">{w.count}</span>
+                    <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 w-4 text-right flex-shrink-0">{w.count}</span>
                   </div>
                 ))}
               </div>
 
-              {/* Time usage overall */}
               {totalEstimated > 0 && (
-                <div className="mt-4 pt-4 border-t border-zinc-100">
+                <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-700">
                   <div className="flex justify-between text-xs mb-1.5">
-                    <span className="text-zinc-500">전체 시간 사용률</span>
-                    <span className={cn('font-bold', timePct >= 100 ? 'text-red-500' : 'text-zinc-700')}>
+                    <span className="text-zinc-500 dark:text-zinc-400">전체 시간 사용률</span>
+                    <span className={cn('font-bold', timePct >= 100 ? 'text-red-500' : 'text-zinc-700 dark:text-zinc-300')}>
                       {totalLogged}h / {totalEstimated}h
                     </span>
                   </div>
-                  <div className="h-2 bg-zinc-100 rounded-full overflow-hidden">
+                  <div className="h-2 bg-zinc-100 dark:bg-zinc-700 rounded-full overflow-hidden">
                     <div
-                      className={cn('h-full rounded-full', timePct >= 100 ? 'bg-red-400' : timePct >= 80 ? 'bg-zinc-400' : 'bg-zinc-700')}
+                      className={cn('h-full rounded-full', timePct >= 100 ? 'bg-red-400' : timePct >= 80 ? 'bg-zinc-400' : 'bg-zinc-700 dark:bg-zinc-300')}
                       style={{ width: `${Math.min(100, timePct)}%` }}
                     />
                   </div>
-                  <p className="text-xs text-zinc-400 mt-1 text-right">{timePct}% 사용</p>
+                  <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1 text-right">{timePct}% 사용</p>
                 </div>
               )}
             </div>
@@ -297,45 +288,45 @@ export function ResourcesPage() {
 
         {/* ── 프로젝트별 시간 리포트 ───────────────────────── */}
         <div className="card overflow-hidden">
-          <div className="px-5 py-4 border-b border-zinc-100 flex items-center gap-2">
-            <TrendingUp size={14} className="text-zinc-400" />
-            <h2 className="text-sm font-bold text-zinc-800">프로젝트별 시간 리포트</h2>
+          <div className="px-5 py-4 border-b border-zinc-100 dark:border-zinc-700 flex items-center gap-2">
+            <TrendingUp size={14} className="text-zinc-400 dark:text-zinc-500" />
+            <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-100">프로젝트별 시간 리포트</h2>
           </div>
           <table className="w-full">
             <thead>
-              <tr className="border-b border-zinc-100 bg-zinc-50">
+              <tr className="border-b border-zinc-100 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800">
                 {['프로젝트', '업무 수', '진행률', '기록 시간', '예상 시간', '시간 사용률'].map((h) => (
-                  <th key={h} className="text-left text-xs font-semibold text-zinc-500 px-5 py-3">{h}</th>
+                  <th key={h} className="text-left text-xs font-semibold text-zinc-500 dark:text-zinc-400 px-5 py-3">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-50">
+            <tbody className="divide-y divide-zinc-50 dark:divide-zinc-800">
               {projectTimeSummary.map(({ project: p, loggedH, estimatedH, progress, taskCount }) => {
                 const pct = estimatedH > 0 ? Math.round((loggedH / estimatedH) * 100) : null;
                 return (
-                  <tr key={p.id} className="hover:bg-zinc-50 transition-colors">
+                  <tr key={p.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-2">
                         <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: p.color }} />
-                        <span className="text-sm font-medium text-zinc-800">{p.name}</span>
+                        <span className="text-sm font-medium text-zinc-800 dark:text-zinc-100">{p.name}</span>
                       </div>
                     </td>
-                    <td className="px-5 py-3.5 text-xs text-zinc-600">{taskCount}개</td>
+                    <td className="px-5 py-3.5 text-xs text-zinc-600 dark:text-zinc-400">{taskCount}개</td>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-2">
                         <ProgressBar value={progress} color={p.color} className="w-20" />
-                        <span className="text-xs text-zinc-500">{progress}%</span>
+                        <span className="text-xs text-zinc-500 dark:text-zinc-400">{progress}%</span>
                       </div>
                     </td>
-                    <td className="px-5 py-3.5 text-xs font-semibold text-zinc-800">{loggedH}h</td>
-                    <td className="px-5 py-3.5 text-xs text-zinc-500">{estimatedH > 0 ? `${estimatedH}h` : '—'}</td>
+                    <td className="px-5 py-3.5 text-xs font-semibold text-zinc-800 dark:text-zinc-100">{loggedH}h</td>
+                    <td className="px-5 py-3.5 text-xs text-zinc-500 dark:text-zinc-400">{estimatedH > 0 ? `${estimatedH}h` : '—'}</td>
                     <td className="px-5 py-3.5">
                       {pct !== null ? (
-                        <span className={cn('text-xs font-semibold', pct >= 100 ? 'text-red-500' : 'text-zinc-700')}>
+                        <span className={cn('text-xs font-semibold', pct >= 100 ? 'text-red-500' : 'text-zinc-700 dark:text-zinc-300')}>
                           {pct}%
                         </span>
                       ) : (
-                        <span className="text-xs text-zinc-300">—</span>
+                        <span className="text-xs text-zinc-300 dark:text-zinc-600">—</span>
                       )}
                     </td>
                   </tr>

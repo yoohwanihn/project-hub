@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAuth } from './hooks/useAuth';
+import { useUIStore } from './store/useUIStore';
 import { AppLayout } from './components/layout/AppLayout';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { ToastContainer } from './components/ui/Toast';
@@ -27,7 +29,7 @@ function AppRoutes() {
 
   if (initializing) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-zinc-50">
+      <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 rounded-2xl bg-zinc-900 flex items-center justify-center shadow-sm">
             <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
@@ -79,9 +81,18 @@ function AppRoutes() {
   );
 }
 
+function ThemeApplier() {
+  const isDark = useUIStore(s => s.isDark);
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDark);
+  }, [isDark]);
+  return null;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
+      <ThemeApplier />
       <AppRoutes />
       <ToastContainer />
     </BrowserRouter>

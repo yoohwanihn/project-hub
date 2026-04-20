@@ -104,15 +104,15 @@ function ConnectScreen({ onConnect }: { onConnect: () => void }) {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto flex flex-col items-center justify-start bg-zinc-50 p-6 gap-4">
+    <div className="flex-1 overflow-y-auto flex flex-col items-center justify-start bg-zinc-50 dark:bg-zinc-950 p-6 gap-4">
 
       {/* 연결 카드 */}
       <div className="card p-8 w-full max-w-md text-center">
-        <div className="w-14 h-14 rounded-2xl bg-zinc-900 flex items-center justify-center mx-auto mb-4">
-          <Mail size={24} className="text-white" />
+        <div className="w-14 h-14 rounded-2xl bg-zinc-900 dark:bg-white flex items-center justify-center mx-auto mb-4">
+          <Mail size={24} className="text-white dark:text-zinc-900" />
         </div>
-        <h2 className="text-base font-bold text-zinc-900 mb-1">Daum 메일 연결</h2>
-        <p className="text-xs text-zinc-500 mb-5">
+        <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-50 mb-1">Daum 메일 연결</h2>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-5">
           Daum 메일 주소와 앱 비밀번호를 입력하세요.
         </p>
 
@@ -125,7 +125,7 @@ function ConnectScreen({ onConnect }: { onConnect: () => void }) {
 
         <div className="space-y-2.5 mb-3 text-left">
           <div>
-            <label className="block text-xs font-semibold text-zinc-500 mb-1">Daum 메일 주소</label>
+            <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1">Daum 메일 주소</label>
             <input
               type="email"
               className="input"
@@ -136,7 +136,7 @@ function ConnectScreen({ onConnect }: { onConnect: () => void }) {
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-zinc-500 mb-1">앱 비밀번호</label>
+            <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1">앱 비밀번호</label>
             <div className="relative">
               <input
                 type={show ? 'text' : 'password'}
@@ -161,7 +161,7 @@ function ConnectScreen({ onConnect }: { onConnect: () => void }) {
           {loading ? <><Loader2 size={14} className="animate-spin" /> 연결 중...</> : '연결하기'}
         </button>
 
-        <p className="text-[11px] text-zinc-400 mt-4">
+        <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-4">
           입력한 정보는 암호화되어 안전하게 저장됩니다.
         </p>
       </div>
@@ -169,16 +169,16 @@ function ConnectScreen({ onConnect }: { onConnect: () => void }) {
       {/* 가이드 아코디언 */}
       <div className="card w-full max-w-md overflow-hidden">
         <button
-          className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-zinc-50 transition-colors"
+          className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
           onClick={() => setGuideOpen((v) => !v)}
         >
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-zinc-100 flex items-center justify-center">
-              <Key size={13} className="text-zinc-600" />
+            <div className="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-700 flex items-center justify-center">
+              <Key size={13} className="text-zinc-600 dark:text-zinc-300" />
             </div>
             <div>
-              <p className="text-sm font-bold text-zinc-800">앱 비밀번호 설정 방법</p>
-              <p className="text-xs text-zinc-400">처음 사용하신다면 여기를 확인하세요</p>
+              <p className="text-sm font-bold text-zinc-800 dark:text-zinc-100">앱 비밀번호 설정 방법</p>
+              <p className="text-xs text-zinc-400 dark:text-zinc-500">처음 사용하신다면 여기를 확인하세요</p>
             </div>
           </div>
           {guideOpen
@@ -188,7 +188,7 @@ function ConnectScreen({ onConnect }: { onConnect: () => void }) {
         </button>
 
         {guideOpen && (
-          <div className="px-5 pb-5 border-t border-zinc-100">
+          <div className="px-5 pb-5 border-t border-zinc-100 dark:border-zinc-700">
             <div className="space-y-4 pt-4">
               {GUIDE_STEPS.map((step, i) => {
                 const Icon = step.icon;
@@ -196,20 +196,20 @@ function ConnectScreen({ onConnect }: { onConnect: () => void }) {
                   <div key={i} className="flex gap-3.5">
                     {/* 스텝 번호 + 선 */}
                     <div className="flex flex-col items-center gap-1 shrink-0">
-                      <div className="w-7 h-7 rounded-full bg-zinc-900 text-white flex items-center justify-center text-xs font-bold">
+                      <div className="w-7 h-7 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 flex items-center justify-center text-xs font-bold">
                         {i + 1}
                       </div>
                       {i < GUIDE_STEPS.length - 1 && (
-                        <div className="w-px flex-1 bg-zinc-100 min-h-[16px]" />
+                        <div className="w-px flex-1 bg-zinc-100 dark:bg-zinc-700 min-h-[16px]" />
                       )}
                     </div>
                     {/* 내용 */}
                     <div className="pb-2">
                       <div className="flex items-center gap-1.5 mb-0.5">
-                        <Icon size={12} className="text-zinc-500" />
-                        <p className="text-xs font-bold text-zinc-800">{step.title}</p>
+                        <Icon size={12} className="text-zinc-500 dark:text-zinc-400" />
+                        <p className="text-xs font-bold text-zinc-800 dark:text-zinc-100">{step.title}</p>
                       </div>
-                      <p className="text-xs text-zinc-500 leading-relaxed">{step.desc}</p>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">{step.desc}</p>
                     </div>
                   </div>
                 );
@@ -221,7 +221,7 @@ function ConnectScreen({ onConnect }: { onConnect: () => void }) {
               href="https://mail.daum.net"
               target="_blank"
               rel="noreferrer"
-              className="mt-4 flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl border border-zinc-200 text-xs font-semibold text-zinc-600 hover:bg-zinc-50 transition-colors"
+              className="mt-4 flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs font-semibold text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
             >
               <ExternalLink size={12} /> Daum 메일 바로가기
             </a>
@@ -281,42 +281,42 @@ function ComposeModal({ onClose, defaultTo = '', defaultSubject = '', defaultBod
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-modal w-full max-w-2xl flex flex-col max-h-[85vh]">
+      <div className="relative bg-white dark:bg-zinc-900 rounded-2xl shadow-modal w-full max-w-2xl flex flex-col max-h-[85vh]">
         {/* header */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-zinc-100">
-          <h2 className="text-sm font-bold text-zinc-900">새 메일 작성</h2>
-          <button className="p-1.5 rounded-lg hover:bg-zinc-100 text-zinc-400" onClick={onClose}>
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-zinc-100 dark:border-zinc-700">
+          <h2 className="text-sm font-bold text-zinc-900 dark:text-zinc-50">새 메일 작성</h2>
+          <button className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-400" onClick={onClose}>
             <X size={15} />
           </button>
         </div>
 
         {/* fields */}
         <div className="px-5 pt-4 space-y-2.5">
-          <div className="flex items-center gap-3 border-b border-zinc-100 pb-2.5">
-            <span className="text-xs font-semibold text-zinc-400 w-10 shrink-0">받는 사람</span>
-            <input className="flex-1 text-sm outline-none text-zinc-800 placeholder:text-zinc-300"
+          <div className="flex items-center gap-3 border-b border-zinc-100 dark:border-zinc-700 pb-2.5">
+            <span className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 w-10 shrink-0">받는 사람</span>
+            <input className="flex-1 text-sm outline-none bg-transparent text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-300 dark:placeholder:text-zinc-600"
               placeholder="이메일 주소" value={to} onChange={(e) => setTo(e.target.value)} />
-            <button className="text-xs text-zinc-400 hover:text-zinc-600" onClick={() => setShowCc(v => !v)}>
+            <button className="text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300" onClick={() => setShowCc(v => !v)}>
               {showCc ? '숨기기' : 'CC 추가'}
             </button>
           </div>
           {showCc && (
-            <div className="flex items-center gap-3 border-b border-zinc-100 pb-2.5">
-              <span className="text-xs font-semibold text-zinc-400 w-10 shrink-0">CC</span>
-              <input className="flex-1 text-sm outline-none text-zinc-800 placeholder:text-zinc-300"
+            <div className="flex items-center gap-3 border-b border-zinc-100 dark:border-zinc-700 pb-2.5">
+              <span className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 w-10 shrink-0">CC</span>
+              <input className="flex-1 text-sm outline-none bg-transparent text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-300 dark:placeholder:text-zinc-600"
                 placeholder="참조 이메일" value={cc} onChange={(e) => setCc(e.target.value)} />
             </div>
           )}
-          <div className="flex items-center gap-3 border-b border-zinc-100 pb-2.5">
-            <span className="text-xs font-semibold text-zinc-400 w-10 shrink-0">제목</span>
-            <input className="flex-1 text-sm outline-none text-zinc-800 placeholder:text-zinc-300"
+          <div className="flex items-center gap-3 border-b border-zinc-100 dark:border-zinc-700 pb-2.5">
+            <span className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 w-10 shrink-0">제목</span>
+            <input className="flex-1 text-sm outline-none bg-transparent text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-300 dark:placeholder:text-zinc-600"
               placeholder="메일 제목" value={subject} onChange={(e) => setSubject(e.target.value)} />
           </div>
         </div>
 
         {/* body */}
         <textarea
-          className="flex-1 px-5 py-4 text-sm text-zinc-800 resize-none outline-none placeholder:text-zinc-300 min-h-48"
+          className="flex-1 px-5 py-4 text-sm bg-transparent text-zinc-800 dark:text-zinc-100 resize-none outline-none placeholder:text-zinc-300 dark:placeholder:text-zinc-600 min-h-48"
           placeholder="내용을 입력하세요..."
           value={body}
           onChange={(e) => setBody(e.target.value)}
@@ -324,13 +324,13 @@ function ComposeModal({ onClose, defaultTo = '', defaultSubject = '', defaultBod
 
         {/* 첨부파일 목록 */}
         {files.length > 0 && (
-          <div className="px-5 pb-3 flex flex-wrap gap-2 border-t border-zinc-100 pt-3">
+          <div className="px-5 pb-3 flex flex-wrap gap-2 border-t border-zinc-100 dark:border-zinc-700 pt-3">
             {files.map((f, i) => (
-              <div key={i} className="flex items-center gap-1.5 bg-zinc-100 rounded-lg px-2.5 py-1.5 text-xs text-zinc-700">
+              <div key={i} className="flex items-center gap-1.5 bg-zinc-100 dark:bg-zinc-700 rounded-lg px-2.5 py-1.5 text-xs text-zinc-700 dark:text-zinc-200">
                 <Paperclip size={11} className="text-zinc-400" />
                 <span className="max-w-[140px] truncate">{f.name}</span>
                 <span className="text-zinc-400">({formatBytes(f.size)})</span>
-                <button onClick={() => removeFile(i)} className="ml-1 text-zinc-400 hover:text-zinc-700">
+                <button onClick={() => removeFile(i)} className="ml-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200">
                   <X size={11} />
                 </button>
               </div>
@@ -339,7 +339,7 @@ function ComposeModal({ onClose, defaultTo = '', defaultSubject = '', defaultBod
         )}
 
         {/* footer */}
-        <div className="flex items-center justify-between gap-2 px-5 py-3.5 border-t border-zinc-100 bg-zinc-50 rounded-b-2xl">
+        <div className="flex items-center justify-between gap-2 px-5 py-3.5 border-t border-zinc-100 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 rounded-b-2xl">
           <div>
             <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileChange} />
             <button className="btn-ghost text-xs gap-1.5" onClick={() => fileInputRef.current?.click()}>
@@ -384,7 +384,7 @@ function MessageView({ uid, folder, onClose, onReply }: {
   return (
     <div className="flex flex-col h-full">
       {/* toolbar */}
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-zinc-100 shrink-0">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-zinc-100 dark:border-zinc-700 shrink-0">
         <button className="btn-ghost gap-1.5 text-xs" onClick={onClose}>
           <ArrowLeft size={13} /> 목록
         </button>
@@ -400,12 +400,12 @@ function MessageView({ uid, folder, onClose, onReply }: {
 
       {/* content */}
       <div className="flex-1 overflow-y-auto px-6 py-5">
-        <h1 className="text-base font-bold text-zinc-900 mb-4">{mail.subject}</h1>
-        <div className="space-y-1.5 text-xs text-zinc-500 mb-6 pb-6 border-b border-zinc-100">
-          <p><span className="font-semibold text-zinc-600 w-10 inline-block">보낸이</span> {addrStr(mail.from)}</p>
-          <p><span className="font-semibold text-zinc-600 w-10 inline-block">받는이</span> {mail.to.map(addrStr).join(', ')}</p>
-          {mail.cc.length > 0 && <p><span className="font-semibold text-zinc-600 w-10 inline-block">CC</span> {mail.cc.map(addrStr).join(', ')}</p>}
-          <p><span className="font-semibold text-zinc-600 w-10 inline-block">날짜</span>
+        <h1 className="text-base font-bold text-zinc-900 dark:text-zinc-50 mb-4">{mail.subject}</h1>
+        <div className="space-y-1.5 text-xs text-zinc-500 dark:text-zinc-400 mb-6 pb-6 border-b border-zinc-100 dark:border-zinc-700">
+          <p><span className="font-semibold text-zinc-600 dark:text-zinc-300 w-10 inline-block">보낸이</span> {addrStr(mail.from)}</p>
+          <p><span className="font-semibold text-zinc-600 dark:text-zinc-300 w-10 inline-block">받는이</span> {mail.to.map(addrStr).join(', ')}</p>
+          {mail.cc.length > 0 && <p><span className="font-semibold text-zinc-600 dark:text-zinc-300 w-10 inline-block">CC</span> {mail.cc.map(addrStr).join(', ')}</p>}
+          <p><span className="font-semibold text-zinc-600 dark:text-zinc-300 w-10 inline-block">날짜</span>
             {mail.date ? formatDate(mail.date, 'yyyy.MM.dd HH:mm') : ''}
           </p>
         </div>
@@ -417,14 +417,14 @@ function MessageView({ uid, folder, onClose, onReply }: {
             title="mail-body"
           />
         ) : (
-          <pre className="text-sm text-zinc-700 whitespace-pre-wrap leading-relaxed font-sans">{mail.body}</pre>
+          <pre className="text-sm text-zinc-700 dark:text-zinc-200 whitespace-pre-wrap leading-relaxed font-sans">{mail.body}</pre>
         )}
 
         {mail.attachments?.length > 0 && (
-          <div className="mt-6 pt-5 border-t border-zinc-100">
+          <div className="mt-6 pt-5 border-t border-zinc-100 dark:border-zinc-700">
             <div className="flex items-center gap-2 mb-3">
               <Paperclip size={13} className="text-zinc-400" />
-              <span className="text-xs font-semibold text-zinc-500">
+              <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
                 첨부파일 {mail.attachments.length}개
               </span>
             </div>
@@ -435,13 +435,13 @@ function MessageView({ uid, folder, onClose, onReply }: {
                   <button
                     key={i}
                     onClick={() => downloadAttachment(att)}
-                    className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 hover:border-zinc-300 transition-colors text-left max-w-xs"
+                    className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 transition-colors text-left max-w-xs"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-white border border-zinc-200 flex items-center justify-center shrink-0">
-                      <Icon size={14} className="text-zinc-500" />
+                    <div className="w-8 h-8 rounded-lg bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 flex items-center justify-center shrink-0">
+                      <Icon size={14} className="text-zinc-500 dark:text-zinc-400" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-medium text-zinc-800 truncate max-w-[160px]">{att.filename}</p>
+                      <p className="text-xs font-medium text-zinc-800 dark:text-zinc-100 truncate max-w-[160px]">{att.filename}</p>
                       <p className="text-[10px] text-zinc-400">{formatBytes(att.size)}</p>
                     </div>
                     <Download size={12} className="text-zinc-400 shrink-0 ml-1" />
@@ -627,7 +627,7 @@ export function MailPage() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* ── 폴더 패널 ── */}
-        <aside className="w-44 shrink-0 border-r border-zinc-100 bg-white flex flex-col overflow-y-auto py-3 px-2">
+        <aside className="w-44 shrink-0 border-r border-zinc-100 dark:border-zinc-700 bg-white dark:bg-zinc-900 flex flex-col overflow-y-auto py-3 px-2">
           <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest px-2 mb-2">폴더</p>
           {folders.length === 0 && (
             <p className="text-xs text-zinc-400 px-2">폴더 없음</p>
@@ -639,8 +639,8 @@ export function MailPage() {
               className={cn(
                 'flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-medium text-left transition-colors w-full',
                 activeFolder === f.path
-                  ? 'bg-zinc-900 text-white'
-                  : 'text-zinc-600 hover:bg-zinc-100',
+                  ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900'
+                  : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800',
               )}
             >
               {f.path === 'INBOX' ? <Inbox size={13} /> : <Mail size={13} />}
@@ -648,7 +648,7 @@ export function MailPage() {
               {f.path === 'INBOX' && unseen > 0 && (
                 <span className={cn(
                   'ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0',
-                  activeFolder === f.path ? 'bg-white/20 text-white' : 'bg-zinc-900 text-white',
+                  activeFolder === f.path ? 'bg-white/20 text-white dark:bg-zinc-900/20 dark:text-zinc-900' : 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900',
                 )}>
                   {unseen}
                 </span>
@@ -659,11 +659,11 @@ export function MailPage() {
 
         {/* ── 메시지 목록 ── */}
         <div className={cn(
-          'border-r border-zinc-100 bg-white flex flex-col overflow-hidden transition-all',
+          'border-r border-zinc-100 dark:border-zinc-700 bg-white dark:bg-zinc-900 flex flex-col overflow-hidden transition-all',
           selectedUid ? 'w-72 shrink-0' : 'flex-1',
         )}>
           {/* 툴바 */}
-          <div className="flex items-center gap-2 px-4 py-3 border-b border-zinc-100 shrink-0">
+          <div className="flex items-center gap-2 px-4 py-3 border-b border-zinc-100 dark:border-zinc-700 shrink-0">
             <input
               type="checkbox"
               className="w-3.5 h-3.5 rounded accent-zinc-900 cursor-pointer shrink-0"
@@ -685,14 +685,14 @@ export function MailPage() {
               </>
             ) : (
               <>
-                <span className="text-xs font-bold text-zinc-700 flex-1">{folderLabel}</span>
+                <span className="text-xs font-bold text-zinc-700 dark:text-zinc-200 flex-1">{folderLabel}</span>
                 <span className="text-[11px] text-zinc-400">{total}개</span>
               </>
             )}
           </div>
 
           {/* 리스트 */}
-          <div className="flex-1 overflow-y-auto divide-y divide-zinc-50">
+          <div className="flex-1 overflow-y-auto divide-y divide-zinc-50 dark:divide-zinc-800">
             {loadingMsgs ? (
               <div className="flex items-center justify-center py-16">
                 <Loader2 size={20} className="animate-spin text-zinc-300" />
@@ -708,9 +708,9 @@ export function MailPage() {
                   key={m.uid}
                   onClick={() => setSelectedUid(m.uid)}
                   className={cn(
-                    'flex items-start gap-2.5 px-4 py-3.5 hover:bg-zinc-50 transition-colors cursor-pointer',
-                    selectedUid === m.uid && 'bg-zinc-50',
-                    checkedUids.has(m.uid) && 'bg-zinc-100/70',
+                    'flex items-start gap-2.5 px-4 py-3.5 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer',
+                    selectedUid === m.uid && 'bg-zinc-50 dark:bg-zinc-800',
+                    checkedUids.has(m.uid) && 'bg-zinc-100/70 dark:bg-zinc-700/70',
                   )}
                 >
                   <input
@@ -722,13 +722,13 @@ export function MailPage() {
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      {!m.seen && <span className="w-1.5 h-1.5 rounded-full bg-zinc-900 shrink-0" />}
-                      <p className={cn('text-xs truncate flex-1', m.seen ? 'text-zinc-500 font-normal' : 'text-zinc-900 font-semibold')}>
+                      {!m.seen && <span className="w-1.5 h-1.5 rounded-full bg-zinc-900 dark:bg-white shrink-0" />}
+                      <p className={cn('text-xs truncate flex-1', m.seen ? 'text-zinc-500 font-normal' : 'text-zinc-900 dark:text-zinc-50 font-semibold')}>
                         {addrStr(m.from) || '(보낸이 없음)'}
                       </p>
                     </div>
                     <div className="flex items-center gap-1.5 mt-0.5">
-                      <p className={cn('text-xs truncate flex-1', m.seen ? 'text-zinc-400' : 'text-zinc-700 font-medium')}>
+                      <p className={cn('text-xs truncate flex-1', m.seen ? 'text-zinc-400' : 'text-zinc-700 dark:text-zinc-200 font-medium')}>
                         {m.subject}
                       </p>
                       {m.hasAttachments && <Paperclip size={10} className="text-zinc-400 shrink-0" />}
@@ -744,7 +744,7 @@ export function MailPage() {
 
           {/* 페이지네이션 */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between px-4 py-2.5 border-t border-zinc-100 shrink-0">
+            <div className="flex items-center justify-between px-4 py-2.5 border-t border-zinc-100 dark:border-zinc-700 shrink-0">
               <button
                 className="btn-ghost text-xs py-1 px-2"
                 onClick={() => handlePageChange(-1)}
@@ -766,7 +766,7 @@ export function MailPage() {
 
         {/* ── 메일 본문 ── */}
         {selectedUid ? (
-          <div className="flex-1 overflow-hidden bg-white">
+          <div className="flex-1 overflow-hidden bg-white dark:bg-zinc-900">
             <MessageView
               uid={selectedUid}
               folder={activeFolder}
@@ -775,10 +775,10 @@ export function MailPage() {
             />
           </div>
         ) : (
-          <div className="flex-1 hidden lg:flex items-center justify-center bg-zinc-50">
+          <div className="flex-1 hidden lg:flex items-center justify-center bg-zinc-50 dark:bg-zinc-900">
             <div className="text-center">
-              <div className="w-16 h-16 rounded-2xl bg-zinc-100 flex items-center justify-center mx-auto mb-3">
-                <Mail size={24} className="text-zinc-300" />
+              <div className="w-16 h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mx-auto mb-3">
+                <Mail size={24} className="text-zinc-300 dark:text-zinc-600" />
               </div>
               <p className="text-sm text-zinc-400">메일을 선택하세요</p>
             </div>

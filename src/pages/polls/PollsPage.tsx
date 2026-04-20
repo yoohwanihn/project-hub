@@ -65,7 +65,7 @@ export function PollsPage() {
 
       <div className="flex-1 overflow-y-auto p-6">
         {/* 탭 */}
-        <div className="flex gap-1 mb-6 border-b border-zinc-200">
+        <div className="flex gap-1 mb-6 border-b border-zinc-200 dark:border-zinc-700">
           {([
             ['active', '진행 중', activeCount],
             ['closed', '종료된 투표', closedCount],
@@ -75,13 +75,13 @@ export function PollsPage() {
               onClick={() => setTab(id)}
               className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-px ${
                 tab === id
-                  ? 'border-zinc-800 text-zinc-900'
-                  : 'border-transparent text-zinc-500 hover:text-zinc-700'
+                  ? 'border-zinc-800 dark:border-zinc-200 text-zinc-900 dark:text-zinc-50'
+                  : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'
               }`}
             >
               {label}
               <span className={`ml-1.5 text-xs px-1.5 py-0.5 rounded-full ${
-                tab === id ? 'bg-zinc-100 text-zinc-900' : 'bg-zinc-100 text-zinc-400'
+                tab === id ? 'bg-zinc-100 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500'
               }`}>
                 {count}
               </span>
@@ -92,10 +92,10 @@ export function PollsPage() {
         {/* 목록 */}
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-zinc-100 flex items-center justify-center mb-3">
-              <Vote size={22} className="text-zinc-400" />
+            <div className="w-14 h-14 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-3">
+              <Vote size={22} className="text-zinc-400 dark:text-zinc-500" />
             </div>
-            <p className="text-sm font-semibold text-zinc-600">
+            <p className="text-sm font-semibold text-zinc-600 dark:text-zinc-300">
               {tab === 'active' ? '진행 중인 투표가 없습니다' : '종료된 투표가 없습니다'}
             </p>
             {tab === 'active' && (

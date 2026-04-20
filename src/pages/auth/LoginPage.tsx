@@ -37,30 +37,30 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-50 via-white to-zinc-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-zinc-50 via-white to-zinc-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-zinc-900 flex items-center justify-center shadow-lg mb-4">
-            <FolderKanban size={28} className="text-white" />
+          <div className="w-14 h-14 rounded-2xl bg-zinc-900 dark:bg-white flex items-center justify-center shadow-lg mb-4">
+            <FolderKanban size={28} className="text-white dark:text-zinc-900" />
           </div>
-          <h1 className="text-xl font-bold text-zinc-900">ProjectHub</h1>
-          <p className="text-xs text-zinc-500 mt-1">팀 협업 &amp; 프로젝트 관리 플랫폼</p>
+          <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">ProjectHub</h1>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">팀 협업 &amp; 프로젝트 관리 플랫폼</p>
         </div>
 
         {/* Card */}
         <div className="card p-8">
-          <h2 className="text-base font-bold text-zinc-800 mb-6">로그인</h2>
+          <h2 className="text-base font-bold text-zinc-800 dark:text-zinc-100 mb-6">로그인</h2>
 
           {error && (
-            <div className="mb-4 px-3 py-2 rounded-lg bg-red-50 border border-red-200 text-xs text-red-600">
+            <div className="mb-4 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-xs text-red-600 dark:text-red-400">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-zinc-600 mb-1.5">이메일</label>
+              <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1.5">이메일</label>
               <div className="relative">
                 <Mail size={14} className="absolute left-3 top-1/2 -tranzinc-y-1/2 text-zinc-400" />
                 <input
@@ -75,7 +75,7 @@ export function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-600 mb-1.5">비밀번호</label>
+              <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1.5">비밀번호</label>
               <div className="relative">
                 <Lock size={14} className="absolute left-3 top-1/2 -tranzinc-y-1/2 text-zinc-400" />
                 <input
@@ -110,13 +110,13 @@ export function LoginPage() {
             </button>
           </form>
 
-          <p className="text-xs text-center text-zinc-400 mt-6">
+          <p className="text-xs text-center text-zinc-400 dark:text-zinc-500 mt-6">
             계정이 없으신가요?{' '}
-            <Link to="/register" className="text-zinc-900 font-semibold hover:underline">회원가입</Link>
+            <Link to="/register" className="text-zinc-900 dark:text-zinc-100 font-semibold hover:underline">회원가입</Link>
           </p>
         </div>
 
-        <p className="text-center text-[11px] text-zinc-400 mt-6">
+        <p className="text-center text-[11px] text-zinc-400 dark:text-zinc-600 mt-6">
           © 2026 CMWorld. All rights reserved.
         </p>
       </div>

@@ -67,13 +67,13 @@ export function ProjectsPage() {
                 className="input pl-9 text-sm"
               />
             </div>
-            <div className="flex items-center border border-zinc-200 rounded-lg overflow-hidden bg-white ml-auto">
+            <div className="flex items-center border border-zinc-200 dark:border-zinc-600 rounded-lg overflow-hidden bg-white dark:bg-zinc-800 ml-auto">
               <button
-                className={cn('px-3 py-2 transition-colors', view === 'grid' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50')}
+                className={cn('px-3 py-2 transition-colors', view === 'grid' ? 'bg-zinc-100 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-50' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-700')}
                 onClick={() => setView('grid')}
               ><LayoutGrid size={14} /></button>
               <button
-                className={cn('px-3 py-2 transition-colors', view === 'list' ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50')}
+                className={cn('px-3 py-2 transition-colors', view === 'list' ? 'bg-zinc-100 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-50' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-700')}
                 onClick={() => setView('list')}
               ><List size={14} /></button>
             </div>
@@ -102,12 +102,12 @@ export function ProjectsPage() {
                     </button>
                     {menuId === p.id && (
                       <div
-                        className="absolute top-10 right-3 w-32 bg-white border border-zinc-200 rounded-xl shadow-modal z-50 py-1"
+                        className="absolute top-10 right-3 w-32 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-600 rounded-xl shadow-modal z-50 py-1"
                         onClick={(e) => e.stopPropagation()}
                         onMouseLeave={() => setMenuId(null)}
                       >
                         <button
-                          className="w-full text-left flex items-center gap-2 px-3 py-2 text-xs hover:bg-zinc-50"
+                          className="w-full text-left flex items-center gap-2 px-3 py-2 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-700 dark:text-zinc-200"
                           onClick={() => { setMenuId(null); setEditProject(p); }}
                         >
                           <Pencil size={12} className="text-zinc-400" /> 수정
@@ -129,19 +129,19 @@ export function ProjectsPage() {
                         {p.name.charAt(0)}
                       </div>
                       <div className="min-w-0 flex-1 pr-6">
-                        <h3 className="text-sm font-bold text-zinc-900 group-hover:text-zinc-800 transition-colors leading-snug truncate">
+                        <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-50 group-hover:text-zinc-800 dark:group-hover:text-zinc-100 transition-colors leading-snug truncate">
                           {p.name}
                         </h3>
-                        <p className="text-xs text-zinc-500 mt-0.5">{formatDate(p.updatedAt, 'MM.dd')} 업데이트</p>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{formatDate(p.updatedAt, 'MM.dd')} 업데이트</p>
                       </div>
                     </div>
 
-                    <p className="text-xs text-zinc-500 line-clamp-2 mb-4">{p.description}</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 mb-4">{p.description}</p>
 
                     <div className="mb-4">
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-xs text-zinc-500">진행률</span>
-                        <span className="text-xs font-semibold text-zinc-700">{progress}%</span>
+                        <span className="text-xs text-zinc-500 dark:text-zinc-400">진행률</span>
+                        <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">{progress}%</span>
                       </div>
                       <ProgressBar value={progress} color={p.color} />
                     </div>
@@ -151,13 +151,13 @@ export function ProjectsPage() {
                       {firstStatuses.map((s) => (
                         <div key={s.id} className="text-center flex-1">
                           <p className="text-sm font-bold" style={{ color: s.color }}>{counts[s.id] ?? 0}</p>
-                          <p className="text-[10px] text-zinc-400 truncate">{s.label}</p>
+                          <p className="text-[10px] text-zinc-400 dark:text-zinc-500 truncate">{s.label}</p>
                         </div>
                       ))}
                     </div>
 
-                    <div className="flex items-center justify-between pt-3 border-t border-zinc-100">
-                      <div className="flex items-center gap-1.5 text-xs text-zinc-500">
+                    <div className="flex items-center justify-between pt-3 border-t border-zinc-100 dark:border-zinc-700">
+                      <div className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
                         <Calendar size={11} />
                         {formatDate(p.endDate)} 마감
                       </div>
@@ -171,7 +171,7 @@ export function ProjectsPage() {
               })}
 
               <button
-                className="card p-5 border-dashed border-2 border-zinc-200 hover:border-zinc-400 hover:bg-zinc-100 transition-all flex flex-col items-center justify-center gap-2 text-zinc-400 hover:text-zinc-900 min-h-[200px]"
+                className="card p-5 border-dashed border-2 border-zinc-200 dark:border-zinc-600 hover:border-zinc-400 dark:hover:border-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all flex flex-col items-center justify-center gap-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 min-h-[200px]"
                 onClick={() => setCreateOpen(true)}
               >
                 <div className="w-10 h-10 rounded-xl border-2 border-dashed border-current flex items-center justify-center">
@@ -187,30 +187,30 @@ export function ProjectsPage() {
             <div className="card overflow-hidden">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-zinc-100 bg-zinc-50">
-                    <th className="text-left text-xs font-semibold text-zinc-500 px-5 py-3">프로젝트명</th>
-                    <th className="text-left text-xs font-semibold text-zinc-500 px-4 py-3 hidden md:table-cell">진행률</th>
-                    <th className="text-left text-xs font-semibold text-zinc-500 px-4 py-3 hidden lg:table-cell">마감일</th>
-                    <th className="text-left text-xs font-semibold text-zinc-500 px-4 py-3 hidden lg:table-cell">팀원</th>
+                  <tr className="border-b border-zinc-100 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800">
+                    <th className="text-left text-xs font-semibold text-zinc-500 dark:text-zinc-400 px-5 py-3">프로젝트명</th>
+                    <th className="text-left text-xs font-semibold text-zinc-500 dark:text-zinc-400 px-4 py-3 hidden md:table-cell">진행률</th>
+                    <th className="text-left text-xs font-semibold text-zinc-500 dark:text-zinc-400 px-4 py-3 hidden lg:table-cell">마감일</th>
+                    <th className="text-left text-xs font-semibold text-zinc-500 dark:text-zinc-400 px-4 py-3 hidden lg:table-cell">팀원</th>
                     <th className="px-4 py-3 w-20" />
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-50">
+                <tbody className="divide-y divide-zinc-50 dark:divide-zinc-800">
                   {projectList.map((p) => {
                     const { tasks: pts } = getTaskCounts(p.id);
                     const progress = getProjectProgress(pts);
                     return (
                       <tr
                         key={p.id}
-                        className="hover:bg-zinc-50 cursor-pointer transition-colors group"
+                        className="hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors group"
                         onClick={() => navigate(`/projects/${p.id}`)}
                       >
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-3">
                             <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: p.color }} />
                             <div>
-                              <p className="text-sm font-semibold text-zinc-800">{p.name}</p>
-                              <p className="text-xs text-zinc-400 line-clamp-1">{p.description}</p>
+                              <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{p.name}</p>
+                              <p className="text-xs text-zinc-400 dark:text-zinc-500 line-clamp-1">{p.description}</p>
                             </div>
                           </div>
                         </td>
@@ -220,7 +220,7 @@ export function ProjectsPage() {
                             <span className="text-xs text-zinc-500 w-8">{progress}%</span>
                           </div>
                         </td>
-                        <td className="px-4 py-3.5 hidden lg:table-cell text-xs text-zinc-600">
+                        <td className="px-4 py-3.5 hidden lg:table-cell text-xs text-zinc-600 dark:text-zinc-300">
                           {formatDate(p.endDate)}
                         </td>
                         <td className="px-4 py-3.5 hidden lg:table-cell">

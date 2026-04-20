@@ -57,19 +57,19 @@ export function Modal({ open, onClose, title, description, size = 'md', children
         aria-modal
         aria-labelledby="modal-title"
         className={cn(
-          'relative w-full bg-white rounded-2xl shadow-modal flex flex-col max-h-[90vh]',
+          'relative w-full bg-white dark:bg-zinc-900 rounded-2xl shadow-modal flex flex-col max-h-[90vh]',
           SIZE_CLASS[size],
         )}
       >
         {/* Header */}
-        <div className="flex items-start justify-between px-6 py-5 border-b border-zinc-100">
+        <div className="flex items-start justify-between px-6 py-5 border-b border-zinc-100 dark:border-zinc-700">
           <div>
-            <h2 id="modal-title" className="text-base font-bold text-zinc-900">{title}</h2>
-            {description && <p className="text-xs text-zinc-500 mt-0.5">{description}</p>}
+            <h2 id="modal-title" className="text-base font-bold text-zinc-900 dark:text-zinc-50">{title}</h2>
+            {description && <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{description}</p>}
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-colors ml-4 flex-shrink-0"
+            className="p-1.5 rounded-lg text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors ml-4 flex-shrink-0"
           >
             <X size={16} />
           </button>
@@ -82,7 +82,7 @@ export function Modal({ open, onClose, title, description, size = 'md', children
 
         {/* Footer */}
         {footer && (
-          <div className="px-6 py-4 border-t border-zinc-100 flex items-center justify-end gap-2">
+          <div className="px-6 py-4 border-t border-zinc-100 dark:border-zinc-700 flex items-center justify-end gap-2">
             {footer}
           </div>
         )}
@@ -123,7 +123,7 @@ export function ConfirmDialog({
         </>
       }
     >
-      {description && <p className="text-sm text-zinc-600">{description}</p>}
+      {description && <p className="text-sm text-zinc-600 dark:text-zinc-300">{description}</p>}
     </Modal>
   );
 }

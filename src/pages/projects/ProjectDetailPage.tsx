@@ -110,7 +110,7 @@ export function ProjectDetailPage() {
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: project.color }} />
-                  <h2 className="text-base font-bold text-zinc-900">{project.name}</h2>
+                  <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-50">{project.name}</h2>
                 </div>
               </div>
 
@@ -137,7 +137,7 @@ export function ProjectDetailPage() {
                 ))}
               </div>
 
-              <div className="flex items-center gap-6 text-xs text-zinc-500 pt-4 border-t border-zinc-100">
+              <div className="flex items-center gap-6 text-xs text-zinc-500 dark:text-zinc-400 pt-4 border-t border-zinc-100 dark:border-zinc-700">
                 <div className="flex items-center gap-1.5">
                   <Calendar size={12} />
                   <span>{formatDate(project.startDate)} ~ {formatDate(project.endDate)}</span>
@@ -158,7 +158,7 @@ export function ProjectDetailPage() {
                   {SHORTCUTS.map(({ icon: Icon, label, to }) => (
                     <button
                       key={label}
-                      className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-zinc-50 hover:bg-zinc-100 hover:text-zinc-800 text-zinc-600 transition-colors"
+                      className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:text-zinc-800 dark:hover:text-zinc-100 text-zinc-600 dark:text-zinc-300 transition-colors"
                       onClick={() => navigate(to)}
                     >
                       <Icon size={18} />
@@ -177,7 +177,7 @@ export function ProjectDetailPage() {
                       return (
                         <div
                           key={a.id}
-                          className={cn('p-3 rounded-xl border text-xs', a.isPinned ? 'bg-zinc-100 border-zinc-200' : 'bg-zinc-50 border-zinc-100')}
+                          className={cn('p-3 rounded-xl border text-xs', a.isPinned ? 'bg-zinc-100 dark:bg-zinc-700 border-zinc-200 dark:border-zinc-600' : 'bg-zinc-50 dark:bg-zinc-800 border-zinc-100 dark:border-zinc-700')}
                         >
                           <div className="flex gap-1.5">
                             {a.isPinned && <span className="text-amber-500">📌</span>}
@@ -205,8 +205,8 @@ export function ProjectDetailPage() {
 
           {/* Task List */}
           <div className="card">
-            <div className="px-5 py-4 border-b border-zinc-100 flex items-center justify-between gap-3">
-              <h2 className="text-sm font-bold text-zinc-800 flex-shrink-0">
+            <div className="px-5 py-4 border-b border-zinc-100 dark:border-zinc-700 flex items-center justify-between gap-3">
+              <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-100 flex-shrink-0">
                 업무 ({filteredTasks.length}/{tasks.length})
               </h2>
 
@@ -278,7 +278,7 @@ export function ProjectDetailPage() {
               </button>
             </div>
 
-            <div className="divide-y divide-zinc-50">
+            <div className="divide-y divide-zinc-50 dark:divide-zinc-800">
               {filteredTasks.length === 0 ? (
                 <div className="py-16 text-center text-xs text-zinc-400">
                   {hasFilter ? '필터 조건에 맞는 업무가 없습니다.' : '아직 업무가 없습니다.'}
@@ -292,7 +292,7 @@ export function ProjectDetailPage() {
                   return (
                     <div
                       key={task.id}
-                      className="px-5 py-3.5 flex items-center gap-4 hover:bg-zinc-50 cursor-pointer transition-colors group"
+                      className="px-5 py-3.5 flex items-center gap-4 hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors group"
                       onClick={() => setEditTask(task)}
                     >
                       {/* Status badge */}
@@ -305,7 +305,7 @@ export function ProjectDetailPage() {
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <p className="text-sm font-medium text-zinc-800 truncate">{task.title}</p>
+                          <p className="text-sm font-medium text-zinc-800 dark:text-zinc-100 truncate">{task.title}</p>
                           {task.blockedBy.length > 0 && (
                             <span className="inline-flex items-center gap-1 text-[10px] text-zinc-500 flex-shrink-0">
                               <Link2 size={9} /> {task.blockedBy.length}

@@ -54,10 +54,10 @@ export function AdminPage() {
           ] as [FilterTab, string, number][]).map(([id, label, count]) => (
             <button key={id} onClick={() => setTab(id)}
               className={cn('px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-px',
-                tab === id ? 'border-zinc-800 text-zinc-900' : 'border-transparent text-zinc-500 hover:text-zinc-700')}>
+                tab === id ? 'border-zinc-800 dark:border-zinc-200 text-zinc-900 dark:text-zinc-50' : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200')}>
               {label}
               <span className={cn('ml-1.5 text-xs px-1.5 py-0.5 rounded-full',
-                id === 'pending' && count > 0 ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-400')}>
+                id === 'pending' && count > 0 ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900' : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-400 dark:text-zinc-400')}>
                 {count}
               </span>
             </button>
@@ -72,22 +72,22 @@ export function AdminPage() {
           <div className="card overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-100 bg-zinc-50">
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500">유저</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500">상태</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500">역할</th>
-                  <th className="text-right px-4 py-3 text-xs font-semibold text-zinc-500">작업</th>
+                <tr className="border-b border-zinc-100 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800">
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400">유저</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400">상태</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400">역할</th>
+                  <th className="text-right px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400">작업</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((user) => (
-                  <tr key={user.id} className="border-b border-zinc-50 hover:bg-zinc-50 transition-colors">
+                  <tr key={user.id} className="border-b border-zinc-50 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <Avatar name={user.name} size="sm" />
                         <div>
-                          <p className="text-sm font-medium text-zinc-800">{user.name}</p>
-                          <p className="text-xs text-zinc-400">{user.email}</p>
+                          <p className="text-sm font-medium text-zinc-800 dark:text-zinc-100">{user.name}</p>
+                          <p className="text-xs text-zinc-400 dark:text-zinc-500">{user.email}</p>
                         </div>
                       </div>
                     </td>

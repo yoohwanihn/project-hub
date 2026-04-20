@@ -11,6 +11,7 @@ import { Avatar, AvatarGroup } from '../../components/ui/Avatar';
 import { TagBadge }    from '../../components/ui/Badge';
 import { useAppStore, getProjectProgress } from '../../store/useAppStore';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useUIStore }   from '../../store/useUIStore';
 import { formatDate, timeAgo, PRIORITY_COLOR, PRIORITY_LABEL, cn } from '../../lib/utils';
 import type { TimelineEvent } from '../../types';
 
@@ -27,7 +28,7 @@ const isDone       = (statusId: string) => statusId === 'done'        || statusI
 const isInProgress = (statusId: string) => statusId === 'in_progress' || statusId.endsWith('-in_progress');
 
 function timelineMessage(e: TimelineEvent, actorName: string): React.ReactNode {
-  const bold = (s: string) => <span className="font-semibold text-zinc-800">{s}</span>;
+  const bold = (s: string) => <span className="font-semibold text-zinc-800 dark:text-zinc-100">{s}</span>;
   const em   = (s: string) => <span className="font-medium">{s}</span>;
   switch (e.type) {
     case 'task_completed': return <>{bold(actorName)}님이 {em(`"${String(e.payload.taskTitle)}"`)}&nbsp;업무를 완료했습니다.</>;
@@ -46,6 +47,7 @@ function timelineMessage(e: TimelineEvent, actorName: string): React.ReactNode {
 interface DonutSegment { value: number; color: string; label: string }
 
 function DonutChart({ segments, centerLabel }: { segments: DonutSegment[]; centerLabel?: string }) {
+  const isDark = useUIStore(s => s.isDark);
   const total = segments.reduce((s, seg) => s + seg.value, 0);
   const r = 32;
   const cx = 44;
@@ -57,7 +59,7 @@ function DonutChart({ segments, centerLabel }: { segments: DonutSegment[]; cente
   return (
     <svg viewBox="0 0 88 88" className="w-full h-full">
       {total === 0 ? (
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#e2e8f0" strokeWidth="14" />
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke={isDark ? '#3f3f46' : '#e2e8f0'} strokeWidth="14" />
       ) : (
         segments.map((seg, i) => {
           if (seg.value === 0) return null;
@@ -76,32 +78,33 @@ function DonutChart({ segments, centerLabel }: { segments: DonutSegment[]; cente
           );
         })
       )}
-      <circle cx={cx} cy={cy} r={r - 10} fill="white" />
-      <text x={cx} y={cx - 4} textAnchor="middle" fontSize="15" fontWeight="700" fill="#1e293b">{total}</text>
-      <text x={cx} y={cx + 9} textAnchor="middle" fontSize="6.5" fill="#94a3b8">{centerLabel ?? '전체'}</text>
+      <circle cx={cx} cy={cy} r={r - 10} fill={isDark ? '#18181b' : 'white'} />
+      <text x={cx} y={cx - 4} textAnchor="middle" fontSize="15" fontWeight="700" fill={isDark ? '#fafafa' : '#1e293b'}>{total}</text>
+      <text x={cx} y={cx + 9} textAnchor="middle" fontSize="6.5" fill={isDark ? '#71717a' : '#94a3b8'}>{centerLabel ?? '전체'}</text>
     </svg>
   );
 }
 
 // ── WeeklyActivityBars (나의 7일 활동) ───────────────────────────
 function WeeklyActivityBars({ data }: { data: { date: string; count: number; label: string }[] }) {
+  const isDark = useUIStore(s => s.isDark);
   const max = Math.max(1, ...data.map((d) => d.count));
   return (
     <div className="flex items-end gap-1.5 h-16">
       {data.map((d) => (
         <div key={d.date} className="flex-1 flex flex-col items-center gap-1">
-          <span className="text-[10px] text-zinc-500 font-semibold">{d.count > 0 ? d.count : ''}</span>
-          <div className="w-full bg-zinc-100 rounded-t-sm overflow-hidden" style={{ height: 36 }}>
+          <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-semibold">{d.count > 0 ? d.count : ''}</span>
+          <div className="w-full bg-zinc-100 dark:bg-zinc-700 rounded-t-sm overflow-hidden" style={{ height: 36 }}>
             <div
               className="w-full rounded-t-sm transition-all duration-500"
               style={{
                 height:          `${Math.max(d.count > 0 ? 8 : 0, (d.count / max) * 36)}px`,
-                backgroundColor: d.date === TODAY ? '#18181b' : '#71717a',
+                backgroundColor: d.date === TODAY ? (isDark ? '#fafafa' : '#18181b') : (isDark ? '#a1a1aa' : '#71717a'),
                 marginTop:       `${36 - Math.max(d.count > 0 ? 8 : 0, (d.count / max) * 36)}px`,
               }}
             />
           </div>
-          <span className={cn('text-[10px]', d.date === TODAY ? 'text-zinc-900 font-bold' : 'text-zinc-400')}>
+          <span className={cn('text-[10px]', d.date === TODAY ? 'text-zinc-900 dark:text-zinc-50 font-bold' : 'text-zinc-400 dark:text-zinc-500')}>
             {d.label}
           </span>
         </div>
@@ -124,16 +127,16 @@ function PriorityBars({ data }: { data: { priority: string; count: number }[] })
     <div className="space-y-2.5">
       {data.map(({ priority, count }) => (
         <div key={priority} className="flex items-center gap-2">
-          <span className="text-xs text-zinc-500 w-10 text-right flex-shrink-0">
+          <span className="text-xs text-zinc-500 dark:text-zinc-400 w-10 text-right flex-shrink-0">
             {PRIORITY_LABEL[priority as keyof typeof PRIORITY_LABEL]}
           </span>
-          <div className="flex-1 h-2.5 bg-zinc-100 rounded-full overflow-hidden">
+          <div className="flex-1 h-2.5 bg-zinc-100 dark:bg-zinc-700 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-500"
               style={{ width: `${Math.max(2, (count / max) * 100)}%`, backgroundColor: PRIORITY_COLORS_HEX[priority] }}
             />
           </div>
-          <span className="text-xs font-semibold text-zinc-700 w-4 flex-shrink-0">{count}</span>
+          <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-200 w-4 flex-shrink-0">{count}</span>
         </div>
       ))}
     </div>
@@ -142,6 +145,7 @@ function PriorityBars({ data }: { data: { priority: string; count: number }[] })
 
 // ── BurndownMini ──────────────────────────────────────────────────
 function BurndownMini({ data }: { data: { date: string; remaining: number }[] }) {
+  const isDark = useUIStore(s => s.isDark);
   const W = 280; const H = 72;
   const padL = 6; const padR = 6; const padT = 8; const padB = 18;
   const chartW = W - padL - padR; const chartH = H - padT - padB;
@@ -153,23 +157,27 @@ function BurndownMini({ data }: { data: { date: string; remaining: number }[] })
   }));
   const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
   const areaPath = `${linePath} L ${pts[pts.length - 1]?.x.toFixed(1)} ${(padT + chartH).toFixed(1)} L ${padL} ${(padT + chartH).toFixed(1)} Z`;
+  const gridColor  = isDark ? '#3f3f46' : '#f1f5f9';
+  const lineColor  = isDark ? '#a1a1aa' : '#52525b';
+  const pointFill  = isDark ? '#18181b' : 'white';
+  const labelColor = isDark ? '#71717a' : '#94a3b8';
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: 72 }}>
       {[0, 0.5, 1].map((t) => (
-        <line key={t} x1={padL} y1={padT + chartH * (1 - t)} x2={W - padR} y2={padT + chartH * (1 - t)} stroke="#f1f5f9" strokeWidth="1" />
+        <line key={t} x1={padL} y1={padT + chartH * (1 - t)} x2={W - padR} y2={padT + chartH * (1 - t)} stroke={gridColor} strokeWidth="1" />
       ))}
-      {pts.length > 1 && <path d={areaPath} fill="#52525b15" />}
+      {pts.length > 1 && <path d={areaPath} fill={`${lineColor}20`} />}
       {pts.length > 1 && (
-        <path d={linePath} fill="none" stroke="#52525b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d={linePath} fill="none" stroke={lineColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       )}
       {pts.map((p, i) => (
-        <circle key={i} cx={p.x} cy={p.y} r="2" fill="white" stroke="#52525b" strokeWidth="1.5" />
+        <circle key={i} cx={p.x} cy={p.y} r="2" fill={pointFill} stroke={lineColor} strokeWidth="1.5" />
       ))}
       {data.map((d, i) => {
         if (i % 3 !== 0) return null;
         const x = padL + (i / Math.max(1, data.length - 1)) * chartW;
         return (
-          <text key={d.date} x={x} y={H - 2} textAnchor="middle" fontSize="7" fill="#94a3b8">{d.date.slice(8)}</text>
+          <text key={d.date} x={x} y={H - 2} textAnchor="middle" fontSize="7" fill={labelColor}>{d.date.slice(8)}</text>
         );
       })}
     </svg>
@@ -228,29 +236,29 @@ export function DashboardPage() {
       label: '내 진행 중 업무',
       value: myInProgress,
       icon:  Clock,
-      color: 'text-zinc-700',
-      bg:    'bg-zinc-100',
+      color: 'text-zinc-700 dark:text-zinc-200',
+      bg:    'bg-zinc-100 dark:bg-zinc-700',
     },
     {
       label: '내 지연 업무',
       value: myOverdue,
       icon:  AlertCircle,
-      color: myOverdue > 0 ? 'text-red-600' : 'text-zinc-400',
-      bg:    myOverdue > 0 ? 'bg-red-50' : 'bg-zinc-50',
+      color: myOverdue > 0 ? 'text-red-600 dark:text-red-400' : 'text-zinc-400 dark:text-zinc-500',
+      bg:    myOverdue > 0 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-zinc-50 dark:bg-zinc-800',
     },
     {
       label: '이번 주 완료',
       value: myCompletedThisWeek,
       icon:  CheckCircle2,
-      color: 'text-zinc-700',
-      bg:    'bg-zinc-50',
+      color: 'text-zinc-700 dark:text-zinc-200',
+      bg:    'bg-zinc-50 dark:bg-zinc-800',
     },
     {
       label: '참여 프로젝트',
       value: myProjects,
       icon:  FolderKanban,
-      color: 'text-zinc-600',
-      bg:    'bg-zinc-50',
+      color: 'text-zinc-600 dark:text-zinc-300',
+      bg:    'bg-zinc-50 dark:bg-zinc-800',
     },
   ];
 
@@ -301,18 +309,12 @@ export function DashboardPage() {
     return days;
   }, [allTasks, timeline]);
 
-  // Upcoming deadlines: next 7 days (my assigned tasks only)
   const upcomingDeadlines = useMemo(() => {
     const maxDate = addDays(TODAY, 7);
     return myAssignedTasks
       .filter((t) => t.dueDate && t.dueDate >= TODAY && t.dueDate <= maxDate && !isDone(t.statusId))
       .sort((a, b) => (a.dueDate ?? '').localeCompare(b.dueDate ?? ''));
   }, [myAssignedTasks]);
-
-  const overdue = useMemo(
-    () => allTasks.filter((t) => t.dueDate && t.dueDate < TODAY && !isDone(t.statusId)),
-    [allTasks],
-  );
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -336,8 +338,8 @@ export function DashboardPage() {
                 <Icon size={18} className={color} />
               </div>
               <div>
-                <p className="text-2xl font-bold text-zinc-900">{value}</p>
-                <p className="text-xs text-zinc-500">{label}</p>
+                <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{value}</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">{label}</p>
               </div>
             </div>
           ))}
@@ -349,14 +351,14 @@ export function DashboardPage() {
           {/* Weekly Activity */}
           <div className="card p-4">
             <div className="flex items-center gap-2 mb-4">
-              <Activity size={14} className="text-zinc-500" />
-              <h3 className="text-sm font-bold text-zinc-800">나의 주간 활동</h3>
-              <span className="ml-auto text-xs text-zinc-400">최근 7일 완료</span>
+              <Activity size={14} className="text-zinc-500 dark:text-zinc-400" />
+              <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-100">나의 주간 활동</h3>
+              <span className="ml-auto text-xs text-zinc-400 dark:text-zinc-500">최근 7일 완료</span>
             </div>
             <WeeklyActivityBars data={weeklyActivity} />
-            <div className="mt-3 flex items-center justify-between text-xs text-zinc-400">
-              <span>주간 완료: <span className="font-semibold text-zinc-800">{weeklyActivity.reduce((s, d) => s + d.count, 0)}건</span></span>
-              <span>일 평균: <span className="font-semibold text-zinc-600">
+            <div className="mt-3 flex items-center justify-between text-xs text-zinc-400 dark:text-zinc-500">
+              <span>주간 완료: <span className="font-semibold text-zinc-800 dark:text-zinc-100">{weeklyActivity.reduce((s, d) => s + d.count, 0)}건</span></span>
+              <span>일 평균: <span className="font-semibold text-zinc-600 dark:text-zinc-300">
                 {(weeklyActivity.reduce((s, d) => s + d.count, 0) / 7).toFixed(1)}건
               </span></span>
             </div>
@@ -365,8 +367,8 @@ export function DashboardPage() {
           {/* Status Donut */}
           <div className="card p-4">
             <div className="flex items-center gap-2 mb-3">
-              <BarChart2 size={14} className="text-zinc-400" />
-              <h3 className="text-sm font-bold text-zinc-800">업무 상태 분포</h3>
+              <BarChart2 size={14} className="text-zinc-400 dark:text-zinc-500" />
+              <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-100">업무 상태 분포</h3>
             </div>
             <div className="flex items-center gap-4">
               <div className="w-24 h-24 flex-shrink-0">
@@ -376,9 +378,9 @@ export function DashboardPage() {
                 {statusDistribution.map((seg) => (
                   <div key={seg.label} className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: seg.color }} />
-                    <span className="text-xs text-zinc-600 truncate flex-1">{seg.label}</span>
-                    <span className="text-xs font-semibold text-zinc-800 flex-shrink-0">{seg.value}</span>
-                    <span className="text-xs text-zinc-400 flex-shrink-0 w-8 text-right">
+                    <span className="text-xs text-zinc-600 dark:text-zinc-300 truncate flex-1">{seg.label}</span>
+                    <span className="text-xs font-semibold text-zinc-800 dark:text-zinc-100 flex-shrink-0">{seg.value}</span>
+                    <span className="text-xs text-zinc-400 dark:text-zinc-500 flex-shrink-0 w-8 text-right">
                       {allTasks.length > 0 ? Math.round((seg.value / allTasks.length) * 100) : 0}%
                     </span>
                   </div>
@@ -387,18 +389,18 @@ export function DashboardPage() {
             </div>
           </div>
 
-          {/* Priority Distribution (my tasks) */}
+          {/* Priority Distribution */}
           <div className="card p-4">
             <div className="flex items-center gap-2 mb-3">
-              <AlertCircle size={14} className="text-zinc-400" />
-              <h3 className="text-sm font-bold text-zinc-800">내 업무 우선순위</h3>
-              <span className="ml-auto text-xs text-zinc-400">미완료 기준</span>
+              <AlertCircle size={14} className="text-zinc-400 dark:text-zinc-500" />
+              <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-100">내 업무 우선순위</h3>
+              <span className="ml-auto text-xs text-zinc-400 dark:text-zinc-500">미완료 기준</span>
             </div>
             <PriorityBars data={priorityDistribution} />
             {myOverdue > 0 && (
-              <div className="mt-3 pt-3 border-t border-zinc-100 flex items-center gap-2">
+              <div className="mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-700 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-red-400 flex-shrink-0" />
-                <span className="text-xs text-red-600 font-medium">내 지연 업무 {myOverdue}건</span>
+                <span className="text-xs text-red-600 dark:text-red-400 font-medium">내 지연 업무 {myOverdue}건</span>
               </div>
             )}
           </div>
@@ -412,18 +414,18 @@ export function DashboardPage() {
 
             {/* My Tasks */}
             <div className="card">
-              <div className="px-5 py-4 border-b border-zinc-100 flex items-center justify-between">
-                <h2 className="text-sm font-bold text-zinc-800">내 업무</h2>
+              <div className="px-5 py-4 border-b border-zinc-100 dark:border-zinc-700 flex items-center justify-between">
+                <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-100">내 업무</h2>
                 <button
-                  className="text-xs text-zinc-900 font-medium hover:underline flex items-center gap-1"
+                  className="text-xs text-zinc-900 dark:text-zinc-100 font-medium hover:underline flex items-center gap-1"
                   onClick={() => navigate('/kanban')}
                 >
                   전체 보기 <ArrowRight size={12} />
                 </button>
               </div>
-              <div className="divide-y divide-zinc-50">
+              <div className="divide-y divide-zinc-50 dark:divide-zinc-800">
                 {myTasks.length === 0 ? (
-                  <p className="text-xs text-zinc-400 text-center py-8">할당된 업무가 없습니다. 🎉</p>
+                  <p className="text-xs text-zinc-400 dark:text-zinc-500 text-center py-8">할당된 업무가 없습니다. 🎉</p>
                 ) : (
                   myTasks.map((task) => {
                     const project   = projects[task.projectId];
@@ -433,12 +435,12 @@ export function DashboardPage() {
                     return (
                       <div
                         key={task.id}
-                        className="px-5 py-3.5 flex items-start gap-3 hover:bg-zinc-50 cursor-pointer transition-colors"
+                        className="px-5 py-3.5 flex items-start gap-3 hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
                         onClick={() => navigate(`/projects/${task.projectId}`)}
                       >
-                        <Circle size={14} className="text-zinc-300 mt-0.5 flex-shrink-0" />
+                        <Circle size={14} className="text-zinc-300 dark:text-zinc-600 mt-0.5 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-zinc-800 font-medium truncate">{task.title}</p>
+                          <p className="text-sm text-zinc-800 dark:text-zinc-100 font-medium truncate">{task.title}</p>
                           <div className="flex items-center gap-2 mt-1 flex-wrap">
                             {status && (
                               <span className="badge" style={{ backgroundColor: `${status.color}20`, color: status.color }}>
@@ -449,12 +451,12 @@ export function DashboardPage() {
                               {PRIORITY_LABEL[task.priority]}
                             </span>
                             {task.dueDate && (
-                              <span className={cn('text-xs font-medium', isOverdue ? 'text-red-500' : 'text-zinc-400')}>
+                              <span className={cn('text-xs font-medium', isOverdue ? 'text-red-500 dark:text-red-400' : 'text-zinc-400 dark:text-zinc-500')}>
                                 {isOverdue ? '⚠ ' : ''}{formatDate(task.dueDate)} 마감
                               </span>
                             )}
                             {task.blockedBy.length > 0 && (
-                              <span className="text-[10px] text-zinc-500 flex items-center gap-0.5">
+                              <span className="text-[10px] text-zinc-500 dark:text-zinc-400 flex items-center gap-0.5">
                                 <Link2 size={9} /> 선행 {task.blockedBy.length}개
                               </span>
                             )}
@@ -472,30 +474,30 @@ export function DashboardPage() {
 
             {/* Project Progress */}
             <div className="card">
-              <div className="px-5 py-4 border-b border-zinc-100 flex items-center justify-between">
-                <h2 className="text-sm font-bold text-zinc-800">프로젝트 현황</h2>
+              <div className="px-5 py-4 border-b border-zinc-100 dark:border-zinc-700 flex items-center justify-between">
+                <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-100">프로젝트 현황</h2>
                 <button
-                  className="text-xs text-zinc-900 font-medium hover:underline flex items-center gap-1"
+                  className="text-xs text-zinc-900 dark:text-zinc-100 font-medium hover:underline flex items-center gap-1"
                   onClick={() => navigate('/projects')}
                 >
                   전체 보기 <ArrowRight size={12} />
                 </button>
               </div>
-              <div className="divide-y divide-zinc-50">
+              <div className="divide-y divide-zinc-50 dark:divide-zinc-800">
                 {allProjects.map((p) => {
                   const pts      = allTasks.filter((t) => t.projectId === p.id);
                   const progress = getProjectProgress(pts);
                   return (
                     <div
                       key={p.id}
-                      className="px-5 py-3.5 flex items-center gap-4 hover:bg-zinc-50 cursor-pointer transition-colors"
+                      className="px-5 py-3.5 flex items-center gap-4 hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
                       onClick={() => navigate(`/projects/${p.id}`)}
                     >
                       <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: p.color }} />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1.5">
-                          <p className="text-sm font-medium text-zinc-800 truncate">{p.name}</p>
-                          <span className="text-xs text-zinc-500 ml-2 flex-shrink-0">{progress}%</span>
+                          <p className="text-sm font-medium text-zinc-800 dark:text-zinc-100 truncate">{p.name}</p>
+                          <span className="text-xs text-zinc-500 dark:text-zinc-400 ml-2 flex-shrink-0">{progress}%</span>
                         </div>
                         <ProgressBar value={progress} color={p.color} />
                       </div>
@@ -513,35 +515,35 @@ export function DashboardPage() {
             {/* Burndown Mini */}
             <div className="card p-4">
               <div className="flex items-center gap-2 mb-3">
-                <TrendingUp size={14} className="text-zinc-400" />
-                <h3 className="text-sm font-bold text-zinc-800">번다운 추이</h3>
-                <span className="ml-auto text-xs text-zinc-400">최근 14일</span>
+                <TrendingUp size={14} className="text-zinc-400 dark:text-zinc-500" />
+                <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-100">번다운 추이</h3>
+                <span className="ml-auto text-xs text-zinc-400 dark:text-zinc-500">최근 14일</span>
               </div>
               <BurndownMini data={burndownData} />
-              <div className="mt-2 flex items-center justify-between text-xs text-zinc-400">
-                <span>남은 업무: <span className="font-semibold text-zinc-700">{allTasks.filter(t => !isDone(t.statusId)).length}건</span></span>
-                <span>완료율: <span className="font-semibold text-zinc-700">
+              <div className="mt-2 flex items-center justify-between text-xs text-zinc-400 dark:text-zinc-500">
+                <span>남은 업무: <span className="font-semibold text-zinc-700 dark:text-zinc-200">{allTasks.filter(t => !isDone(t.statusId)).length}건</span></span>
+                <span>완료율: <span className="font-semibold text-zinc-700 dark:text-zinc-200">
                   {allTasks.length > 0 ? Math.round((allTasks.filter(t => isDone(t.statusId)).length / allTasks.length) * 100) : 0}%
                 </span></span>
               </div>
             </div>
 
-            {/* Upcoming Deadlines (7 days) */}
+            {/* Upcoming Deadlines */}
             <div className="card">
-              <div className="px-4 py-3.5 border-b border-zinc-100 flex items-center justify-between">
+              <div className="px-4 py-3.5 border-b border-zinc-100 dark:border-zinc-700 flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
-                  <CalendarDays size={13} className="text-zinc-500" />
-                  <h2 className="text-sm font-bold text-zinc-800">다가오는 마감</h2>
+                  <CalendarDays size={13} className="text-zinc-500 dark:text-zinc-400" />
+                  <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-100">다가오는 마감</h2>
                 </div>
                 {upcomingDeadlines.length > 0 && (
-                  <span className="text-xs font-semibold text-zinc-700 bg-zinc-100 px-2 py-0.5 rounded-full">
+                  <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-200 bg-zinc-100 dark:bg-zinc-700 px-2 py-0.5 rounded-full">
                     {upcomingDeadlines.length}건
                   </span>
                 )}
               </div>
               <div className="p-4 space-y-2">
                 {upcomingDeadlines.length === 0 ? (
-                  <p className="text-xs text-zinc-400 text-center py-4">7일 내 마감 업무가 없습니다. 🎉</p>
+                  <p className="text-xs text-zinc-400 dark:text-zinc-500 text-center py-4">7일 내 마감 업무가 없습니다. 🎉</p>
                 ) : (
                   upcomingDeadlines.map((t) => {
                     const isToday = t.dueDate === TODAY;
@@ -551,15 +553,15 @@ export function DashboardPage() {
                         className={cn(
                           'flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-colors',
                           isToday
-                            ? 'bg-red-50 border-red-100 hover:bg-red-100'
-                            : 'bg-zinc-50 border-zinc-100 hover:bg-zinc-100',
+                            ? 'bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/30'
+                            : 'bg-zinc-50 dark:bg-zinc-800 border-zinc-100 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700',
                         )}
                         onClick={() => navigate(`/projects/${t.projectId}`)}
                       >
-                        <AlertCircle size={13} className={isToday ? 'text-red-500 flex-shrink-0' : 'text-zinc-400 flex-shrink-0'} />
+                        <AlertCircle size={13} className={isToday ? 'text-red-500 flex-shrink-0' : 'text-zinc-400 dark:text-zinc-500 flex-shrink-0'} />
                         <div className="flex-1 min-w-0">
-                          <span className="text-xs text-zinc-700 font-medium truncate block">{t.title}</span>
-                          <span className={cn('text-[11px]', isToday ? 'text-red-500 font-semibold' : 'text-zinc-400')}>
+                          <span className="text-xs text-zinc-700 dark:text-zinc-200 font-medium truncate block">{t.title}</span>
+                          <span className={cn('text-[11px]', isToday ? 'text-red-500 dark:text-red-400 font-semibold' : 'text-zinc-400 dark:text-zinc-500')}>
                             {isToday ? '오늘 마감' : formatDate(t.dueDate!)}
                           </span>
                         </div>
@@ -572,10 +574,10 @@ export function DashboardPage() {
 
             {/* Activity feed */}
             <div className="card">
-              <div className="px-4 py-3.5 border-b border-zinc-100 flex items-center justify-between">
-                <h2 className="text-sm font-bold text-zinc-800">최근 활동</h2>
+              <div className="px-4 py-3.5 border-b border-zinc-100 dark:border-zinc-700 flex items-center justify-between">
+                <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-100">최근 활동</h2>
                 <button
-                  className="text-xs text-zinc-900 font-medium hover:underline"
+                  className="text-xs text-zinc-900 dark:text-zinc-100 font-medium hover:underline"
                   onClick={() => navigate('/timeline')}
                 >
                   더 보기
@@ -589,8 +591,8 @@ export function DashboardPage() {
                     <div key={e.id} className="flex gap-3">
                       <Avatar name={actor.name} size="xs" className="mt-0.5 flex-shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-xs text-zinc-700 leading-relaxed">{timelineMessage(e, actor.name)}</p>
-                        <p className="text-[11px] text-zinc-400 mt-0.5">{timeAgo(e.createdAt)}</p>
+                        <p className="text-xs text-zinc-700 dark:text-zinc-200 leading-relaxed">{timelineMessage(e, actor.name)}</p>
+                        <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-0.5">{timeAgo(e.createdAt)}</p>
                       </div>
                     </div>
                   );

@@ -41,11 +41,11 @@ function WorkLogSection({ task }: { task: Task }) {
 
   return (
     <div className="space-y-3">
-      <div className="rounded-xl bg-zinc-50 border border-zinc-100 p-4">
+      <div className="rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 p-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-semibold text-zinc-600">시간 현황</span>
-          <span className="text-xs text-zinc-500">
-            <span className="font-bold text-zinc-800">{task.loggedHours}h</span>
+          <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">시간 현황</span>
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">
+            <span className="font-bold text-zinc-800 dark:text-zinc-100">{task.loggedHours}h</span>
             {task.estimatedHours && <span className="text-zinc-400"> / {task.estimatedHours}h 예상</span>}
           </span>
         </div>
@@ -66,16 +66,16 @@ function WorkLogSection({ task }: { task: Task }) {
         )}
       </div>
 
-      <div className="rounded-xl border border-zinc-100 p-4 space-y-3">
-        <p className="text-xs font-semibold text-zinc-600">시간 기록 추가</p>
+      <div className="rounded-xl border border-zinc-100 dark:border-zinc-700 p-4 space-y-3">
+        <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">시간 기록 추가</p>
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-xs text-zinc-500 mb-1 block">소요 시간 (h) *</label>
+            <label className="text-xs text-zinc-500 dark:text-zinc-400 mb-1 block">소요 시간 (h) *</label>
             <input type="number" min={0.5} step={0.5} className="input text-sm"
               value={logHours} onChange={(e) => setLogHours(e.target.value)} placeholder="1.5" />
           </div>
           <div>
-            <label className="text-xs text-zinc-500 mb-1 block">날짜</label>
+            <label className="text-xs text-zinc-500 dark:text-zinc-400 mb-1 block">날짜</label>
             <input type="date" className="input text-sm"
               value={logDate} onChange={(e) => setLogDate(e.target.value)} />
           </div>
@@ -95,13 +95,13 @@ function WorkLogSection({ task }: { task: Task }) {
         <div className="space-y-1.5">
           <p className="text-xs font-semibold text-zinc-500 mb-2">기록 내역 ({workLogs.length}건)</p>
           {workLogs.map((wl) => (
-            <div key={wl.id} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-zinc-50 group">
-              <div className="w-6 h-6 rounded-full bg-zinc-100 flex items-center justify-center flex-shrink-0">
-                <Timer size={11} className="text-zinc-700" />
+            <div key={wl.id} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800 group">
+              <div className="w-6 h-6 rounded-full bg-zinc-100 dark:bg-zinc-700 flex items-center justify-center flex-shrink-0">
+                <Timer size={11} className="text-zinc-700 dark:text-zinc-300" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-zinc-800">{wl.hours}h</span>
+                  <span className="text-xs font-bold text-zinc-800 dark:text-zinc-100">{wl.hours}h</span>
                   <span className="text-xs text-zinc-400">{formatDate(wl.date, 'MM.dd')}</span>
                   {users[wl.userId] && <span className="text-xs text-zinc-400">{users[wl.userId].name}</span>}
                 </div>
@@ -197,9 +197,9 @@ function DependencySelector({
             const t = tasks.find((x) => x.id === id);
             if (!t) return null;
             return (
-              <div key={id} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200">
+              <div key={id} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
                 <Link2 size={12} className="text-zinc-400 flex-shrink-0" />
-                <span className="text-xs text-zinc-700 flex-1 truncate">{t.title}</span>
+                <span className="text-xs text-zinc-700 dark:text-zinc-200 flex-1 truncate">{t.title}</span>
                 <button type="button" onClick={() => onChange(blockedBy.filter((x) => x !== id))}
                   className="text-zinc-400 hover:text-red-500">
                   <X size={12} />
@@ -213,10 +213,10 @@ function DependencySelector({
         <input className="input text-sm" value={search} onChange={(e) => setSearch(e.target.value)}
           placeholder="선행 업무 검색..." />
         {search && (
-          <div className="mt-1 border border-zinc-200 rounded-xl overflow-hidden max-h-36 overflow-y-auto">
+          <div className="mt-1 border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden max-h-36 overflow-y-auto bg-white dark:bg-zinc-800">
             {filtered.slice(0, 8).map((t) => (
               <button key={t.id} type="button"
-                className="w-full text-left flex items-center gap-2 px-3 py-2 hover:bg-zinc-50 text-xs"
+                className="w-full text-left flex items-center gap-2 px-3 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-xs text-zinc-700 dark:text-zinc-200"
                 onClick={() => { onChange([...blockedBy, t.id]); setSearch(''); }}>
                 <Link2 size={11} className="text-zinc-400 flex-shrink-0" />
                 <span className="truncate">{t.title}</span>
@@ -239,8 +239,8 @@ function DependencySelector({
 function SectionHeader({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-2 mt-5 mb-3">
-      <span className="text-xs font-bold text-zinc-500 uppercase tracking-wide">{label}</span>
-      <div className="flex-1 h-px bg-zinc-100" />
+      <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">{label}</span>
+      <div className="flex-1 h-px bg-zinc-100 dark:bg-zinc-700" />
     </div>
   );
 }
@@ -363,7 +363,7 @@ export function TaskModal({ open, onClose, projectId, task, defaultStatusId }: T
 
         {/* ── 기본 정보 ── */}
         <div>
-          <label className="block text-xs font-semibold text-zinc-600 mb-1">업무명 *</label>
+          <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1">업무명 *</label>
           <input
             className="input text-sm font-medium"
             value={title}
@@ -375,7 +375,7 @@ export function TaskModal({ open, onClose, projectId, task, defaultStatusId }: T
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-zinc-600 mb-1">설명</label>
+          <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1">설명</label>
           <textarea
             className="input resize-none text-sm"
             rows={3}
@@ -387,24 +387,24 @@ export function TaskModal({ open, onClose, projectId, task, defaultStatusId }: T
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-zinc-600 mb-1">상태</label>
+            <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1">상태</label>
             <Select options={statusOptions} value={statusId} onChange={setStatusId} />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-zinc-600 mb-1">우선순위</label>
+            <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1">우선순위</label>
             <Select options={priorityOptions} value={priority} onChange={(v) => setPriority(v as Priority)} />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-zinc-600 mb-1">담당자</label>
+          <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1">담당자</label>
           <MultiSelect
             options={memberOptions}
             value={assigneeIds}
             onChange={setAssigneeIds}
             placeholder="담당자를 선택하세요"
             renderTag={(opt, onRemove) => (
-              <span key={opt.value} className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs bg-zinc-100">
+              <span key={opt.value} className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs bg-zinc-100 dark:bg-zinc-700 dark:text-zinc-200">
                 <Avatar name={opt.label} size="xs" />
                 {opt.label}
                 <button type="button" onClick={onRemove} className="hover:text-red-500"><X size={10} /></button>
@@ -415,7 +415,7 @@ export function TaskModal({ open, onClose, projectId, task, defaultStatusId }: T
 
         {tagOptions.length > 0 && (
           <div>
-            <label className="block text-xs font-semibold text-zinc-600 mb-1">
+            <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1">
               <span className="flex items-center gap-1"><Tag size={11} /> 태그</span>
             </label>
             <MultiSelect
@@ -440,19 +440,19 @@ export function TaskModal({ open, onClose, projectId, task, defaultStatusId }: T
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-zinc-600 mb-1">시작일</label>
+            <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1">시작일</label>
             <input type="date" className="input text-sm"
               value={startDate} onChange={(e) => setStartDate(e.target.value)} />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-zinc-600 mb-1">마감일</label>
+            <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1">마감일</label>
             <input type="date" className="input text-sm"
               value={dueDate} min={startDate} onChange={(e) => setDueDate(e.target.value)} />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-zinc-600 mb-1">
+          <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1">
             <span className="flex items-center gap-1"><Clock size={11} /> 예상 소요 시간 (h)</span>
           </label>
           <input type="number" min={0} step={0.5} className="input text-sm w-36"

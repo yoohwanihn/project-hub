@@ -53,7 +53,7 @@ export function PollCard({ poll }: Props) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-1">
             {poll.status === 'closed' ? (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-zinc-100 text-zinc-500">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-zinc-100 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400">
                 <CheckCircle2 size={10} /> 종료
               </span>
             ) : (
@@ -72,15 +72,15 @@ export function PollCard({ poll }: Props) {
                 </span>
               );
             })()}
-            <span className="text-[11px] text-zinc-400">
+            <span className="text-[11px] text-zinc-400 dark:text-zinc-500">
               {poll.isMultiple ? '복수 선택' : '단일 선택'}
             </span>
-            <span className="text-[11px] text-zinc-400">{totalVotes}표</span>
+            <span className="text-[11px] text-zinc-400 dark:text-zinc-500">{totalVotes}표</span>
           </div>
 
-          <h3 className="text-sm font-semibold text-zinc-800 leading-snug line-clamp-1">{poll.title}</h3>
+          <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100 leading-snug line-clamp-1">{poll.title}</h3>
           {poll.description && (
-            <p className="text-xs text-zinc-500 mt-0.5 line-clamp-1">{poll.description}</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 line-clamp-1">{poll.description}</p>
           )}
         </div>
 
@@ -88,7 +88,7 @@ export function PollCard({ poll }: Props) {
           <div className="flex items-center gap-1 shrink-0">
             <button
               onClick={() => closePoll(poll.id)}
-              className="text-xs px-2 py-1 rounded-md border border-zinc-200 text-zinc-500 hover:bg-zinc-50 transition-colors"
+              className="text-xs px-2 py-1 rounded-md border border-zinc-200 dark:border-zinc-600 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
             >
               수동 마감
             </button>
@@ -129,8 +129,8 @@ export function PollCard({ poll }: Props) {
                       'w-4 h-4 flex-shrink-0 border-2 flex items-center justify-center transition-colors',
                       poll.isMultiple ? 'rounded' : 'rounded-full',
                       isMyVote
-                        ? 'bg-zinc-800 border-zinc-800'
-                        : 'border-zinc-300 hover:border-zinc-500',
+                        ? 'bg-zinc-800 dark:bg-white border-zinc-800 dark:border-white'
+                        : 'border-zinc-300 dark:border-zinc-500 hover:border-zinc-500 dark:hover:border-zinc-300',
                     )}
                     aria-label={`${opt.label} 선택`}
                   >
@@ -142,35 +142,35 @@ export function PollCard({ poll }: Props) {
                   </button>
                 ) : (
                   <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center">
-                    {isMyVote && <CheckCircle2 size={14} className="text-zinc-700" />}
+                    {isMyVote && <CheckCircle2 size={14} className="text-zinc-700 dark:text-zinc-300" />}
                   </div>
                 )}
 
                 <span className={cn(
                   'text-xs flex-1',
-                  isMyVote ? 'font-semibold text-zinc-900' : 'text-zinc-700',
+                  isMyVote ? 'font-semibold text-zinc-900 dark:text-zinc-50' : 'text-zinc-700 dark:text-zinc-200',
                 )}>
                   {opt.label}
                 </span>
 
                 {showResults && (
-                  <span className="text-xs text-zinc-400 w-8 text-right shrink-0">{pct}%</span>
+                  <span className="text-xs text-zinc-400 dark:text-zinc-500 w-8 text-right shrink-0">{pct}%</span>
                 )}
               </div>
 
               {showResults ? (
-                <div className="ml-6 h-1.5 rounded-full bg-zinc-100 overflow-hidden">
+                <div className="ml-6 h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-700 overflow-hidden">
                   <div
                     className={cn(
                       'h-full rounded-full transition-all duration-500',
-                      isMyVote ? 'bg-zinc-800' : 'bg-zinc-300',
+                      isMyVote ? 'bg-zinc-800 dark:bg-white' : 'bg-zinc-300 dark:bg-zinc-500',
                     )}
                     style={{ width: `${pct}%` }}
                   />
                 </div>
               ) : (
                 !hasVoted && poll.status === 'active' && (
-                  <div className="ml-6 h-1.5 rounded-full bg-zinc-100" />
+                  <div className="ml-6 h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-700" />
                 )
               )}
             </div>
@@ -180,13 +180,13 @@ export function PollCard({ poll }: Props) {
 
       {/* 결과 비공개 안내 */}
       {!showResults && poll.status === 'active' && !hasVoted && (
-        <div className="flex items-center gap-1.5 text-xs text-zinc-400 pt-1">
+        <div className="flex items-center gap-1.5 text-xs text-zinc-400 dark:text-zinc-500 pt-1">
           <Lock size={11} />
           <span>투표 후 결과를 확인할 수 있습니다</span>
         </div>
       )}
       {!showResults && poll.status === 'active' && hasVoted && (
-        <div className="flex items-center gap-1.5 text-xs text-zinc-400 pt-1">
+        <div className="flex items-center gap-1.5 text-xs text-zinc-400 dark:text-zinc-500 pt-1">
           <BarChart2 size={11} />
           <span>투표에 참여했습니다. 마감 후 결과가 공개됩니다.</span>
         </div>

@@ -65,11 +65,11 @@ function TaskRow({ task, projectName, projectColor, statusLabel, statusColor, on
   }
 
   return (
-    <div className="flex items-center gap-3 px-4 py-2.5 hover:bg-zinc-50 transition-colors group rounded-lg">
+    <div className="flex items-center gap-3 px-4 py-2.5 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors group rounded-lg">
       {/* Done toggle */}
       <button
         onClick={(e) => { e.stopPropagation(); onDone(); }}
-        className="flex-shrink-0 text-zinc-300 hover:text-zinc-700 transition-colors"
+        className="flex-shrink-0 text-zinc-300 dark:text-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
       >
         {isDone
           ? <CheckCircle2 size={16} className="text-green-500" />
@@ -153,7 +153,7 @@ function GroupSection({ groupKey, tasks, projects, updateTask }: GroupSectionPro
         }
         {meta.icon}
         <span className={cn('text-xs font-semibold', meta.color)}>{meta.label}</span>
-        <span className="ml-1 text-[11px] text-zinc-400 bg-zinc-100 px-1.5 py-0.5 rounded-full font-medium">
+        <span className="ml-1 text-[11px] text-zinc-400 dark:text-zinc-500 bg-zinc-100 dark:bg-zinc-700 px-1.5 py-0.5 rounded-full font-medium">
           {tasks.length}
         </span>
       </button>
@@ -239,7 +239,7 @@ export function MyTasksPage() {
 
       <div className="flex-1 overflow-y-auto">
         {/* Summary bar */}
-        <div className="px-6 py-4 border-b border-zinc-100 flex items-center gap-6 flex-wrap">
+        <div className="px-6 py-4 border-b border-zinc-100 dark:border-zinc-700 flex items-center gap-6 flex-wrap">
           {(Object.entries(PRIORITY_LABEL) as [string, { label: string; color: string }][]).map(([key, val]) => {
             const cnt = activeTasks.filter((t) => t.priority === key).length;
             return (
@@ -247,15 +247,15 @@ export function MyTasksPage() {
                 <span className={cn('text-[11px] px-1.5 py-0.5 rounded font-semibold', val.color)}>
                   {val.label}
                 </span>
-                <span className="text-xs text-zinc-500 font-medium">{cnt}개</span>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">{cnt}개</span>
               </div>
             );
           })}
           <div className="ml-auto flex items-center gap-2">
-            <span className="text-xs text-zinc-400">완료 {doneTasks.length}개</span>
+            <span className="text-xs text-zinc-400 dark:text-zinc-500">완료 {doneTasks.length}개</span>
             <button
               onClick={() => setShowDone((v) => !v)}
-              className="text-xs text-zinc-900 hover:underline"
+              className="text-xs text-zinc-900 dark:text-zinc-100 hover:underline"
             >
               {showDone ? '숨기기' : '보기'}
             </button>
@@ -265,11 +265,11 @@ export function MyTasksPage() {
         <div className="py-3 px-2">
           {totalActive === 0 && doneTasks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="w-16 h-16 rounded-2xl bg-zinc-100 flex items-center justify-center mb-4">
-                <CheckCircle2 size={28} className="text-zinc-300" />
+              <div className="w-16 h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-4">
+                <CheckCircle2 size={28} className="text-zinc-300 dark:text-zinc-600" />
               </div>
-              <p className="text-sm font-semibold text-zinc-600 mb-1">할 일이 없습니다</p>
-              <p className="text-xs text-zinc-400">담당자로 지정된 업무가 표시됩니다.</p>
+              <p className="text-sm font-semibold text-zinc-600 dark:text-zinc-300 mb-1">할 일이 없습니다</p>
+              <p className="text-xs text-zinc-400 dark:text-zinc-500">담당자로 지정된 업무가 표시됩니다.</p>
             </div>
           ) : (
             <>
@@ -289,15 +289,15 @@ export function MyTasksPage() {
 
               {/* Done section */}
               {showDone && doneTasks.length > 0 && (
-                <div className="mt-4 border-t border-zinc-100 pt-3">
+                <div className="mt-4 border-t border-zinc-100 dark:border-zinc-700 pt-3">
                   <div className="flex items-center gap-2 px-4 py-2">
                     <CheckCircle2 size={14} className="text-green-500" />
-                    <span className="text-xs font-semibold text-zinc-500">완료된 업무</span>
+                    <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">완료된 업무</span>
                     <span className="text-[11px] text-zinc-400 bg-zinc-100 px-1.5 py-0.5 rounded-full font-medium">
                       {doneTasks.length}
                     </span>
                   </div>
-                  <div className="ml-4 border-l border-zinc-100 pl-2">
+                  <div className="ml-4 border-l border-zinc-100 dark:border-zinc-700 pl-2">
                     {doneTasks.map((task) => {
                       const proj   = projects[task.projectId];
                       const status = proj?.workflow.find((w) => w.id === task.statusId);

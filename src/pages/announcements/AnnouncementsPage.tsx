@@ -37,13 +37,13 @@ function AnnouncementModal({ open, onClose, onSubmit, initial }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-modal w-full max-w-lg mx-4 flex flex-col max-h-[80vh]">
+      <div className="relative bg-white dark:bg-zinc-900 rounded-2xl shadow-modal w-full max-w-lg mx-4 flex flex-col max-h-[80vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
-          <h2 className="text-base font-bold text-zinc-900">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-700">
+          <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-50">
             {isEdit ? '공지 편집' : '새 공지사항'}
           </h2>
-          <button className="p-1.5 rounded-lg hover:bg-zinc-100 text-zinc-400" onClick={onClose}>
+          <button className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400" onClick={onClose}>
             <X size={16} />
           </button>
         </div>
@@ -51,7 +51,7 @@ function AnnouncementModal({ open, onClose, onSubmit, initial }: {
         {/* Body */}
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-zinc-600 mb-1.5">제목 *</label>
+            <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1.5">제목 *</label>
             <input
               className="input w-full"
               placeholder="공지사항 제목을 입력하세요"
@@ -61,7 +61,7 @@ function AnnouncementModal({ open, onClose, onSubmit, initial }: {
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-zinc-600 mb-1.5">내용 *</label>
+            <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1.5">내용 *</label>
             <textarea
               className="input w-full resize-none leading-relaxed"
               rows={7}
@@ -74,18 +74,18 @@ function AnnouncementModal({ open, onClose, onSubmit, initial }: {
             <div
               className={cn(
                 'w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors',
-                isPinned ? 'bg-zinc-900 border-zinc-900' : 'border-zinc-300 hover:border-zinc-500',
+                isPinned ? 'bg-zinc-900 dark:bg-white border-zinc-900 dark:border-white' : 'border-zinc-300 dark:border-zinc-500 hover:border-zinc-500',
               )}
               onClick={() => setIsPinned((v) => !v)}
             >
-              {isPinned && <Check size={11} className="text-white" strokeWidth={3} />}
+              {isPinned && <Check size={11} className="text-white dark:text-zinc-900" strokeWidth={3} />}
             </div>
-            <span className="text-sm text-zinc-700">상단 고정</span>
+            <span className="text-sm text-zinc-700 dark:text-zinc-200">상단 고정</span>
           </label>
         </div>
 
         {/* Footer */}
-        <div className="flex gap-2 justify-end px-6 py-4 border-t border-zinc-100 bg-zinc-50 rounded-b-2xl">
+        <div className="flex gap-2 justify-end px-6 py-4 border-t border-zinc-100 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 rounded-b-2xl">
           <button className="btn-secondary" onClick={onClose}>취소</button>
           <button
             className="btn-primary"
@@ -115,19 +115,19 @@ function AnnouncementCard({
   return (
     <div className={cn(
       'card overflow-hidden transition-all',
-      ann.isPinned && 'ring-2 ring-zinc-200',
+      ann.isPinned && 'ring-2 ring-zinc-200 dark:ring-zinc-600',
     )}>
       <div className="px-5 py-4">
         {/* Top row */}
         <div className="flex items-start gap-3">
           {ann.isPinned && (
-            <span className="mt-0.5 flex-shrink-0 px-2 py-0.5 bg-zinc-100 text-zinc-900 text-[10px] font-bold rounded-full uppercase tracking-wide">
+            <span className="mt-0.5 flex-shrink-0 px-2 py-0.5 bg-zinc-100 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-50 text-[10px] font-bold rounded-full uppercase tracking-wide">
               고정
             </span>
           )}
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-bold text-zinc-900 leading-snug">{ann.title}</h3>
-            <div className="flex items-center gap-3 mt-1.5 text-xs text-zinc-400">
+            <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-50 leading-snug">{ann.title}</h3>
+            <div className="flex items-center gap-3 mt-1.5 text-xs text-zinc-400 dark:text-zinc-500">
               {author && (
                 <div className="flex items-center gap-1.5">
                   <Avatar name={author.name} size="xs" />
@@ -141,14 +141,14 @@ function AnnouncementCard({
           {/* Actions */}
           <div className="flex items-center gap-1 flex-shrink-0">
             <button
-              className="p-1.5 rounded-lg hover:bg-zinc-100 text-zinc-400 hover:text-zinc-900 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 transition-colors"
               title={ann.isPinned ? '고정 해제' : '상단 고정'}
               onClick={onTogglePin}
             >
               {ann.isPinned ? <PinOff size={14} /> : <Pin size={14} />}
             </button>
             <button
-              className="p-1.5 rounded-lg hover:bg-zinc-100 text-zinc-400 hover:text-zinc-700 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
               onClick={onEdit}
             >
               <Pencil size={14} />
@@ -160,7 +160,7 @@ function AnnouncementCard({
               <Trash2 size={14} />
             </button>
             <button
-              className="p-1.5 rounded-lg hover:bg-zinc-100 text-zinc-400 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-400 transition-colors"
               onClick={() => setExpanded((v) => !v)}
             >
               {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -171,14 +171,14 @@ function AnnouncementCard({
         {/* Preview / Expanded content */}
         {!expanded ? (
           <p
-            className="text-sm text-zinc-600 mt-3 leading-relaxed line-clamp-2 cursor-pointer"
+            className="text-sm text-zinc-600 dark:text-zinc-300 mt-3 leading-relaxed line-clamp-2 cursor-pointer"
             onClick={() => setExpanded(true)}
           >
             {ann.content}
           </p>
         ) : (
-          <div className="mt-3 pt-3 border-t border-zinc-100">
-            <p className="text-sm text-zinc-700 leading-relaxed whitespace-pre-wrap">{ann.content}</p>
+          <div className="mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-700">
+            <p className="text-sm text-zinc-700 dark:text-zinc-200 leading-relaxed whitespace-pre-wrap">{ann.content}</p>
           </div>
         )}
       </div>
@@ -280,7 +280,7 @@ export function AnnouncementsPage() {
           </div>
           {query && (
             <span className="text-xs text-zinc-400">
-              <span className="font-semibold text-zinc-700">{filtered.length}</span>개 검색됨
+              <span className="font-semibold text-zinc-700 dark:text-zinc-200">{filtered.length}</span>개 검색됨
             </span>
           )}
         </div>
@@ -288,7 +288,7 @@ export function AnnouncementsPage() {
         {/* Empty state */}
         {filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <Megaphone size={36} className="text-zinc-200" />
+            <Megaphone size={36} className="text-zinc-200 dark:text-zinc-700" />
             <p className="text-sm text-zinc-400">
               {query ? '검색 결과가 없습니다.' : '공지사항이 없습니다.'}
             </p>
@@ -304,8 +304,8 @@ export function AnnouncementsPage() {
         {pinned.length > 0 && (
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-3">
-              <Pin size={13} className="text-zinc-700" />
-              <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">고정된 공지</h2>
+              <Pin size={13} className="text-zinc-700 dark:text-zinc-300" />
+              <h2 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">고정된 공지</h2>
             </div>
             <div className="space-y-3">
               {pinned.map((ann) => (
@@ -328,7 +328,7 @@ export function AnnouncementsPage() {
             {pinned.length > 0 && (
               <div className="flex items-center gap-2 mb-3">
                 <Megaphone size={13} className="text-zinc-400" />
-                <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">전체 공지</h2>
+                <h2 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">전체 공지</h2>
               </div>
             )}
             <div className="space-y-3">
